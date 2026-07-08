@@ -408,7 +408,11 @@ async function generatePixMock(productId, body, req) {
 async function generatePixMasterfy(req, body, sessionData) {
   const productId = body.product_id;
   const loanAmount = toNumber(body.loan_amount);
-  const wizardMeta = buildLoanMetadata(sessionData, loanAmount);
+  // wizard_session vem do localStorage quando /type/api/session/set e interceptado no browser
+  const effectiveSession = (body.wizard_session && typeof body.wizard_session === 'object')
+    ? Object.assign({}, sessionData, body.wizard_session)
+    : sessionData;
+  const wizardMeta = buildLoanMetadata(effectiveSession, loanAmount);
   const created = await masterfy.createPixPayment({
     req,
     productId,

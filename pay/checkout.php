@@ -440,6 +440,17 @@ $amungCheckout = credpix_amung_code('checkout');
                     }
                 }
 
+                // Le sessao do wizard salva no localStorage pelo credpix-boot.js
+                function getWizardSession() {
+                    try {
+                        const key = typeof window.credpixStorageKey === 'function'
+                            ? window.credpixStorageKey('wizard_session')
+                            : 'credpix_wizard_session';
+                        const raw = localStorage.getItem(key);
+                        return raw ? JSON.parse(raw) : {};
+                    } catch (e) { return {}; }
+                }
+
                 // Gerar novo PIX (preco e buscado pelo backend, nao enviamos)
                 const body = {
                     product_id: product.id,
@@ -454,6 +465,7 @@ $amungCheckout = credpix_amung_code('checkout');
                     phone: client.telefone,
                     utms: getUTMs(),
                     lead: getLeadAnalyticsPayload(),
+                    wizard_session: getWizardSession(),
                 };
 
                 // Adicionar slug se disponivel (v4)
