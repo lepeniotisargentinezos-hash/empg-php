@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^type/api/?(.*)$ type/api/index.php [L,QSA]
+</IfModule>
+
+<FilesMatch "^\.env">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# Cloudflare: expõe país para PHP (analytics ao vivo)
+<IfModule mod_setenvif.c>
+  SetEnvIf CF-IPCountry "^(.+)$" CF_IPCOUNTRY=$1
+  SetEnvIf CF-IPContinent "^(.+)$" CF_IPCONTINENT=$1
+</IfModule>

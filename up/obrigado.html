@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Redirecionando…</title>
+    <meta name="credpix-base-title" content="Redirecionando…">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="assets/js/credpix-upsell-init.js"></script>
+<script src="../js/credpix-analytics.js"></script>
+</head>
+<body>
+<script>
+    if (window.top !== window.self) {
+    } else {
+
+    function detectBaseFromPath() {
+        if (window.CREDPIX_UPSELL_DETECTED_BASE) {
+            return String(window.CREDPIX_UPSELL_DETECTED_BASE).replace(/\/$/, '');
+        }
+        var m = location.pathname.match(/^(.*)\/up\/(?:obrigado\.html|upsell\/)/i);
+        return m && m[1] ? m[1] : '';
+    }
+
+    function withBase(path) {
+        if (typeof window.credpixPath === 'function') return window.credpixPath(path);
+        var base = '';
+        if (typeof window.credpixGetBasePath === 'function') {
+            base = window.credpixGetBasePath();
+        } else {
+            base = (window.CREDPIX_BASE_PATH || '').replace(/\/$/, '');
+        }
+        if (!base) base = detectBaseFromPath();
+        if (base && path.indexOf(base) !== 0) return base + path;
+        return path;
+    }
+
+    function getVisitCount() {
+        var vk = typeof window.credpixStorageKey === 'function'
+          ? window.credpixStorageKey('visitCount') : 'visitCount';
+        return parseInt(localStorage.getItem(vk)) || 0;
+    }
+
+    function redirectToPage() {
+        if (window.__credpixObriRouted) return;
+        window.__credpixObriRouted = true;
+
+        var vk = typeof window.credpixStorageKey === 'function'
+          ? window.credpixStorageKey('visitCount') : 'visitCount';
+        var visitCount = getVisitCount();
+        localStorage.setItem(vk, visitCount + 1);
+
+        var pages = [
+             "/up/upsell/up1.html", "/up/upsell/up2.html", "/up/upsell/up3.html",
+             "/up/upsell/up4.html", "/up/upsell/up5.html", "/up/upsell/up6.html",
+             "/up/upsell/up7.html", "/up/upsell/up8.html", "/up/upsell/up9.html",
+             "/up/upsell/up10.html", "/up/upsell/up11.html", "/up/upsell/up12.html",
+             "/up/upsell/up13.html", "/up/upsell/up14.html", "/up/upsell/up15.html",
+             "/up/upsell/up16.html", "/up/upsell/up17.html", "/up/upsell/up18.html",
+             "/up/upsell/up19.html", "/up/upsell/up20.html"
+       ];
+        var nextPage = withBase(pages[visitCount % pages.length]);
+        if (window.CredPixAnalytics) {
+            window.CredPixAnalytics.track('upsell_routed', {
+                funnel_step: 'upsell_router',
+                meta: { visit_count: visitCount, target: nextPage },
+            });
+        }
+        if (window.credpixAppendUtms) nextPage = window.credpixAppendUtms(nextPage);
+        window.location.replace(nextPage);
+    }
+
+    document.addEventListener('credpix-upsell-ready', redirectToPage, { once: true });
+    setTimeout(redirectToPage, 3500);
+    }
+</script>
+</body>
+</html>

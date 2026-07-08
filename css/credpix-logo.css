@@ -1,0 +1,94 @@
+.credpix-logo-img {
+  display: block;
+  height: 36px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+.credpix-logo-img--header {
+  height: 38px;
+  max-width: 150px;
+}
+
+.credpix-logo-img--sidebar {
+  height: 32px;
+  max-width: 130px;
+}
+
+.credpix-logo-img--footer {
+  height: 34px;
+  max-width: 140px;
+}
+
+.credpix-logo-img--wizard {
+  height: 44px;
+  max-width: 200px;
+  width: auto;
+}
+
+.brand-header .brand-logo {
+  min-width: 0;
+}
+
+.brand-logo {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.brand-logo .logo-text {
+  display: none !important;
+}
+
+.brand-logo > img.credpix-logo-img {
+  display: block;
+}
+
+.brand-header .brand-logo img[data-credpix-logo] {
+  display: block !important;
+  min-width: 100px;
+  min-height: 32px;
+}
+
+.brand-logo .logo-mark {
+  display: none !important;
+}
+
+.credpix-logo-img--checkout {
+  height: 28px;
+  max-width: 120px;
+}
+
+.credpix-logo-img--upsell {
+  height: auto;
+  max-height: 40px;
+  width: auto;
+  max-width: 140px;
+}
+
+.credpix-logo-img--admin {
+  height: 32px;
+  max-width: 130px;
+  margin-bottom: 8px;
+}
+
+.a-logo .credpix-logo-img,
+.a-footer-brand .credpix-logo-img {
+  flex-shrink: 0;
+}
+
+.sidebar-header .logo .credpix-logo-img {
+  max-width: 100%;
+}
+
+.admin-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-brand-logo img {
+  height: 28px;
+  width: auto;
+  max-width: 120px;
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#1351b4" />
+    <meta name="description" content="Solicite seu empréstimo CredPix em 29 etapas guiadas. Aprovação rápida com primeira parcela após 180 dias." />
+    <title>CredPix · Wizard</title>
+    <meta name="credpix-base-title" content="CredPix · Wizard" />
+    <script>
+      window.CREDPIX_BASE_PAGE_TITLE = 'CredPix · Wizard';
+      (function () {
+        try {
+          var p = new URLSearchParams(location.search);
+          var s = (p.get('src') || '').trim();
+          if (s) window.CREDPIX_SRC_FROM_URL = s;
+        } catch (e) {}
+      })();
+    </script>
+    <script src="../../js/credpix-utm.php"></script>
+    <script src="../../config/site-base.php"></script>
+    <script src="../../config/amung-counter.php?slot=funil"></script>
+    <script src="../../api/cpf-token.php"></script>
+    <script src="../../js/credpix-boot.js"></script>
+    <script src="../../js/credpix-analytics.js"></script>
+    <script src="../../js/credpix-view-counter.php"></script>
+    <script>
+      (function(){
+        window.getAxtr = function () { return ''; };
+        window.appendAxtr = function (url) { return url; };
+        var _fetch = window.fetch;
+        window.fetch = function() {
+          return _fetch.apply(this, arguments).then(function(res) {
+            var url = typeof arguments[0] === 'string' ? arguments[0] : (arguments[0] && arguments[0].url) || '';
+            if (url.indexOf('/type/api/cpf') === -1 && url.indexOf('/cpf') === -1) return res;
+            return res.clone().json().then(function(data) {
+              if (data && data.success && data.data && data.data.nome) {
+                var cpf = (data.data.cpf_formatado || '').replace(/\D/g, '');
+                var nasc = data.data.nascimento || '';
+                var sexo = data.data.sexo || '';
+                var age = null;
+                try {
+                  if (window.credpixCalcAgeFromNascimento) {
+                    age = window.credpixCalcAgeFromNascimento(nasc);
+                  }
+                } catch (eAge) {}
+                try {
+                  var leadKey = window.credpixStorageKey
+                    ? window.credpixStorageKey('lead')
+                    : 'credpix_lead';
+                  localStorage.setItem(leadKey, JSON.stringify({
+                    nome: data.data.nome,
+                    cpf_digits: cpf,
+                    nascimento: nasc,
+                    sexo: sexo,
+                    age: age,
+                    gender: sexo ? String(sexo).trim().toUpperCase().charAt(0) : null
+                  }));
+                } catch (e) {}
+                /* lead_profile analytics: credpix-boot.js (CPF direto) ou wizard-api.php (servidor) */
+              }
+            }).catch(function() {}).then(function() { return res; });
+          });
+        };
+      })();
+    </script>
+    <script>
+      (function () {
+        var FALLBACK_SRC = '../../images/credpix-logo.png';
+        function logoSrc() {
+          if (typeof window.credpixPath === 'function') {
+            return window.credpixPath('/images/credpix-logo.png');
+          }
+          var base = window.credpixGetBasePath ? window.credpixGetBasePath() : (window.CREDPIX_BASE_PATH || '');
+          return (base || '') + '/images/credpix-logo.png';
+        }
+        function applyLogo(container) {
+          if (!container) return;
+          var src = logoSrc();
+          var img = container.querySelector('img[data-credpix-logo], img.credpix-logo-img');
+          if (!img) {
+            img = document.createElement('img');
+            img.setAttribute('data-credpix-logo', '');
+            img.className = 'credpix-logo-img credpix-logo-img--wizard';
+            img.alt = 'CredPix';
+            container.insertBefore(img, container.firstChild);
+          }
+          if (!img.getAttribute('src') || img.getAttribute('src') !== src) {
+            img.setAttribute('src', src);
+          }
+          img.onerror = function () {
+            if (img.getAttribute('src') !== FALLBACK_SRC) {
+              img.setAttribute('src', FALLBACK_SRC);
+            }
+          };
+          container.querySelectorAll('.logo-text, .logo-mark').forEach(function (el) {
+            el.remove();
+          });
+        }
+        function fixWizardLogo() {
+          document.querySelectorAll('.brand-logo').forEach(applyLogo);
+        }
+        fixWizardLogo();
+        new MutationObserver(fixWizardLogo).observe(document.documentElement, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['src', 'class'],
+        });
+        var ticks = 0;
+        var timer = setInterval(function () {
+          fixWizardLogo();
+          ticks += 1;
+          if (ticks > 30) clearInterval(timer);
+        }, 500);
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="../../images/credpix-logo.png">
+    <script type="module" crossorigin src="./assets/index-2hrpPW1B-utf8.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/solid-CUBEefxS.js">
+    <link rel="modulepreload" crossorigin href="./assets/ui-SkOPAPnM.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-CvkAEMz2.css">
+    <link rel="stylesheet" href="../../css/credpix-logo.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

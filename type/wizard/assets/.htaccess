@@ -1,0 +1,4 @@
+<IfModule mod_mime.c>
+  AddCharset UTF-8 .js
+  AddCharset UTF-8 .css
+</IfModule>

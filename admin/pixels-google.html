@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../config/site-base.js"></script>
+  <script src="../js/credpix-boot.js"></script>
+  <title>Pixels Google</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f0f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 32px 16px;
+      color: #1a1a1a;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      max-width: 560px;
+      width: 100%;
+      padding: 28px 24px 24px;
+    }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .intro { font-size: 14px; line-height: 1.55; color: #444; margin-bottom: 24px; }
+    .intro code { font-size: 12px; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin-bottom: 10px;
+    }
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,.2); }
+    .btn-secondary {
+      width: 100%;
+      padding: 11px;
+      background: #f5f5f5;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .btn-secondary:hover { background: #ebebeb; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; min-height: 8px; }
+    .pixel-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; min-height: 8px; }
+    .pixel-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    .pixel-item-body { flex: 1; min-width: 0; }
+    .pixel-desc {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 4px;
+    }
+    .pixel-desc.muted { font-weight: 500; color: #a8a29e; font-style: italic; font-size: 12px; }
+    .pixel-code {
+      display: block;
+      font-family: ui-monospace, monospace;
+      color: #444;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+    .pixel-item button {
+      border: none;
+      background: none;
+      color: #dc2626;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0 2px;
+      flex-shrink: 0;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: ui-monospace, monospace;
+      max-width: 100%;
+      word-break: break-all;
+    }
+    .tag button {
+      border: none;
+      background: none;
+      color: #dc2626;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+    .divider { border: none; border-top: 1px solid #eee; margin: 20px 0; }
+    .btn-save {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a1a;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-save:hover { filter: brightness(1.05); }
+    .btn-save:disabled { opacity: 0.6; cursor: wait; }
+    .warn {
+      margin-top: 16px;
+      padding: 12px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.45;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 13px;
+      text-align: center;
+      min-height: 20px;
+    }
+    .status.ok { color: #059669; }
+    .status.err { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Pixels Google</h1>
+    <p class="intro">
+      Adicione conversões Google Ads (ID + rótulo) e GA4 opcional.
+      <strong>Salvar no site</strong> grava em <code>config/google-pixels.json</code> até você alterar de novo.
+      Se o arquivo não existir, o checkout usa os pixels padrão embutidos.
+      <br><br>
+      Os pixels disparam em <strong>todos os checkouts PIX</strong> (pagamento inicial e upsells)
+      ao confirmar o pagamento.
+    </p>
+
+    <p class="section-label">CONVERSÕES GOOGLE ADS</p>
+    <label for="awId">ID da conversão</label>
+    <input id="awId" type="text" placeholder="AW-18028205675 ou só o número" autocomplete="off">
+    <label for="awLabel">Rótulo da conversão</label>
+    <input id="awLabel" type="text" placeholder="Bm9ECLyb-lscEOuswpRD" autocomplete="off">
+    <label for="awDesc">Descrição <span style="font-weight:400;color:#888">(opcional — ex: 1315, conta X)</span></label>
+    <input id="awDesc" type="text" placeholder="1315" autocomplete="off" maxlength="80">
+    <button type="button" class="btn-secondary" id="btnAddAds">Adicionar à lista</button>
+    <div class="pixel-list" id="adsTags"></div>
+
+    <hr class="divider">
+
+    <p class="section-label">GOOGLE ANALYTICS 4 (OPCIONAL)</p>
+    <label for="ga4Id">Measurement ID</label>
+    <input id="ga4Id" type="text" placeholder="G-XXXXXXXXXX" autocomplete="off">
+    <button type="button" class="btn-secondary" id="btnAddGa4">Adicionar GA4 à lista</button>
+    <div class="tags" id="ga4Tags"></div>
+
+    <button type="button" class="btn-save" id="btnSave">Salvar no site</button>
+    <p class="status" id="status" aria-live="polite"></p>
+
+    <p class="warn">
+      Use o mesmo token do painel de analytics (faça login em <code>/admin/analytics.html</code> nesta aba antes de salvar).
+      Proteja <code>/admin/</code> com Basic Auth no servidor.
+    </p>
+  </div>
+
+  <script>
+    const state = { googleAds: [], ga4: [] };
+
+    function parseAwIdFixed(raw) {
+      let s = String(raw || '').trim();
+      if (!s) return '';
+      if (s.includes('/')) {
+        const p = s.split('/');
+        return p[0].startsWith('AW-') ? p[0] : 'AW-' + p[0].replace(/^AW-?/i, '');
+      }
+      return s.startsWith('AW-') ? s : 'AW-' + s.replace(/\D/g, '');
+    }
+
+    function parseLabel(raw) {
+      const s = String(raw || '').trim();
+      if (!s) return '';
+      if (s.includes('/')) return s.split('/').pop();
+      return s;
+    }
+
+    function parseGa4(raw) {
+      let s = String(raw || '').trim().toUpperCase();
+      if (!s) return '';
+      return s.startsWith('G-') ? s : 'G-' + s.replace(/^G-?/i, '');
+    }
+
+    function renderTags() {
+      const adsEl = document.getElementById('adsTags');
+      const ga4El = document.getElementById('ga4Tags');
+      adsEl.innerHTML = '';
+      ga4El.innerHTML = '';
+
+      if (!state.googleAds.length) {
+        adsEl.innerHTML = '<p style="font-size:13px;color:#888;margin:0">Nenhuma conversão na lista.</p>';
+      }
+
+      state.googleAds.forEach((row, i) => {
+        const item = document.createElement('div');
+        item.className = 'pixel-item';
+
+        const body = document.createElement('div');
+        body.className = 'pixel-item-body';
+
+        const desc = document.createElement('span');
+        desc.className = row.description ? 'pixel-desc' : 'pixel-desc muted';
+        desc.textContent = row.description || 'Sem descrição';
+
+        const code = document.createElement('span');
+        code.className = 'pixel-code';
+        code.textContent = row.id + '/' + row.label;
+
+        body.appendChild(desc);
+        body.appendChild(code);
+
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.title = 'Remover';
+        x.onclick = () => { state.googleAds.splice(i, 1); renderTags(); };
+
+        item.appendChild(body);
+        item.appendChild(x);
+        adsEl.appendChild(item);
+      });
+
+      state.ga4.forEach((id, i) => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = id;
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.onclick = () => { state.ga4.splice(i, 1); renderTags(); };
+        tag.appendChild(x);
+        ga4El.appendChild(tag);
+      });
+    }
+
+    function setStatus(msg, ok) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    var TOKEN_KEY = 'credpix_analytics_token';
+
+    function authHeaders() {
+      var t = sessionStorage.getItem(TOKEN_KEY) || '';
+      var h = { 'Content-Type': 'application/json' };
+      if (t) h['X-Analytics-Token'] = t;
+      return h;
+    }
+
+    function apiUrl() {
+      var path = '/api/google-pixels.php';
+      if (typeof window.credpixPath === 'function') return window.credpixPath(path);
+      var base = '';
+      if (typeof window.credpixGetBasePath === 'function') {
+        base = window.credpixGetBasePath();
+      } else {
+        base = (window.CREDPIX_BASE_PATH || '').replace(/\/$/, '');
+      }
+      return base ? base + path : path;
+    }
+
+    async function load() {
+      try {
+        const res = await fetch(apiUrl());
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Falha ao carregar');
+        state.googleAds = (data.googleAds || []).map(function (row) {
+          return {
+            id: row.id,
+            label: row.label,
+            description: row.description ? String(row.description).trim() : '',
+          };
+        });
+        state.ga4 = data.ga4 || [];
+        renderTags();
+        if (data.fromDefaults) {
+          setStatus('Usando pixels padrão (nenhum arquivo salvo ainda).', true);
+        } else {
+          setStatus('Configuração carregada.', true);
+        }
+      } catch (e) {
+        setStatus('Erro ao carregar configuração.', false);
+      }
+    }
+
+    document.getElementById('btnAddAds').onclick = () => {
+      const id = parseAwIdFixed(document.getElementById('awId').value);
+      const label = parseLabel(document.getElementById('awLabel').value);
+      const description = String(document.getElementById('awDesc').value || '').trim().slice(0, 80);
+      if (!id || !label) {
+        setStatus('Informe ID e rótulo da conversão.', false);
+        return;
+      }
+      const key = id + '/' + label;
+      if (state.googleAds.some(r => r.id + '/' + r.label === key)) {
+        setStatus('Conversão já está na lista.', false);
+        return;
+      }
+      const row = { id, label };
+      if (description) row.description = description;
+      state.googleAds.push(row);
+      document.getElementById('awId').value = '';
+      document.getElementById('awLabel').value = '';
+      document.getElementById('awDesc').value = '';
+      renderTags();
+      setStatus('', true);
+    };
+
+    document.getElementById('btnAddGa4').onclick = () => {
+      const id = parseGa4(document.getElementById('ga4Id').value);
+      if (!id) {
+        setStatus('Informe um Measurement ID válido.', false);
+        return;
+      }
+      if (state.ga4.includes(id)) {
+        setStatus('GA4 já está na lista.', false);
+        return;
+      }
+      state.ga4.push(id);
+      document.getElementById('ga4Id').value = '';
+      renderTags();
+      setStatus('', true);
+    };
+
+    document.getElementById('btnSave').onclick = async () => {
+      const btn = document.getElementById('btnSave');
+      btn.disabled = true;
+      setStatus('Salvando...', true);
+      try {
+        const res = await fetch(apiUrl(), {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(state),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Falha ao salvar');
+        state.googleAds = (data.config.googleAds || []).map(function (row) {
+          return {
+            id: row.id,
+            label: row.label,
+            description: row.description ? String(row.description).trim() : '',
+          };
+        });
+        state.ga4 = data.config.ga4;
+        renderTags();
+        setStatus('Salvo com sucesso. Pixels disparam em todos os checkouts PIX.', true);
+      } catch (e) {
+        setStatus(e.message || 'Erro ao salvar.', false);
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    load();
+  </script>
+</body>
+</html>

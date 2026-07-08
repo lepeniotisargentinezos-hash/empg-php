@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CredPix — Diagnóstico Analytics</title>
+  <script src="../js/credpix-boot.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --text: #e8eaef;
+      --muted: #9ca3af;
+      --accent: #818cf8;
+      --ok: #4ade80;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --border: rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    input[type=password] {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f1117;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    button, .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    button.danger { background: rgba(248,113,113,0.2); color: #fca5a5; border: 1px solid rgba(248,113,113,0.35); }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .err { color: var(--bad); font-size: 13px; margin-top: 10px; }
+    .tip {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+    }
+    .tip.ok { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.08); }
+    .tip.warn { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+    .tip.critical { border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.1); }
+    pre {
+      background: #0a0c10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+      font-size: 12px;
+      max-height: 420px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+    a { color: var(--accent); }
+    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .stat { background: #0f1117; border-radius: 8px; padding: 12px; border: 1px solid var(--border); }
+    .stat b { display: block; font-size: 18px; margin-top: 4px; }
+    .stat span { font-size: 12px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Diagnóstico do Analytics</h1>
+    <p class="sub">Verifica volume de logs, PHP e token <strong>sem apagar dados</strong>. Use quando o dashboard não carrega.</p>
+
+    <div class="card">
+      <label for="tokenInput">Token (mesmo do dashboard)</label>
+      <input type="password" id="tokenInput" placeholder="ANALYTICS_SECRET" autocomplete="off">
+      <div class="row">
+        <button type="button" id="pingBtn">Testar token (ping)</button>
+        <button type="button" id="diagBtn">Rodar diagnóstico</button>
+        <button type="button" id="probeBtn" class="secondary">Testar stats (1 dia, lento)</button>
+        <a class="btn secondary" href="analytics.html" style="text-decoration:none;display:inline-flex;align-items:center">← Dashboard</a>
+      </div>
+      <p class="err hidden" id="errBox"></p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px;font-size:16px">Manutenção de logs</h2>
+      <p style="margin:0 0 12px;font-size:13px;color:var(--muted)">Operações no servidor. Não apague a pasta <code>data/</code> manualmente no FileZilla.</p>
+      <div class="row">
+        <button type="button" id="backupBtn" class="secondary">Backup agora</button>
+        <button type="button" id="purgeBtn" class="secondary">Remover ruído</button>
+        <button type="button" id="reconcileBtn" class="secondary">Recuperar vendas (MasterFy)</button>
+        <button type="button" id="backfillBtn" class="secondary">Enriquecer perfil e geo (IP)</button>
+        <button type="button" id="archiveBtn" class="secondary">Arquivar logs antigos</button>
+      </div>
+      <p class="err hidden" id="maintBox" style="margin-top:12px"></p>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+    var TOKEN_KEY = 'credpix_analytics_token';
+
+    function apiBase() {
+      if (window.credpixPath) return window.credpixPath('/api/analytics.php');
+      return (window.CREDPIX_BASE_PATH || '') + '/api/analytics.php';
+    }
+
+    function headers() {
+      var t = document.getElementById('tokenInput').value.trim();
+      return t ? { 'X-Analytics-Token': t } : {};
+    }
+
+    function setErr(msg) {
+      var el = document.getElementById('errBox');
+      el.textContent = msg || '';
+      el.classList.toggle('hidden', !msg);
+    }
+
+    function setMaint(msg, ok) {
+      var el = document.getElementById('maintBox');
+      el.textContent = msg || '';
+      el.style.color = ok ? 'var(--ok)' : 'var(--bad)';
+      el.classList.toggle('hidden', !msg);
+    }
+
+    function runMaintAction(action, label, btnId) {
+      if (!confirm(label + '? Esta ação roda no servidor.')) return;
+      setMaint('');
+      setErr('');
+      var btn = btnId ? document.getElementById(btnId) : null;
+      if (btn) btn.disabled = true;
+      sessionStorage.setItem(TOKEN_KEY, document.getElementById('tokenInput').value.trim());
+      fetchJson(apiBase() + '?action=' + encodeURIComponent(action)).then(function (ref) {
+        if (ref.res.status === 401) throw new Error('Token inválido');
+        if (!ref.data.success) throw new Error(ref.data.error || 'Falha');
+        var detail = ref.data.result || ref.data.backup || ref.data;
+        setMaint(action + ' concluído: ' + JSON.stringify(detail), true);
+      }).catch(function (e) { setMaint(e.message, false); })
+        .finally(function () { if (btn) btn.disabled = false; });
+    }
+
+    function fetchJson(url) {
+      return fetch(url, { headers: headers() })
+        .then(function (res) {
+          return res.text().then(function (text) {
+            try { return { res: res, data: JSON.parse(text), raw: text }; }
+            catch (e) {
+              var hint = text && text.charAt(0) === '<'
+                ? 'Resposta HTML (timeout PHP ou erro 503). Veja Error Log no cPanel.'
+                : 'JSON inválido';
+              throw new Error(hint + (text && text.length < 200 ? ': ' + text.trim() : ''));
+            }
+          });
+        });
+    }
+
+    function renderDiag(d) {
+      var html = '';
+      if (d.recommendations && d.recommendations.length) {
+        html += '<div class="card"><h2 style="margin:0 0 12px;font-size:16px">Recomendações</h2>';
+        d.recommendations.forEach(function (tip) {
+          html += '<div class="tip ' + esc(tip.level || 'ok') + '">' + esc(tip.message) + '</div>';
+        });
+        html += '</div>';
+      }
+
+      html += '<div class="card"><h2 style="margin:0 0 12px;font-size:16px">Resumo</h2><div class="grid2">';
+      html += stat('Eventos úteis', fmtNum((d.totals && d.totals.useful_lines) || 0));
+      html += stat('Ruído (purge)', fmtNum((d.totals && d.totals.noise_lines) || 0));
+      html += stat('Tamanho logs', (d.totals && d.totals.bytes_human) || '—');
+      html += stat('Disco livre', (d.storage && d.storage.disk_free_human) || '—');
+      html += stat('PHP memory', (d.php && d.php.memory_limit) || '—');
+      html += stat('Cache TTL', ((d.config && d.config.stats_cache_sec) || '—') + 's');
+      html += '</div></div>';
+
+      if (d.stats_probe) {
+        var sp = d.stats_probe;
+        html += '<div class="card"><h2 style="margin:0 0 8px;font-size:16px">Teste de stats (' + sp.days + ' dia)</h2>';
+        html += '<p style="margin:0;font-size:14px;color:' + (sp.ok ? 'var(--ok)' : 'var(--bad)') + '">';
+        html += sp.ok ? 'OK em ' + sp.elapsed_ms + ' ms' : 'Falhou em ' + sp.elapsed_ms + ' ms: ' + esc(sp.error || '');
+        html += '</p></div>';
+      }
+
+      if (d.event_files && d.event_files.length) {
+        html += '<div class="card"><h2 style="margin:0 0 12px;font-size:16px">Arquivos de evento</h2><table><thead><tr>';
+        html += '<th>Arquivo</th><th>Úteis</th><th>Ruído</th><th>Tamanho</th></tr></thead><tbody>';
+        d.event_files.slice().reverse().slice(0, 14).forEach(function (f) {
+          html += '<tr><td>' + esc(f.name) + '</td><td>' + fmtNum(f.useful_lines) + '</td><td>' + fmtNum(f.noise_lines) + '</td><td>' + esc(f.bytes_human) + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+
+      html += '<div class="card"><h2 style="margin:0 0 8px;font-size:16px">JSON completo</h2><pre>' + esc(JSON.stringify(d, null, 2)) + '</pre></div>';
+      document.getElementById('results').innerHTML = html;
+    }
+
+    function stat(label, value) {
+      return '<div class="stat"><span>' + label + '</span><b>' + value + '</b></div>';
+    }
+    function fmtNum(n) { return Number(n).toLocaleString('pt-BR'); }
+    function esc(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    document.getElementById('pingBtn').addEventListener('click', function () {
+      setErr('');
+      sessionStorage.setItem(TOKEN_KEY, document.getElementById('tokenInput').value.trim());
+      fetchJson(apiBase() + '?action=ping').then(function (ref) {
+        if (ref.res.status === 401) throw new Error('Token inválido');
+        if (!ref.data.success) throw new Error(ref.data.error || 'Falha');
+        document.getElementById('results').innerHTML =
+          '<div class="card"><p style="margin:0;color:var(--ok)">Token OK. Servidor respondeu em ' +
+          new Date(ref.data.server_time * 1000).toLocaleString('pt-BR') + '.</p></div>';
+      }).catch(function (e) { setErr(e.message); });
+    });
+
+    document.getElementById('diagBtn').addEventListener('click', function () {
+      setErr('');
+      sessionStorage.setItem(TOKEN_KEY, document.getElementById('tokenInput').value.trim());
+      document.getElementById('diagBtn').disabled = true;
+      fetchJson(apiBase() + '?action=diagnostics').then(function (ref) {
+        if (ref.res.status === 401) throw new Error('Token inválido');
+        if (!ref.data.success) throw new Error(ref.data.error || 'Falha');
+        renderDiag(ref.data.diagnostics);
+      }).catch(function (e) { setErr(e.message); })
+        .finally(function () { document.getElementById('diagBtn').disabled = false; });
+    });
+
+    document.getElementById('probeBtn').addEventListener('click', function () {
+      setErr('');
+      sessionStorage.setItem(TOKEN_KEY, document.getElementById('tokenInput').value.trim());
+      document.getElementById('probeBtn').disabled = true;
+      fetchJson(apiBase() + '?action=diagnostics&probe_stats=1').then(function (ref) {
+        if (ref.res.status === 401) throw new Error('Token inválido');
+        if (!ref.data.success) throw new Error(ref.data.error || 'Falha');
+        renderDiag(ref.data.diagnostics);
+      }).catch(function (e) { setErr(e.message); })
+        .finally(function () { document.getElementById('probeBtn').disabled = false; });
+    });
+
+    document.getElementById('backupBtn').addEventListener('click', function () {
+      runMaintAction('backup', 'Criar backup dos logs de analytics', 'backupBtn');
+    });
+    document.getElementById('purgeBtn').addEventListener('click', function () {
+      runMaintAction('purge_noise', 'Remover eventos de ruído (heartbeat, wizard_step, funnel_step)', 'purgeBtn');
+    });
+    document.getElementById('reconcileBtn').addEventListener('click', function () {
+      if (!confirm('Consultar MasterFy e gravar vendas faltantes no analytics (até 40 PIX dos últimos 7 dias)?')) return;
+      setMaint('');
+      setErr('');
+      var btn = document.getElementById('reconcileBtn');
+      btn.disabled = true;
+      sessionStorage.setItem(TOKEN_KEY, document.getElementById('tokenInput').value.trim());
+      fetchJson(apiBase() + '?action=reconcile_payments&days=7&limit=40').then(function (ref) {
+        if (ref.res.status === 401) throw new Error('Token inválido');
+        if (!ref.data.success) throw new Error(ref.data.error || 'Falha');
+        var detail = ref.data.result || ref.data;
+        setMaint('reconcile_payments: ' + JSON.stringify(detail), true);
+      }).catch(function (e) { setMaint(e.message, false); })
+        .finally(function () { btn.disabled = false; });
+    });
+    document.getElementById('backfillBtn').addEventListener('click', function () {
+      if (!confirm('Consultar CPF (idade/sexo) e geo por IP nos PIX dos últimos 30 dias?\n\nAté 40 perfis + 80 geo por clique. Rode várias vezes se necessário.\nRequer CPF_API_TOKEN no .env.')) return;
+      setMaint('');
+      setErr('');
+      var btn = document.getElementById('backfillBtn');
+      btn.disabled = true;
+      sessionStorage.setItem(TOKEN_KEY, document.getElementById('tokenInput').value.trim());
+      fetchJson(apiBase() + '?action=backfill_enrichment&days=30&profile_limit=40&geo_limit=80').then(function (ref) {
+        if (ref.res.status === 401) throw new Error('Token inválido');
+        if (!ref.data.success) throw new Error(ref.data.error || 'Falha');
+        var detail = ref.data.result || ref.data;
+        setMaint('backfill_enrichment: ' + JSON.stringify(detail), true);
+      }).catch(function (e) { setMaint(e.message, false); })
+        .finally(function () { btn.disabled = false; });
+    });
+    document.getElementById('archiveBtn').addEventListener('click', function () {
+      runMaintAction('archive', 'Arquivar logs antigos', 'archiveBtn');
+    });
+
+    var saved = sessionStorage.getItem(TOKEN_KEY);
+    if (saved) document.getElementById('tokenInput').value = saved;
+  })();
+  </script>
+</body>
+</html>

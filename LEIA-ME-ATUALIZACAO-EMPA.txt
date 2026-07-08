@@ -1,0 +1,62 @@
+CredPix — ATUALIZAÇÃO do site antigo (/empa)
+============================================
+
+Destino no servidor: public_html/empa/
+URL: https://creditofacil.lol/empa/
+
+O QUE VEIO NESTE PACOTE
+-----------------------
+- Nome genérico no checkout MasterFy (ID: 12345678 no produto principal)
+- Upsells normalizados (site-base.php, sem scripts Amung inline nos HTML)
+- Correções do wizard e analytics
+- 127 arquivos de código (sem data/, sem .env)
+
+ANTES DE SUBIR (FileZilla)
+--------------------------
+1. Backup do .env atual no servidor (baixe uma cópia).
+2. NÃO apague a pasta data/ no servidor.
+3. NÃO apague o .env — só edite depois do upload se precisar.
+
+UPLOAD
+------
+Local (esquerda): pasta empa-deploy (conteúdo interno, não a pasta pai)
+Remoto (direita): public_html/empa/
+
+Selecione TODOS os arquivos e pastas DENTRO de empa-deploy e envie para public_html/empa/
+Quando o FileZilla perguntar "substituir?", pode substituir arquivos de código.
+NÃO substitua .env se você já tiver um configurado (pule ou cancele só o .env).
+
+DEPOIS DO UPLOAD — .env
+-----------------------
+Abra o .env que JÁ ESTÁ no servidor (ou use .env.template como referência).
+
+Confirme ou ajuste:
+  BASE_PATH=/empa
+  PUBLIC_BASE_URL=https://creditofacil.lol
+  AMUNG_FUNIL=...
+  AMUNG_CHECKOUT=...
+  AMUNG_UPSELL=...
+
+IMPORTANTE — Amung "online" caiu após atualizar?
+  Antes o checkout usava o código fixo emnads233311.
+  Se no .env você colocou códigos NOVOS, o painel Amung mostra outro
+  widget (poucos online). Para voltar aos ~150 do checkout antigo:
+    AMUNG_CHECKOUT=emnads233311
+    AMUNG_UPSELL=emnads233312
+    AMUNG_FUNIL=emnads233310
+  (ou os códigos que você já usava no waust.at antes da migração)
+  CPF_API_TOKEN, MASTERFY_API_KEY, WEBHOOK_SECRET
+  ANALYTICS_SECRET e ANALYTICS_INGEST_KEY (mesmos valores entre si)
+
+Webhook MasterFy (se recadastrar):
+  https://creditofacil.lol/empa/pay/api/webhook.php
+
+TESTE
+-----
+https://creditofacil.lol/empa/
+https://creditofacil.lol/empa/type/wizard/?valor=6500
+https://creditofacil.lol/empa/pay/checkout.php
+
+Se a página do wizard ficar em branco: limpe cache do navegador (Ctrl+F5).
+
+Zip do mesmo pacote: empa-deploy.zip (na pasta do projeto, um nível acima)

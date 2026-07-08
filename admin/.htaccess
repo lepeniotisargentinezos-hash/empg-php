@@ -1,0 +1,21 @@
+# Proteção HTTP Basic Auth para /admin/
+#
+# 1) Gere o arquivo de senha (Linux/Mac ou Git Bash no Windows):
+#    htpasswd -c .htpasswd admin
+#
+# 2) Suba .htpasswd para esta pasta (admin/) — NÃO commite senhas no git.
+#
+# 3) Descomente as linhas abaixo e ajuste AuthUserFile para o caminho ABSOLUTO
+#    no servidor (cPanel → caminho típico):
+#    /home/SEU_USUARIO/public_html/empa/admin/.htpasswd
+#
+# <IfModule mod_auth_basic.c>
+#   AuthType Basic
+#   AuthName "CredPix Admin"
+#   AuthUserFile "/home/SEU_USUARIO/public_html/empa/admin/.htpasswd"
+#   Require valid-user
+# </IfModule>
+
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>

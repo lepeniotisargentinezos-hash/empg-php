@@ -1,0 +1,49 @@
+CredPix - deploy-ll (atualizacao completa do site /ll)
+======================================================
+
+Este pacote traz o codigo atual (precos R$ 39,86, dashboard, MasterFy, wizard, pay, upsell, admin).
+
+NAO inclui (permanecem SO no servidor):
+  data/          analytics, PIX, logs
+  .env           segredos e BASE_PATH=/ll
+  config/google-pixels.json
+  config/cpf-token.js
+
+UPLOAD - FileZilla / cPanel
+---------------------------
+Remoto: public_html/ll/
+
+1. Abra a pasta deploy-ll no PC (esquerda).
+2. Selecione TUDO DENTRO de deploy-ll (nao a pasta deploy-ll em si).
+3. Arraste para public_html/ll/ (direita) e confirme SOBRESCREVER arquivos.
+4. NAO apague a pasta data/ no servidor.
+5. NAO substitua o .env sem fazer backup antes.
+
+.env no servidor (confira apos o upload)
+---------------------------------------
+  BASE_PATH=/ll
+  PUBLIC_BASE_URL=https://creditoaprovado.org
+  (ou o dominio que voce usa para esta operacao)
+
+  Recomendado manter:
+  WEBHOOK_API_FALLBACK=1
+  WEBHOOK_LOCAL_TX_FALLBACK=1
+  ANALYTICS_SECRET e ANALYTICS_INGEST_KEY (mesmo valor)
+
+Webhook MasterFy:
+  https://SEU_DOMINIO/ll/pay/api/webhook.php
+
+Teste rapido
+------------
+  https://SEU_DOMINIO/ll/
+  https://SEU_DOMINIO/ll/type/wizard/?valor=6500
+  https://SEU_DOMINIO/ll/pay/checkout.php
+  https://SEU_DOMINIO/ll/admin/analytics.html  (token do .env)
+
+Dashboard: Ctrl+F5 apos subir admin/analytics.html e analytics-panel.js.
+
+Cache de stats (se painel antigo):
+  Apague data/analytics/.cache-stats-* no servidor ou aguarde o TTL.
+
+Regenerar este pacote no PC:
+  .\scripts\build-deploy-ll.ps1

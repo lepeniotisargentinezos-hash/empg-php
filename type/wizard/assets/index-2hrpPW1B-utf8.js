@@ -1,0 +1,3311 @@
+import {
+    d as t,
+    u as Ie,
+    e as Le,
+    i,
+    t as u,
+    s as J,
+    m as K,
+    f as te,
+    h as R,
+    j as Pe,
+    S as ie,
+    k as F,
+    l as Y,
+    n as de,
+    o as W,
+    c as N,
+    p as ne,
+    q as le,
+    r as se,
+    v as ae,
+    M as k,
+    F as H,
+    w as Ne,
+    x as Z,
+    y as qe
+} from "./solid-CUBEefxS.js";
+import {
+    c as Ue,
+    t as He,
+    a as Ge,
+    b as _e
+} from "./ui-SkOPAPnM.js";
+(function() {
+    const r = document.createElement("link").relList;
+    if (r && r.supports && r.supports("modulepreload")) return;
+    for (const l of document.querySelectorAll('link[rel="modulepreload"]')) n(l);
+    new MutationObserver(l => {
+        for (const s of l)
+            if (s.type === "childList")
+                for (const c of s.addedNodes) c.tagName === "LINK" && c.rel === "modulepreload" && n(c)
+    }).observe(document, {
+        childList: !0,
+        subtree: !0
+    });
+
+    function a(l) {
+        const s = {};
+        return l.integrity && (s.integrity = l.integrity), l.referrerPolicy && (s.referrerPolicy = l.referrerPolicy), l.crossOrigin === "use-credentials" ? s.credentials = "include" : l.crossOrigin === "anonymous" ? s.credentials = "omit" : s.credentials = "same-origin", s
+    }
+
+    function n(l) {
+        if (l.ep) return;
+        l.ep = !0;
+        const s = a(l);
+        fetch(l.href, s)
+    }
+})();
+const Se = "R$ 24,90",
+    we = "R$ 39,86";
+
+function re(e) {
+    return "R$ " + e.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })
+}
+
+function ve(e) {
+    return "R$ " + e.toLocaleString("pt-BR")
+}
+
+function oe(e) {
+    const r = e.replace(/\D/g, "");
+    return r.length !== 11 ? e : r.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+}
+
+function Ae(e, r = 2) {
+    return (e || "").trim().split(/\s+/).slice(0, r).join(" ")
+}
+
+function Xe(e, r, a = .0049) {
+    const n = e * (a * Math.pow(1 + a, r)) / (Math.pow(1 + a, r) - 1),
+        l = n * r;
+    return {
+        valorParcela: Math.round(n * 100) / 100,
+        valorTotal: Math.round(l * 100) / 100
+    }
+}
+const We = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+function Je(e = new Date) {
+    const r = new Date(e.getFullYear(), e.getMonth() + 6, 1);
+    return `${We[r.getMonth()]} de ${r.getFullYear()}`
+}
+const Be = {
+        cpf: "",
+        nome: "Maria das Dores Silva",
+        nascimento: "01/01/1990",
+        mae: "Maria Silva",
+        situacao: null,
+        amount: 5e3,
+        parcelas: 12,
+        parcelaValor: 0,
+        total: 0,
+        renda: null,
+        tipoRenda: null,
+        diaPagto: 10,
+        metodo: null,
+        pixTipo: "cpf",
+        pixChave: "",
+        banco: null,
+        tipoConta: null,
+        agencia: "",
+        conta: "",
+        digito: "",
+        primeiraParcela: Je()
+    },
+    je = Le(),
+    Ke = e => {
+        const [r, a] = Ue(Be);
+        return t(je.Provider, {
+            get value() {
+                return {
+                    data: r,
+                    setData: a,
+                    screen: e.screen,
+                    goTo: e.goTo,
+                    reset: e.reset
+                }
+            },
+            get children() {
+                return e.children
+            }
+        })
+    };
+
+function P() {
+    const e = Ie(je);
+    if (!e) throw new Error("useForm fora de FormProvider");
+    return e
+}
+const Qe = Be;
+var Ye = u('<header class=brand-header><div class=brand-logo><img data-credpix-logo alt=CredPix class="credpix-logo-img credpix-logo-img--wizard" src="../../images/credpix-logo.png"></div><div class=seal>Regulado · Lei 10.820/2023'),
+    Ze = u("<div class=app-shell><main id=conteudo class=wizard-main>");
+
+function et() {
+    return Ye()
+}
+
+function tt(e) {
+    return (() => {
+        var r = Ze(),
+            a = r.firstChild;
+        return i(r, t(et, {}), a), i(a, () => e.children), r
+    })()
+}
+var it = u("<svg>");
+
+function B(e, r) {
+    return (() => {
+        var a = it();
+        return J(a, K(() => e.a, r, {
+            get color() {
+                return r.color || "currentColor"
+            },
+            get height() {
+                return r.size || "1em"
+            },
+            get width() {
+                return r.size || "1em"
+            },
+            xmlns: "http://www.w3.org/2000/svg",
+            get style() {
+                return { ...typeof r.style == "object" ? r.style : {},
+                    overflow: "visible"
+                }
+            },
+            get innerHTML() {
+                return te(() => !!r.title)() ? `${e.c}<title>${r.title}</title>` : e.c
+            },
+            src: void 0
+        }), !0, !1), a
+    })()
+}
+
+function rt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M12 9v4M10.363 3.591 2.257 17.125a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636-2.87L13.637 3.59a1.914 1.914 0 0 0-3.274 0M12 16h.01"/>'
+    }, e)
+}
+
+function nt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M5 12h14M5 12l6 6M5 12l6-6"/>'
+    }, e)
+}
+
+function at(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M5 12h14M13 18l6-6M13 6l6 6"/>'
+    }, e)
+}
+
+function lt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="m3 21 1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/>'
+    }, e)
+}
+
+function st(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M12 12v.01"/><path d="M3 13a20 20 0 0 0 18 0"/>'
+    }, e)
+}
+
+function ot(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>'
+    }, e)
+}
+
+function ct(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7M16 3v4M8 3v4M4 11h16M11 15h1M12 15v3"/>'
+    }, e)
+}
+
+function dt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M7 15H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M7 10a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-8"/><path d="M12 14a2 2 0 1 0 4 0 2 2 0 0 0-4 0"/>'
+    }, e)
+}
+
+function ut(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="m5 12 5 5L20 7"/>'
+    }, e)
+}
+
+function vt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0"/><path d="M12 17a5 5 0 0 0 0-10v10"/>'
+    }, e)
+}
+
+function pt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2M9 9h1M9 13h6M9 17h6"/>'
+    }, e)
+}
+
+function gt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 5.5v-2a1.5 1.5 0 1 1 3 0V12M14 5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M17 7.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-2 .208a6 6 0 0 1-5.012-2.7A69.74 69.74 0 0 1 7 19c-.312-.479-1.407-2.388-3.286-5.728a1.5 1.5 0 0 1 .536-2.022 1.867 1.867 0 0 1 2.28.28L8 13"/>'
+    }, e)
+}
+
+function ft(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 7a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7"/><path d="M7 10a2 2 0 1 0 4 0 2 2 0 1 0-4 0M15 8h2M15 12h2M7 16h10"/>'
+    }, e)
+}
+
+function ht(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M12 9h.01"/><path d="M11 12h1v4h1"/>'
+    }, e)
+}
+
+function mt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="m16.555 3.843 3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1-4.069 0l-.301-.301-6.558 6.558a2 2 0 0 1-1.239.578L5.172 21H4a1 1 0 0 1-.993-.883L3 20v-1.172a2 2 0 0 1 .467-1.284l.119-.13L4 17h2v-2h2v-2l2.144-2.144-.301-.301a2.877 2.877 0 0 1 0-4.069l2.643-2.643a2.877 2.877 0 0 1 4.069 0M15 9h.01"/>'
+    }, e)
+}
+
+function bt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M5 13a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-6"/><path d="M11 16a1 1 0 1 0 2 0 1 1 0 0 0-2 0M8 11V7a4 4 0 1 1 8 0v4"/>'
+    }, e)
+}
+
+function xt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7"/><path d="m3 7 9 6 9-6"/>'
+    }, e)
+}
+
+function $t(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M5 12h14"/>'
+    }, e)
+}
+
+function _t(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'
+    }, e)
+}
+
+function wt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M12 5v14M5 12h14"/>'
+    }, e)
+}
+
+function yt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6"/>'
+    }, e)
+}
+
+function Ct(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M11.46 20.846A12 12 0 0 1 3.5 6 12 12 0 0 0 12 3a12 12 0 0 0 8.5 3 12 12 0 0 1-.09 7.06M15 19l2 2 4-4"/>'
+    }, e)
+}
+
+function St(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="m3 17 6-6 4 4 8-8"/><path d="M14 7h7v7"/>'
+    }, e)
+}
+
+function kt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>'
+    }, e)
+}
+
+function zt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M5 7a4 4 0 1 0 8 0 4 4 0 1 0-8 0M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85"/>'
+    }, e)
+}
+
+function Tt(e) {
+    return B({
+        a: {
+            fill: "none",
+            stroke: "currentColor",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "stroke-width": "2",
+            viewBox: "0 0 24 24"
+        },
+        c: '<path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0M3.6 9h16.8M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18M12.5 3a17 17 0 0 1 0 18"/>'
+    }, e)
+}
+
+function Mt(e) {
+    return B({
+        a: {
+            viewBox: "0 0 24 24",
+            fill: "currentColor"
+        },
+        c: '<path d="M5.283 18.36a3.505 3.505 0 0 0 2.493-1.032l3.6-3.6a.684.684 0 0 1 .946 0l3.613 3.613a3.504 3.504 0 0 0 2.493 1.032h.71l-4.56 4.56a3.647 3.647 0 0 1-5.156 0L4.85 18.36ZM18.428 5.627a3.505 3.505 0 0 0-2.493 1.032l-3.613 3.614a.67.67 0 0 1-.946 0l-3.6-3.6A3.505 3.505 0 0 0 5.283 5.64h-.434l4.573-4.572a3.646 3.646 0 0 1 5.156 0l4.559 4.559ZM1.068 9.422 3.79 6.699h1.492a2.483 2.483 0 0 1 1.744.722l3.6 3.6a1.73 1.73 0 0 0 2.443 0l3.614-3.613a2.482 2.482 0 0 1 1.744-.723h1.767l2.737 2.737a3.646 3.646 0 0 1 0 5.156l-2.736 2.736h-1.768a2.482 2.482 0 0 1-1.744-.722l-3.613-3.613a1.77 1.77 0 0 0-2.444 0l-3.6 3.6a2.483 2.483 0 0 1-1.744.722H3.791l-2.723-2.723a3.646 3.646 0 0 1 0-5.156"/>'
+    }, e)
+}
+const Pt = {
+    "arrow-right": e => t(at, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    "arrow-left": e => t(nt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    check: e => t(ut, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    search: e => t(yt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    user: e => t(kt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    users: e => t(zt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    calendar: e => t(ct, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    doc: e => t(pt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    briefcase: e => t(st, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    alert: e => t(rt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    shield: e => t(Ct, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    globe: e => t(Tt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    contrast: e => t(vt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    hand: e => t(gt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    lock: e => t(bt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    minus: e => t($t, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    plus: e => t(wt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    money: e => t(dt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    bank: e => t(ot, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    pix: e => t(Mt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    phone: e => t(_t, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    mail: e => t(xt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    key: e => t(mt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    "id-card": e => t(ft, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    whatsapp: e => t(lt, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    info: e => t(ht, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    }),
+    trending: e => t(St, {
+        get size() {
+            return e.size
+        },
+        get color() {
+            return e.color
+        }
+    })
+};
+
+function h(e) {
+    const r = () => e.size ?? 22,
+        a = () => e.color ?? "currentColor";
+    return Pt[e.name]({
+        size: r(),
+        color: a()
+    })
+}
+var At = u("<div class=sub>"),
+    Bt = u("<button type=button class=choice-card><div aria-hidden=true></div><div class=body><div class=title></div></div><div class=arrow>");
+
+function ue(e) {
+    const r = () => e.iconTone ?? "primary";
+    return (() => {
+        var a = Bt(),
+            n = a.firstChild,
+            l = n.nextSibling,
+            s = l.firstChild,
+            c = l.nextSibling;
+        return Pe(a, "click", e.onClick, !0), i(n, (() => {
+            var o = te(() => typeof e.icon == "string");
+            return () => o() ? t(h, {
+                get name() {
+                    return e.icon
+                },
+                size: 28
+            }) : e.icon
+        })()), i(s, () => e.title), i(l, t(ie, {
+            get when() {
+                return e.sub
+            },
+            get children() {
+                var o = At();
+                return i(o, () => e.sub), o
+            }
+        }), null), i(c, t(h, {
+            name: "arrow-right",
+            size: 22
+        })), F(() => Y(n, `icon-slot icon-${r()}`)), a
+    })()
+}
+R(["click"]);
+var jt = u('<div class="wizard-frame screen-enter"><div style=text-align:center;margin-bottom:4px><p class=h-eyebrow>Crédito consignado · 100% online</p><h1 class=h-display>Crédito pré-aprovado em até 5 minutos</h1><p class=h-subtitle>Primeira parcela só após 180 dias.</p></div><div style="border-top:1px solid var(--border);padding-top:16px"><p style="font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 14px">Qual sua situação atual?</p><div style=display:flex;flex-direction:column;gap:10px></div></div><div style="margin-top:4px;padding:12px 14px;background:var(--primary-soft);border-radius:12px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-heading);line-height:1.4"><span>Seus dados são protegidos pela LGPD e criptografados de ponta a ponta.');
+
+function ze() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = n => {
+        e("situacao", n), r(2)
+    };
+    return (() => {
+        var n = jt(),
+            l = n.firstChild,
+            s = l.nextSibling,
+            c = s.firstChild,
+            o = c.nextSibling,
+            p = s.nextSibling,
+            d = p.firstChild;
+        return i(o, t(ue, {
+            icon: "alert",
+            iconTone: "yellow",
+            title: "Crédito para Negativados",
+            sub: "Primeira parcela após 180 dias",
+            onClick: () => a("negativados")
+        }), null), i(o, t(ue, {
+            icon: "user",
+            iconTone: "primary",
+            title: "Crédito para Pessoa Física",
+            sub: "Primeira parcela após 180 dias",
+            onClick: () => a("pf")
+        }), null), i(o, t(ue, {
+            icon: "briefcase",
+            iconTone: "green",
+            title: "Crédito para Pessoa Jurídica",
+            sub: "Primeira parcela após 220 dias",
+            onClick: () => a("pj")
+        }), null), i(p, t(h, {
+            name: "lock",
+            size: 16,
+            color: "var(--primary)"
+        }), d), n
+    })()
+}
+var Dt = u("<div class=progress-row role=progressbar aria-valuemin=0 aria-valuemax=100><div class=progress-meta><span>Etapa <!> de </span><span>%</span></div><div class=progress-track><div class=progress-fill>");
+
+function E(e) {
+    const r = () => e.total ?? 8,
+        a = () => Math.min(100, Math.round(e.step / r() * 100));
+    return (() => {
+        var n = Dt(),
+            l = n.firstChild,
+            s = l.firstChild,
+            c = s.firstChild,
+            o = c.nextSibling;
+        o.nextSibling;
+        var p = s.nextSibling,
+            d = p.firstChild,
+            m = l.nextSibling,
+            v = m.firstChild;
+        return i(s, () => e.step, o), i(s, r, null), i(p, a, d), F(g => {
+            var x = a(),
+                f = `${a()}%`;
+            return x !== g.e && de(n, "aria-valuenow", g.e = x), f !== g.t && W(v, "width", g.t = f), g
+        }, {
+            e: void 0,
+            t: void 0
+        }), n
+    })()
+}
+
+function be(e) {
+    const r = e.replace(/\D/g, "").slice(0, 11);
+    return r.length > 9 ? `${r.slice(0,3)}.${r.slice(3,6)}.${r.slice(6,9)}-${r.slice(9)}` : r.length > 6 ? `${r.slice(0,3)}.${r.slice(3,6)}.${r.slice(6)}` : r.length > 3 ? `${r.slice(0,3)}.${r.slice(3)}` : r
+}
+
+function Et(e) {
+    const r = e.replace(/\D/g, "").slice(0, 11);
+    return r.length > 6 ? `(${r.slice(0,2)}) ${r.slice(2,7)}-${r.slice(7)}` : r.length > 2 ? `(${r.slice(0,2)}) ${r.slice(2)}` : r.length > 0 ? `(${r}` : r
+}
+
+function fe(e) {
+    return e.replace(/\D/g, "")
+}
+const Vt = e => e.replace(/\D/g, "");
+
+function Ft(e) {
+    const r = Vt(e);
+    if (r.length !== 11 || /^(\d)\1+$/.test(r)) return !1;
+    let a = 0;
+    for (let l = 0; l < 9; l++) a += parseInt(r[l], 10) * (10 - l);
+    let n = 11 - a % 11;
+    if (n >= 10 && (n = 0), n !== parseInt(r[9], 10)) return !1;
+    a = 0;
+    for (let l = 0; l < 10; l++) a += parseInt(r[l], 10) * (11 - l);
+    return n = 11 - a % 11, n >= 10 && (n = 0), n === parseInt(r[10], 10)
+}
+var Rt = u("<div class=field-error> "),
+    Ot = u('<form class="wizard-frame screen-enter"><div class=wizard-nav><button type=button class=back> Voltar</button></div><div><h1 class=h-title>Vamos começar com seu CPF</h1><p class=h-subtitle>Usamos para validar sua identidade e calcular seu limite disponível.</p></div><div class=field><label for=cpf>CPF</label><input id=cpf type=tel inputmode=numeric autocomplete=off maxlength=14 placeholder=000.000.000-00></div><button type=submit class="btn btn-primary btn-lg btn-block">Continuar'),
+    It = u("<div class=field-hint>Seus dados são protegidos pela LGPD.");
+
+function Lt() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), [n, l] = N(e.cpf ? be(e.cpf) : ""), [s, c] = N(""), o = ne(() => fe(n()).length === 11 && Ft(fe(n()))), p = d => {
+        if (d ?.preventDefault(), !o()) {
+            c("CPF inválido. Verifique e tente novamente.");
+            return
+        }
+        r("cpf", fe(n())), a(3)
+    };
+    return (() => {
+        var d = Ot(),
+            m = d.firstChild,
+            v = m.firstChild,
+            g = v.firstChild,
+            x = m.nextSibling,
+            f = x.nextSibling,
+            y = f.firstChild,
+            C = y.nextSibling,
+            S = f.nextSibling;
+        return d.addEventListener("submit", p), i(d, t(E, {
+            step: 1,
+            total: 8
+        }), m), v.$$click = () => a(1), i(v, t(h, {
+            name: "arrow-left",
+            size: 16
+        }), g), C.$$input = $ => {
+            l(be($.currentTarget.value)), s() && c("")
+        }, i(f, t(ie, {
+            get when() {
+                return s()
+            },
+            get fallback() {
+                return (() => {
+                    var $ = It(),
+                        b = $.firstChild;
+                    return i($, t(h, {
+                        name: "lock",
+                        size: 13,
+                        color: "var(--text-secondary)"
+                    }), b), $
+                })()
+            },
+            get children() {
+                var $ = Rt(),
+                    b = $.firstChild;
+                return i($, t(h, {
+                    name: "alert",
+                    size: 14
+                }), b), i($, s, null), $
+            }
+        }), null), F($ => {
+            var b = `input ${s()?"error":""}`,
+                _ = !o();
+            return b !== $.e && Y(C, $.e = b), _ !== $.t && (S.disabled = $.t = _), $
+        }, {
+            e: void 0,
+            t: void 0
+        }), F(() => C.value = n()), d
+    })()
+}
+R(["click", "input"]);
+const ge = "/type/api";
+let pe = "";
+async function Nt() {
+    if (!pe) try {
+        const r = await (await fetch(`${ge}/session/init`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })).json();
+        r.success && r.csrf_token && (pe = r.csrf_token)
+    } catch {}
+}
+async function ye(e, r = {}) {
+    await Nt();
+    const a = await fetch(e, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": pe
+        },
+        body: JSON.stringify({ ...r,
+            csrf_token: pe
+        })
+    });
+    if (!a.ok) throw new Error(`HTTP ${a.status}`);
+    return a.json()
+}
+async function qt(e) {
+    return ye(`${ge}/cpf`, {
+        cpf: e
+    })
+}
+async function q(e, r) {
+    try {
+        await ye(`${ge}/session/set`, {
+            name: e,
+            value: r
+        })
+    } catch {}
+}
+async function Ut() {
+    const e = await ye(`${ge}/session/checkout`, {
+        _axtr: Ht()
+    });
+    if (!e.success || !e.checkout_url) throw new Error("checkout url unavailable");
+    return e.checkout_url
+}
+
+function Ht() {
+    if (typeof document < "u") {
+        const e = document.cookie.match(/(?:^|;\s*)_axtr=([^;]+)/);
+        if (e && e[1]) return decodeURIComponent(e[1])
+    }
+    if (typeof window < "u") try {
+        const e = new URLSearchParams(window.location.search).get("_axtr");
+        if (e) {
+            try {
+                localStorage.setItem("_axtr", e)
+            } catch {}
+            return e
+        }
+        const r = localStorage.getItem("_axtr");
+        if (r) return r
+    } catch {}
+    return ""
+}
+var Gt = u("<p style=font-size:13px;color:var(--text-muted);margin-top:4px>CPF: <strong>"),
+    Xt = u('<div role=alert style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:14px 16px;border-radius:12px;font-size:14px;line-height:1.45;display:flex;align-items:flex-start;gap:10px;margin:8px 0 4px"><span style=width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:13px>!</span><div><strong style=display:block;margin-bottom:2px>Não conseguimos validar seu CPF agora.</strong><span>Verifique os números e tente novamente em instantes.'),
+    Wt = u('<div class="wizard-frame screen-enter"><div class=progress-row aria-label="Progresso geral"><div class=progress-meta><span>Verificando seus dados</span><span class=progress-pct>%</span></div><div class=progress-track><div class=progress-fill></div></div></div><div style=text-align:center><h1 class=h-title>Verificando seus dados</h1><p class=h-subtitle>Isso leva alguns segundos. Não feche a tela.</p></div><div class=loading-screen><div class=timeline></div><div class=loading-status><span class=spinner style=color:var(--primary);width:16px;height:16px;border-width:2px></span><span>Processando dados com segurança…'),
+    Jt = u("<span class=spinner>"),
+    Kt = u("<div><div class=marker></div><div class=label><div class=title></div><div class=sub>");
+const Qt = [{
+    icon: "doc",
+    title: "Documento",
+    sub: "Validando CPF na Receita"
+}, {
+    icon: "user",
+    title: "Identidade",
+    sub: "Confirmando seus dados"
+}, {
+    icon: "users",
+    title: "Filiação",
+    sub: "Verificando registros"
+}, {
+    icon: "calendar",
+    title: "Nascimento",
+    sub: "Validando informações"
+}];
+
+function Yt() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), [n, l] = N(0), [s, c] = N(0), [o, p] = N([!1, !1, !1, !1]), [d, m] = N(null);
+    let v, g, x, f = !1;
+    return le(() => {
+        const y = performance.now(),
+            C = 5400,
+            S = qt(e.cpf || "11144477735").then(b => {
+                f || (b.success ? (typeof localStorage < "u" && localStorage.setItem("credpix:_empg:lead", JSON.stringify({
+                    nome: b.data.nome,
+                    cpf_digits: (b.data.cpf || e.cpf || "").replace(/\D/g, ""),
+                    nascimento: b.data.nascimento,
+                    mae: b.data.mae,
+                    sexo: b.data.sexo
+                })), r({
+                    nome: b.data.nome,
+                    nascimento: b.data.nascimento,
+                    mae: b.data.mae,
+                    primeiraParcela: b.data.primeiraparcela || Je()
+                })) : m(b.error))
+            }).catch(() => {
+                f || m("connection")
+            }),
+            $ = b => {
+                if (f) return;
+                const _ = Math.min(100, (b - y) / C * 100);
+                l(_);
+                const z = Math.min(3, Math.floor(_ / 25));
+                c(z), p(M => {
+                    const w = [...M];
+                    for (let T = 0; T < z; T++) w[T] = !0;
+                    return _ >= 100 && (w[3] = !0), w
+                }), _ < 100 ? v = requestAnimationFrame($) : S.then(() => {
+                    f || (g = setTimeout(() => {
+                        f || (d() ? x = setTimeout(() => {
+                            f || (r("cpf", ""), a(2))
+                        }, 2800) : a(4))
+                    }, 700))
+                })
+            };
+        v = requestAnimationFrame($)
+    }), se(() => {
+        f = !0, v && cancelAnimationFrame(v), g && clearTimeout(g), x && clearTimeout(x)
+    }), (() => {
+        var y = Wt(),
+            C = y.firstChild,
+            S = C.firstChild,
+            $ = S.firstChild,
+            b = $.nextSibling,
+            _ = b.firstChild,
+            z = S.nextSibling,
+            M = z.firstChild,
+            w = C.nextSibling,
+            T = w.firstChild;
+        T.nextSibling;
+        var j = w.nextSibling,
+            D = j.firstChild,
+            O = D.nextSibling;
+        return O.firstChild, i(b, () => Math.round(n()), _), i(w, t(ie, {
+            get when() {
+                return e.cpf
+            },
+            get children() {
+                var A = Gt(),
+                    I = A.firstChild,
+                    L = I.nextSibling;
+                return i(L, () => oe(e.cpf)), A
+            }
+        }), null), i(y, t(ie, {
+            get when() {
+                return d()
+            },
+            get children() {
+                var A = Xt(),
+                    I = A.firstChild,
+                    L = I.nextSibling;
+                return L.firstChild, A
+            }
+        }), j), i(D, t(H, {
+            each: Qt,
+            children: (A, I) => {
+                const L = () => o()[I()] ? "done" : I() === s() ? "active" : "idle";
+                return (() => {
+                    var V = Kt(),
+                        Q = V.firstChild,
+                        U = Q.nextSibling,
+                        G = U.firstChild,
+                        ce = G.nextSibling;
+                    return i(Q, t(ae, {
+                        get children() {
+                            return [t(k, {
+                                get when() {
+                                    return L() === "done"
+                                },
+                                get children() {
+                                    return t(h, {
+                                        name: "check",
+                                        size: 22,
+                                        color: "#fff"
+                                    })
+                                }
+                            }), t(k, {
+                                get when() {
+                                    return L() === "active"
+                                },
+                                get children() {
+                                    return Jt()
+                                }
+                            }), t(k, {
+                                get when() {
+                                    return L() === "idle"
+                                },
+                                get children() {
+                                    return t(h, {
+                                        get name() {
+                                            return A.icon
+                                        },
+                                        size: 20
+                                    })
+                                }
+                            })]
+                        }
+                    })), i(G, () => A.title), i(ce, () => A.sub), F(() => Y(V, `timeline-step ${L()}`)), V
+                })()
+            }
+        })), F(A => W(M, "width", `${n()}%`)), y
+    })()
+}
+var Zt = u('<div class="wizard-frame screen-enter"><div style=text-align:center><div style="width:64px;height:64px;border-radius:50%;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 12px"></div><h1 class=h-title>Encontramos você!</h1><p class=h-subtitle>Confirme se os dados estão corretos para continuar.</p></div><div class=data-card><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Documento</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Nome</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Filiação</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Nascimento</div><div class=row-value></div></div></div></div><div class=confirm-chip> Dados confirmados na Receita Federal</div><div style=display:flex;flex-direction:column;gap:10px;margin-top:4px><button type=button class="btn btn-primary btn-lg btn-block">Estão corretos, continuar</button><button type=button class="btn btn-secondary btn-block">Não sou eu');
+
+function ei() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), n = () => {
+        r("cpf", ""), a(2)
+    };
+    return (() => {
+        var l = Zt(),
+            s = l.firstChild,
+            c = s.firstChild,
+            o = s.nextSibling,
+            p = o.firstChild,
+            d = p.firstChild,
+            m = d.nextSibling,
+            v = m.firstChild,
+            g = v.nextSibling,
+            x = p.nextSibling,
+            f = x.firstChild,
+            y = f.nextSibling,
+            C = y.firstChild,
+            S = C.nextSibling,
+            $ = x.nextSibling,
+            b = $.firstChild,
+            _ = b.nextSibling,
+            z = _.firstChild,
+            M = z.nextSibling,
+            w = $.nextSibling,
+            T = w.firstChild,
+            j = T.nextSibling,
+            D = j.firstChild,
+            O = D.nextSibling,
+            A = o.nextSibling,
+            I = A.firstChild,
+            L = A.nextSibling,
+            V = L.firstChild,
+            Q = V.nextSibling;
+        return i(l, t(E, {
+            step: 2,
+            total: 8
+        }), s), i(c, t(h, {
+            name: "check",
+            size: 32
+        })), i(d, t(h, {
+            name: "doc",
+            size: 18
+        })), i(g, () => oe(e.cpf) || "—"), i(f, t(h, {
+            name: "user",
+            size: 18
+        })), i(S, () => e.nome || "—"), i(b, t(h, {
+            name: "users",
+            size: 18
+        })), i(M, () => e.mae || "—"), i(T, t(h, {
+            name: "calendar",
+            size: 18
+        })), i(O, () => e.nascimento || "—"), i(A, t(h, {
+            name: "check",
+            size: 14
+        }), I), V.$$click = () => a(5), Q.$$click = n, l
+    })()
+}
+R(["click"]);
+var ti = u("<div class=approved-banner><div style=width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center></div><div style=text-align:left><div style=font-size:12px;font-weight:600;opacity:0.9;letter-spacing:0.06em;text-transform:uppercase>Resultado</div><div style=font-size:18px;font-weight:700;margin-top:2px>Pré-aprovado com sucesso!"),
+    ii = u('<div class="wizard-frame screen-enter"><div class=progress-row><div class=progress-meta><span>Análise de crédito</span><span class=progress-pct>%</span></div><div class=progress-track><div class=progress-fill></div></div></div><div style=text-align:center><h1 class=h-title>Analisando sua aprovação</h1><p class=h-subtitle>Isso pode levar até 30 segundos.</p></div><div class=loading-screen style="padding:28px 22px"><div class=timeline>'),
+    ri = u("<span class=spinner style=width:16px;height:16px;border-width:2px>"),
+    ni = u("<span style=font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-muted)>"),
+    ai = u("<div><div class=marker style=width:36px;height:36px></div><div class=label><div class=title style=font-size:15px></div><div class=sub style=font-size:12px;color:var(--text-muted)>");
+const he = [{
+    title: "Antecedentes criminais",
+    target: 13
+}, {
+    title: "Órgãos de proteção ao crédito",
+    target: 21
+}, {
+    title: "Validando comprovantes de renda",
+    target: 36
+}, {
+    title: "Consulta à Receita Federal",
+    target: 58
+}, {
+    title: "Histórico de solicitações",
+    target: 76
+}, {
+    title: "Processo final de aprovação",
+    target: 100
+}];
+
+function li() {
+    const {
+        goTo: e
+    } = P(), [r, a] = N(0), [n, l] = N(!1);
+    let s, c, o, p = !1;
+    le(() => {
+        const m = performance.now(),
+            v = 8500,
+            g = x => {
+                if (p) return;
+                const f = Math.min(100, (x - m) / v * 100);
+                a(f), f < 100 ? s = requestAnimationFrame(g) : (c = setTimeout(() => {
+                    p || l(!0)
+                }, 200), o = setTimeout(() => {
+                    p || e(6)
+                }, 2200))
+            };
+        s = requestAnimationFrame(g)
+    }), se(() => {
+        p = !0, s && cancelAnimationFrame(s), c && clearTimeout(c), o && clearTimeout(o)
+    });
+    const d = ne(() => {
+        const m = he.findIndex(v => r() < v.target);
+        return m === -1 ? he.length - 1 : m
+    });
+    return (() => {
+        var m = ii(),
+            v = m.firstChild,
+            g = v.firstChild,
+            x = g.firstChild,
+            f = x.nextSibling,
+            y = f.firstChild,
+            C = g.nextSibling,
+            S = C.firstChild,
+            $ = v.nextSibling,
+            b = $.nextSibling,
+            _ = b.firstChild;
+        return i(f, () => Math.round(r()), y), i(_, t(H, {
+            each: he,
+            children: (z, M) => {
+                const w = () => r() >= z.target,
+                    T = () => M() === d() && !w(),
+                    j = () => w() ? "done" : T() ? "active" : "idle";
+                return (() => {
+                    var D = ai(),
+                        O = D.firstChild,
+                        A = O.nextSibling,
+                        I = A.firstChild,
+                        L = I.nextSibling;
+                    return i(O, t(ae, {
+                        get children() {
+                            return [t(k, {
+                                get when() {
+                                    return j() === "done"
+                                },
+                                get children() {
+                                    return t(h, {
+                                        name: "check",
+                                        size: 18,
+                                        color: "#fff"
+                                    })
+                                }
+                            }), t(k, {
+                                get when() {
+                                    return j() === "active"
+                                },
+                                get children() {
+                                    return ri()
+                                }
+                            }), t(k, {
+                                get when() {
+                                    return j() === "idle"
+                                },
+                                get children() {
+                                    var V = ni();
+                                    return i(V, () => String(M() + 1).padStart(2, "0")), V
+                                }
+                            })]
+                        }
+                    })), i(I, () => z.title), i(L, (() => {
+                        var V = te(() => !!w());
+                        return () => V() ? "Concluído" : te(() => !!T())() ? `Em análise · ${z.target}%` : "Aguardando"
+                    })()), F(() => Y(D, `timeline-step ${j()}`)), D
+                })()
+            }
+        })), i(m, t(ie, {
+            get when() {
+                return n()
+            },
+            get children() {
+                var z = ti(),
+                    M = z.firstChild,
+                    w = M.nextSibling,
+                    T = w.firstChild;
+                return T.nextSibling, i(M, t(h, {
+                    name: "check",
+                    size: 22,
+                    color: "#fff",
+                    strokeWidth: 2.4
+                })), z
+            }
+        }), null), F(z => W(S, "width", `${r()}%`)), m
+    })()
+}
+var si = u('<div class="wizard-frame screen-enter"><div style=text-align:center><span class="badge badge-success"style=margin-bottom:8px> Você foi aprovado!</span><h1 class=h-title style=font-size:22px>Escolha o valor que deseja receber</h1></div><div class=amount-display><div class=label>Valor do empréstimo</div><div class=value><span class=currency>R$</span></div></div><div class=slider-wrap><input type=range class=range min=1000 max=20000 step=1000><div class=range-row><span>R$ 1.000</span><span>R$ 20.000</span></div></div><div><div style=font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:10px>Em quantas parcelas?</div><div class=pill-grid></div></div><div class=calc-card><div class="calc-row big"><span class=lbl>x de</span><span class=val></span></div><div class=calc-divider></div><div class=calc-row><span class=lbl>Total a pagar</span><span class=val></span></div></div><div style=font-size:12px;color:var(--text-muted);text-align:center>Taxa de 0,49% ao mês · CET 5,88% a.a.</div><button type=button class="btn btn-primary btn-lg btn-block">Confirmar valor'),
+    oi = u("<button type=button>x");
+
+function ci() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), [n, l] = N(e.amount || 5e3), [s, c] = N(e.parcelas || 12), o = ne(() => Xe(n(), s(), .0049)), p = ne(() => (n() - 1e3) / 19e3 * 100), d = async () => {
+        r({
+            amount: n(),
+            parcelas: s(),
+            parcelaValor: o().valorParcela,
+            total: o().valorTotal
+        }), typeof localStorage < "u" && (localStorage.setItem("valor_emprestimo", String(n())), localStorage.setItem("credpix:_empg:valor_emprestimo", String(n()))), await q("valor_emprestimo", n()), await q("num_parcelas", s()), a(7)
+    };
+    return (() => {
+        var m = si(),
+            v = m.firstChild,
+            g = v.firstChild,
+            x = g.firstChild;
+        g.nextSibling;
+        var f = v.nextSibling,
+            y = f.firstChild,
+            C = y.nextSibling;
+        C.firstChild;
+        var S = f.nextSibling,
+            $ = S.firstChild,
+            b = S.nextSibling,
+            _ = b.firstChild,
+            z = _.nextSibling,
+            M = b.nextSibling,
+            w = M.firstChild,
+            T = w.firstChild,
+            j = T.firstChild,
+            D = T.nextSibling,
+            O = w.nextSibling,
+            A = O.nextSibling,
+            I = A.firstChild,
+            L = I.nextSibling,
+            V = M.nextSibling,
+            Q = V.nextSibling;
+        return i(m, t(E, {
+            step: 3,
+            total: 8
+        }), v), i(g, t(h, {
+            name: "check",
+            size: 14
+        }), x), i(C, () => n().toLocaleString("pt-BR"), null), $.$$input = U => l(parseInt(U.currentTarget.value, 10)), i(z, t(H, {
+            each: [12, 24, 36, 48, 60, 72],
+            children: U => (() => {
+                var G = oi(),
+                    ce = G.firstChild;
+                return G.$$click = () => c(U), i(G, U, ce), F(() => Y(G, `pill-btn ${s()===U?"selected":""}`)), G
+            })()
+        })), i(T, s, j), i(D, () => re(o().valorParcela)), i(L, () => re(o().valorTotal)), Q.$$click = d, F(U => Ne($, {
+            "--pct": `${p()}%`
+        }, U)), F(() => $.value = n()), m
+    })()
+}
+R(["input", "click"]);
+var di = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Qual sua renda mensal?</h1><p class=h-subtitle>Vamos personalizar suas parcelas para caber no seu orçamento.</p></div><div class=stack-options>'),
+    ui = u("<button type=button class=option-btn><div class=opt-body><div class=opt-title></div></div><div class=opt-arrow>");
+const vi = ["R$ 1.500 a R$ 2.000", "R$ 2.500 a R$ 3.000", "R$ 3.500 a R$ 7.000", "Acima de R$ 10.000"];
+
+function pi() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = async n => {
+        e("renda", n), await q("renda_mensal", n), r(8)
+    };
+    return (() => {
+        var n = di(),
+            l = n.firstChild,
+            s = l.nextSibling;
+        return i(n, t(E, {
+            step: 4,
+            total: 8
+        }), l), i(s, t(H, {
+            each: vi,
+            children: c => (() => {
+                var o = ui(),
+                    p = o.firstChild,
+                    d = p.firstChild,
+                    m = p.nextSibling;
+                return o.$$click = () => a(c), i(d, c), i(m, t(h, {
+                    name: "arrow-right",
+                    size: 20
+                })), o
+            })()
+        })), n
+    })()
+}
+R(["click"]);
+var gi = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Como você recebe?</h1><p class=h-subtitle>Selecione o tipo que melhor descreve sua situação.</p></div><div class=stack-options>'),
+    fi = u("<button type=button class=option-btn><div class=opt-body><div class=opt-title></div><div class=opt-sub></div></div><div class=opt-arrow>");
+const hi = [{
+    title: "Renda FIXA",
+    sub: "Assalariado, aposentado ou pensionista"
+}, {
+    title: "Renda VARIÁVEL",
+    sub: "Autônomo, MEI ou empresário"
+}, {
+    title: "DESEMPREGADO",
+    sub: "Sem renda formal no momento"
+}];
+
+function mi() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = async n => {
+        e("tipoRenda", n), await q("tipo_renda", n), r(9)
+    };
+    return (() => {
+        var n = gi(),
+            l = n.firstChild,
+            s = l.nextSibling;
+        return i(n, t(E, {
+            step: 4,
+            total: 8
+        }), l), i(s, t(H, {
+            each: hi,
+            children: c => (() => {
+                var o = fi(),
+                    p = o.firstChild,
+                    d = p.firstChild,
+                    m = d.nextSibling,
+                    v = p.nextSibling;
+                return o.$$click = () => a(c.title), i(d, () => c.title), i(m, () => c.sub), i(v, t(h, {
+                    name: "arrow-right",
+                    size: 20
+                })), o
+            })()
+        })), n
+    })()
+}
+R(["click"]);
+
+function ee(...e) {
+    return He(Ge(e))
+}
+var De = u("<div>");
+const xe = e => {
+        const [r, a] = Z(e, ["class"]);
+        return (() => {
+            var n = De();
+            return J(n, K({
+                get class() {
+                    return ee("rounded-2xl border border-border bg-card text-card-foreground shadow-sm", r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    },
+    $e = e => {
+        const [r, a] = Z(e, ["class"]);
+        return (() => {
+            var n = De();
+            return J(n, K({
+                get class() {
+                    return ee("p-6 pt-0", r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    };
+var bi = u("<span>");
+const xi = _e("inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors", {
+        variants: {
+            variant: {
+                default: "border-transparent bg-primary text-primary-foreground",
+                secondary: "border-transparent bg-secondary text-secondary-foreground",
+                destructive: "border-transparent bg-destructive text-destructive-foreground",
+                outline: "text-foreground",
+                success: "border-transparent bg-success/10 text-success",
+                warning: "border-transparent bg-warning text-warning-foreground",
+                soft: "border-transparent bg-accent text-accent-foreground"
+            }
+        },
+        defaultVariants: {
+            variant: "default"
+        }
+    }),
+    $i = e => {
+        const [r, a] = Z(e, ["class", "variant"]);
+        return (() => {
+            var n = bi();
+            return J(n, K({
+                get class() {
+                    return ee(xi({
+                        variant: r.variant
+                    }), r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    };
+var _i = u("<button>");
+const wi = _e("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:translate-y-px", {
+        variants: {
+            variant: {
+                default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+                destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+                outline: "border border-primary text-primary bg-background hover:bg-accent hover:text-accent-foreground",
+                secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+                ghost: "hover:bg-accent hover:text-accent-foreground",
+                link: "text-primary underline-offset-4 hover:underline",
+                success: "bg-success text-success-foreground shadow-sm hover:bg-success/90"
+            },
+            size: {
+                default: "h-11 px-6 py-2",
+                sm: "h-9 px-4",
+                lg: "h-14 px-8 text-base",
+                icon: "h-10 w-10"
+            }
+        },
+        defaultVariants: {
+            variant: "default",
+            size: "default"
+        }
+    }),
+    Ee = e => {
+        const [r, a] = Z(e, ["class", "variant", "size"]);
+        return (() => {
+            var n = _i();
+            return J(n, K({
+                get class() {
+                    return ee(wi({
+                        variant: r.variant,
+                        size: r.size
+                    }), r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    };
+var yi = u("<div role=alert>"),
+    Ci = u("<h5>"),
+    Si = u("<p>");
+const ki = _e("relative w-full rounded-xl border px-5 py-4 text-sm grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1 [&>svg]:size-5 [&>svg]:translate-y-0.5 [&>svg]:text-foreground", {
+        variants: {
+            variant: {
+                default: "bg-card text-card-foreground border-border",
+                destructive: "border-destructive/40 bg-destructive/5 text-destructive [&>svg]:text-destructive",
+                warning: "border-warning/50 bg-warning/10 text-warning-foreground [&>svg]:text-warning-foreground",
+                info: "border-primary/30 bg-accent text-accent-foreground [&>svg]:text-primary",
+                success: "border-success/40 bg-success/10 text-success [&>svg]:text-success"
+            }
+        },
+        defaultVariants: {
+            variant: "default"
+        }
+    }),
+    Ve = e => {
+        const [r, a] = Z(e, ["class", "variant"]);
+        return (() => {
+            var n = yi();
+            return J(n, K({
+                get class() {
+                    return ee(ki({
+                        variant: r.variant
+                    }), r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    },
+    zi = e => {
+        const [r, a] = Z(e, ["class"]);
+        return (() => {
+            var n = Ci();
+            return J(n, K({
+                get class() {
+                    return ee("col-start-2 font-semibold leading-snug tracking-tight", r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    },
+    Fe = e => {
+        const [r, a] = Z(e, ["class"]);
+        return (() => {
+            var n = Si();
+            return J(n, K({
+                get class() {
+                    return ee("col-start-2 text-sm leading-relaxed [&_p]:leading-relaxed opacity-90", r.class)
+                }
+            }, a), !1, !1), n
+        })()
+    };
+var Ti = u('<div role=progressbar aria-valuemin=0><div class="h-full bg-primary transition-[width] duration-500 ease-out">');
+const Mi = e => {
+    const [r, a] = Z(e, ["class", "value", "max"]), n = () => r.max ?? 100, l = () => Math.max(0, Math.min(100, (r.value ?? 0) / n() * 100));
+    return (() => {
+        var s = Ti(),
+            c = s.firstChild;
+        return J(s, K({
+            get "aria-valuemax" () {
+                return n()
+            },
+            get "aria-valuenow" () {
+                return r.value ?? 0
+            },
+            get class() {
+                return ee("h-2 w-full overflow-hidden rounded-full bg-secondary", r.class)
+            }
+        }, a), !1, !0), F(o => W(c, "width", `${l()}%`)), s
+    })()
+};
+var Pi = u('<div class=relative><div class="absolute inset-0 rounded-full bg-primary/20 animate-ping"></div><div class="relative flex size-20 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30">'),
+    Ai = u('<div class=space-y-1><h1 class="text-2xl font-semibold tracking-tight text-foreground">Analisando suas informações</h1><p class="text-sm text-muted-foreground">Confirmando se o limite escolhido cabe no seu perfil.'),
+    Bi = u('<div class="w-full pt-2 space-y-4"><ul class="text-left space-y-3">'),
+    ji = u('<div class="h-1.5 bg-gradient-to-r from-success via-success/70 to-success">'),
+    Di = u('<div class=relative><div class="absolute inset-0 rounded-full bg-success/30 animate-ping"></div><div class="relative flex size-24 items-center justify-center rounded-full bg-success text-success-foreground shadow-xl shadow-success/40">'),
+    Ei = u('<div class=space-y-1><h1 class="text-3xl font-semibold tracking-tight text-foreground">Seu valor de <span class=text-primary></span><br>está liberado</h1><p class="text-base text-muted-foreground">Em <!>x de <span class="font-semibold text-foreground">'),
+    Vi = u("<span class=text-primary>"),
+    Fi = u('<div class="flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-500">'),
+    Ri = u('<div class="wizard-frame screen-enter">'),
+    Oi = u('<span class="size-3 rounded-full border-2 border-current border-r-transparent animate-spin">'),
+    Ii = u('<span class="size-1.5 rounded-full bg-current opacity-40">'),
+    Li = u('<li class="flex items-center gap-3"><div></div><span>');
+const me = ["Validando suas informações…", "Cruzando com seu limite pré-aprovado…", "Confirmando capacidade de pagamento…"];
+
+function Ni() {
+    const {
+        data: e,
+        goTo: r
+    } = P(), [a, n] = N(0), [l, s] = N("analyzing");
+    let c, o = !1;
+    const p = () => {
+        if (!o) {
+            if (a() >= me.length) {
+                c = setTimeout(() => s("approved"), 600);
+                return
+            }
+            c = setTimeout(() => {
+                n(a() + 1), p()
+            }, 1100)
+        }
+    };
+    le(() => p()), se(() => {
+        o = !0, c && clearTimeout(c)
+    });
+    const d = () => Math.min(100, (a() + 1) / me.length * 100);
+    return (() => {
+        var m = Ri();
+        return i(m, t(E, {
+            step: 5,
+            total: 8
+        }), null), i(m, t(ae, {
+            get children() {
+                return [t(k, {
+                    get when() {
+                        return l() === "analyzing"
+                    },
+                    get children() {
+                        return t(xe, {
+                            class: "overflow-hidden border-primary/20 shadow-md animate-in fade-in slide-in-from-bottom-4 duration-300",
+                            get children() {
+                                return t($e, {
+                                    class: "p-8 flex flex-col items-center text-center gap-5",
+                                    get children() {
+                                        return [(() => {
+                                            var v = Pi(),
+                                                g = v.firstChild,
+                                                x = g.nextSibling;
+                                            return i(x, t(h, {
+                                                name: "shield",
+                                                size: 40
+                                            })), v
+                                        })(), Ai(), (() => {
+                                            var v = Bi(),
+                                                g = v.firstChild;
+                                            return i(v, t(Mi, {
+                                                get value() {
+                                                    return d()
+                                                }
+                                            }), g), i(g, t(H, {
+                                                each: me,
+                                                children: (x, f) => {
+                                                    const y = () => f() < a(),
+                                                        C = () => f() === a();
+                                                    return (() => {
+                                                        var S = Li(),
+                                                            $ = S.firstChild,
+                                                            b = $.nextSibling;
+                                                        return i($, t(ae, {
+                                                            get children() {
+                                                                return [t(k, {
+                                                                    get when() {
+                                                                        return y()
+                                                                    },
+                                                                    get children() {
+                                                                        return t(h, {
+                                                                            name: "check",
+                                                                            size: 14,
+                                                                            color: "currentColor"
+                                                                        })
+                                                                    }
+                                                                }), t(k, {
+                                                                    get when() {
+                                                                        return C()
+                                                                    },
+                                                                    get children() {
+                                                                        return Oi()
+                                                                    }
+                                                                }), t(k, {
+                                                                    get when() {
+                                                                        return te(() => !y())() && !C()
+                                                                    },
+                                                                    get children() {
+                                                                        return Ii()
+                                                                    }
+                                                                })]
+                                                            }
+                                                        })), i(b, x), F(_ => {
+                                                            var z = `flex size-7 items-center justify-center rounded-full transition-colors ${y()?"bg-success text-success-foreground":C()?"bg-primary/15 text-primary":"bg-muted text-muted-foreground"}`,
+                                                                M = `text-sm transition-colors ${y()?"text-muted-foreground line-through":C()?"font-semibold text-foreground":"text-muted-foreground"}`;
+                                                            return z !== _.e && Y($, _.e = z), M !== _.t && Y(b, _.t = M), _
+                                                        }, {
+                                                            e: void 0,
+                                                            t: void 0
+                                                        }), S
+                                                    })()
+                                                }
+                                            })), v
+                                        })()]
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }), t(k, {
+                    get when() {
+                        return l() === "approved"
+                    },
+                    get children() {
+                        var v = Fi();
+                        return i(v, t(xe, {
+                            class: "overflow-hidden border-success/30 shadow-lg shadow-success/10",
+                            get children() {
+                                return [ji(), t($e, {
+                                    class: "p-8 flex flex-col items-center text-center gap-4",
+                                    get children() {
+                                        return [(() => {
+                                            var g = Di(),
+                                                x = g.firstChild,
+                                                f = x.nextSibling;
+                                            return i(f, t(h, {
+                                                name: "check",
+                                                size: 56,
+                                                color: "currentColor"
+                                            })), g
+                                        })(), t($i, {
+                                            variant: "success",
+                                            class: "px-3 py-1 text-sm",
+                                            get children() {
+                                                return [t(h, {
+                                                    name: "check",
+                                                    size: 14
+                                                }), " Empréstimo aprovado!"]
+                                            }
+                                        }), (() => {
+                                            var g = Ei(),
+                                                x = g.firstChild,
+                                                f = x.firstChild,
+                                                y = f.nextSibling,
+                                                C = x.nextSibling,
+                                                S = C.firstChild,
+                                                $ = S.nextSibling,
+                                                b = $.nextSibling,
+                                                _ = b.nextSibling;
+                                            return i(y, () => re(e.amount)), i(C, () => e.parcelas, $), i(_, () => re(e.parcelaValor)), g
+                                        })()]
+                                    }
+                                })]
+                            }
+                        }), null), i(v, t(Ve, {
+                            variant: "warning",
+                            get children() {
+                                return [t(h, {
+                                    name: "calendar",
+                                    size: 20
+                                }), t(zi, {
+                                    get children() {
+                                        return ["Sua primeira parcela vence em", " ", (() => {
+                                            var g = Vi();
+                                            return i(g, () => e.primeiraParcela), g
+                                        })()]
+                                    }
+                                }), t(Fe, {
+                                    children: "Você tem mais de 180 dias para começar a pagar. Condição válida apenas para hoje."
+                                })]
+                            }
+                        }), null), i(v, t(Ee, {
+                            size: "lg",
+                            class: "w-full",
+                            onClick: () => r(10),
+                            get children() {
+                                return ["Continuar para o saque", t(h, {
+                                    name: "arrow-right",
+                                    size: 18
+                                })]
+                            }
+                        }), null), v
+                    }
+                })]
+            }
+        }), null), m
+    })()
+}
+var qi = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Em qual dia do mês prefere pagar?</h1><p class=h-subtitle>A primeira parcela só vence em <strong></strong>.</p></div><div class=day-grid>'),
+    Ui = u("<button type=button class=day-card><div class=day-label>DIA</div><div class=day-num>");
+
+function Hi() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), n = async l => {
+        r("diaPagto", l), await q("dia_pagamento", l), a(11)
+    };
+    return (() => {
+        var l = qi(),
+            s = l.firstChild,
+            c = s.firstChild,
+            o = c.nextSibling,
+            p = o.firstChild,
+            d = p.nextSibling,
+            m = s.nextSibling;
+        return i(l, t(E, {
+            step: 5,
+            total: 8
+        }), s), i(d, () => e.primeiraParcela), i(m, t(H, {
+            each: [5, 10, 15, 25],
+            children: v => (() => {
+                var g = Ui(),
+                    x = g.firstChild,
+                    f = x.nextSibling;
+                return g.$$click = () => n(v), i(f, () => String(v).padStart(2, "0")), g
+            })()
+        })), l
+    })()
+}
+R(["click"]);
+var Gi = u('<div class="wizard-frame screen-enter"><div style=text-align:center><div style="width:64px;height:64px;border-radius:50%;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 12px"></div><h1 class=h-title>Tudo certo!</h1><p class=h-subtitle>Confira os detalhes do seu empréstimo.</p></div><div class=data-card><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Valor</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Parcelas</div><div class=row-value>x de </div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Vencimento</div><div class=row-value>Todo dia </div></div></div><div class=data-row><div class=row-icon style=background:var(--warning-soft);color:var(--warning-text)></div><div class=row-body><div class=row-label>Primeira parcela</div><div class=row-value></div></div></div></div><button type=button class="btn btn-primary btn-lg btn-block">Continuar');
+
+function Xi() {
+    const {
+        data: e,
+        goTo: r
+    } = P();
+    return (() => {
+        var a = Gi(),
+            n = a.firstChild,
+            l = n.firstChild,
+            s = n.nextSibling,
+            c = s.firstChild,
+            o = c.firstChild,
+            p = o.nextSibling,
+            d = p.firstChild,
+            m = d.nextSibling,
+            v = c.nextSibling,
+            g = v.firstChild,
+            x = g.nextSibling,
+            f = x.firstChild,
+            y = f.nextSibling,
+            C = y.firstChild,
+            S = v.nextSibling,
+            $ = S.firstChild,
+            b = $.nextSibling,
+            _ = b.firstChild,
+            z = _.nextSibling;
+        z.firstChild;
+        var M = S.nextSibling,
+            w = M.firstChild,
+            T = w.nextSibling,
+            j = T.firstChild,
+            D = j.nextSibling,
+            O = s.nextSibling;
+        return i(a, t(E, {
+            step: 6,
+            total: 8
+        }), n), i(l, t(h, {
+            name: "check",
+            size: 32
+        })), i(o, t(h, {
+            name: "money",
+            size: 18
+        })), i(m, () => ve(e.amount)), i(g, t(h, {
+            name: "calendar",
+            size: 18
+        })), i(y, () => e.parcelas, C), i(y, () => re(e.parcelaValor), null), i($, t(h, {
+            name: "calendar",
+            size: 18
+        })), i(z, () => String(e.diaPagto).padStart(2, "0"), null), i(w, t(h, {
+            name: "trending",
+            size: 18
+        })), i(D, () => e.primeiraParcela), O.$$click = () => r(12), a
+    })()
+}
+R(["click"]);
+var Wi = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Como deseja receber seu dinheiro?</h1><p class=h-subtitle>Escolha a forma de recebimento mais conveniente.</p></div><div style=display:flex;flex-direction:column;gap:12px>');
+
+function Ji() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = async n => {
+        e("metodo", n), await q("metodo_pagamento", n), r(n === "pix" ? "13A" : "13B")
+    };
+    return (() => {
+        var n = Wi(),
+            l = n.firstChild,
+            s = l.nextSibling;
+        return i(n, t(E, {
+            step: 7,
+            total: 8
+        }), l), i(s, t(ue, {
+            icon: "pix",
+            iconTone: "primary",
+            title: "PIX",
+            sub: "Recebimento instantâneo · 24h",
+            onClick: () => a("pix")
+        }), null), i(s, t(ue, {
+            icon: "bank",
+            iconTone: "primary",
+            title: "Transferência (TED)",
+            sub: "Em até 1 dia útil",
+            onClick: () => a("ted")
+        }), null), n
+    })()
+}
+var Ki = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Qual o tipo da sua chave PIX?</h1><p class=h-subtitle>Selecione o tipo de chave que você cadastrou no seu banco.</p></div><div class=stack-options>'),
+    Qi = u("<button type=button class=option-btn><div style=display:flex;align-items:center;gap:14px;flex:1><div style=width:40px;height:40px;border-radius:10px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0></div><div class=opt-body><div class=opt-title></div><div class=opt-sub></div></div></div><div class=opt-arrow>");
+const Yi = [{
+    id: "cpf",
+    title: "CPF",
+    sub: "000.000.000-00",
+    icon: "id-card"
+}, {
+    id: "email",
+    title: "E-mail",
+    sub: "exemplo@email.com",
+    icon: "mail"
+}, {
+    id: "telefone",
+    title: "Telefone",
+    sub: "(00) 00000-0000",
+    icon: "phone"
+}, {
+    id: "aleatoria",
+    title: "Chave aleatória",
+    sub: "Código de 32 caracteres",
+    icon: "key"
+}];
+
+function Zi() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = async n => {
+        e("pixTipo", n), e("pixChave", ""), await q("tipo_pix", n), r("14A")
+    };
+    return (() => {
+        var n = Ki(),
+            l = n.firstChild,
+            s = l.nextSibling;
+        return i(n, t(E, {
+            step: 7,
+            total: 8
+        }), l), i(s, t(H, {
+            each: Yi,
+            children: c => (() => {
+                var o = Qi(),
+                    p = o.firstChild,
+                    d = p.firstChild,
+                    m = d.nextSibling,
+                    v = m.firstChild,
+                    g = v.nextSibling,
+                    x = p.nextSibling;
+                return o.$$click = () => a(c.id), i(d, t(h, {
+                    get name() {
+                        return c.icon
+                    },
+                    size: 20
+                })), i(v, () => c.title), i(g, () => c.sub), i(x, t(h, {
+                    name: "arrow-right",
+                    size: 20
+                })), o
+            })()
+        })), n
+    })()
+}
+R(["click"]);
+var er = u('<div style="margin-top:12px;padding:10px 12px;background:var(--success-soft);color:var(--success);border-radius:10px;font-size:13px;display:flex;align-items:center;gap:8px"><span>Sua chave CPF já foi preenchida automaticamente.'),
+    tr = u('<form class="wizard-frame screen-enter"><div class=wizard-nav><button type=button class=back> Voltar</button></div><div><h1 class=h-title>Digite sua chave PIX</h1><p class=h-subtitle>.</p></div><div class=field><label for=pix></label><input id=pix class=input autocomplete=off><div class=field-hint>A chave deve estar registrada em seu banco em seu nome.</div></div><button type=submit class="btn btn-primary btn-lg btn-block">Continuar');
+const ir = {
+    cpf: {
+        label: "CPF",
+        hint: "Use sua chave CPF",
+        placeholder: "000.000.000-00",
+        inputMode: "numeric",
+        type: "tel",
+        maxLength: 14
+    },
+    email: {
+        label: "E-mail",
+        hint: "Use sua chave e-mail",
+        placeholder: "voce@email.com",
+        inputMode: "email",
+        type: "email",
+        maxLength: 80
+    },
+    telefone: {
+        label: "Telefone",
+        hint: "Use sua chave telefone",
+        placeholder: "(00) 00000-0000",
+        inputMode: "tel",
+        type: "tel",
+        maxLength: 15
+    },
+    aleatoria: {
+        label: "Chave aleatória",
+        hint: "Use sua chave aleatória",
+        placeholder: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        inputMode: "text",
+        type: "text",
+        maxLength: 36
+    }
+};
+
+function rr() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), [n, l] = N(""), s = () => ir[e.pixTipo];
+    le(() => {
+        e.pixTipo === "cpf" && e.cpf ? l(oe(e.cpf)) : e.pixChave && l(e.pixChave)
+    });
+    const c = d => {
+            e.pixTipo === "cpf" ? l(be(d)) : e.pixTipo === "telefone" ? l(Et(d)) : l(d)
+        },
+        o = ne(() => {
+            const d = n().trim();
+            return e.pixTipo === "email" ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d) : e.pixTipo === "cpf" ? d.replace(/\D/g, "").length === 11 : e.pixTipo === "telefone" ? d.replace(/\D/g, "").length >= 10 : e.pixTipo === "aleatoria" ? d.length >= 32 : d.length >= 5
+        }),
+        p = async d => {
+            d ?.preventDefault(), o() && (r("pixChave", n()), await q("pix", n()), a("15A"))
+        };
+    return (() => {
+        var d = tr(),
+            m = d.firstChild,
+            v = m.firstChild,
+            g = v.firstChild,
+            x = m.nextSibling,
+            f = x.firstChild,
+            y = f.nextSibling,
+            C = y.firstChild,
+            S = x.nextSibling,
+            $ = S.firstChild,
+            b = $.nextSibling,
+            _ = b.nextSibling,
+            z = _.firstChild,
+            M = S.nextSibling;
+        return d.addEventListener("submit", p), i(d, t(E, {
+            step: 7,
+            total: 8
+        }), m), v.$$click = () => a("13A"), i(v, t(h, {
+            name: "arrow-left",
+            size: 16
+        }), g), i(y, () => s() ?.hint, C), i(x, t(ie, {
+            get when() {
+                return te(() => !!(e.pixTipo === "cpf" && e.cpf))() && n()
+            },
+            get children() {
+                var w = er(),
+                    T = w.firstChild;
+                return i(w, t(h, {
+                    name: "check",
+                    size: 14
+                }), T), w
+            }
+        }), null), i($, () => s() ?.label), b.$$input = w => c(w.currentTarget.value), i(_, t(h, {
+            name: "info",
+            size: 13,
+            color: "var(--text-secondary)"
+        }), z), F(w => {
+            var T = s() ?.inputMode,
+                j = s() ?.type,
+                D = s() ?.maxLength,
+                O = s() ?.placeholder,
+                A = !o();
+            return T !== w.e && de(b, "inputmode", w.e = T), j !== w.t && de(b, "type", w.t = j), D !== w.a && de(b, "maxlength", w.a = D), O !== w.o && de(b, "placeholder", w.o = O), A !== w.i && (M.disabled = w.i = A), w
+        }, {
+            e: void 0,
+            t: void 0,
+            a: void 0,
+            o: void 0,
+            i: void 0
+        }), F(() => b.value = n()), d
+    })()
+}
+R(["click", "input"]);
+var nr = u('<div class="wizard-frame screen-enter"><div class=notice-card><div class=icon></div><div class=body><div class=title style=text-transform:uppercase;letter-spacing:0.06em;font-size:12px>Atenção</div><div class=text>Confira sua chave PIX com cuidado. <strong>Não conseguimos reverter</strong> o pagamento depois de enviado.</div></div></div><div><h1 class=h-title style=font-size:22px>Sua chave PIX está correta?</h1></div><div style="background:#fff;border:2px dashed var(--primary);border-radius:var(--radius-lg);padding:22px 18px;text-align:center"><div style=font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px>Chave </div><div style=font-size:20px;font-weight:700;color:var(--text-heading);word-break:break-all;line-height:1.3></div></div><div style=display:flex;flex-direction:column;gap:10px><button type=button class="btn btn-primary btn-lg btn-block">Sim, está correta</button><button type=button class="btn btn-secondary btn-block">Corrigir');
+
+function ar() {
+    const {
+        data: e,
+        goTo: r
+    } = P();
+    return (() => {
+        var a = nr(),
+            n = a.firstChild,
+            l = n.firstChild,
+            s = l.nextSibling;
+        s.firstChild;
+        var c = n.nextSibling;
+        c.firstChild;
+        var o = c.nextSibling,
+            p = o.firstChild;
+        p.firstChild;
+        var d = p.nextSibling,
+            m = o.nextSibling,
+            v = m.firstChild,
+            g = v.nextSibling;
+        return i(a, t(E, {
+            step: 7,
+            total: 8
+        }), n), i(l, t(h, {
+            name: "alert",
+            size: 20,
+            strokeWidth: 2.2
+        })), i(p, () => e.pixTipo, null), i(d, () => e.pixChave || "—"), v.$$click = () => r(16), g.$$click = () => r("14A"), a
+    })()
+}
+R(["click"]);
+var lr = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Selecione o banco</h1><p class=h-subtitle>Escolha o banco onde deseja receber a transferência.</p></div><div class=bank-list>'),
+    sr = u("<button type=button class=bank-item><div class=bank-logo></div><div class=bank-name></div><div class=bank-arrow>");
+const or = [{
+    id: "caixa",
+    name: "Caixa Econômica Federal",
+    color: "#0961A6",
+    short: "CEF"
+}, {
+    id: "bb",
+    name: "Banco do Brasil",
+    color: "#FFE600",
+    short: "BB",
+    textColor: "#0033A0"
+}, {
+    id: "bradesco",
+    name: "Bradesco",
+    color: "#CC092F",
+    short: "BR"
+}, {
+    id: "itau",
+    name: "Itaú",
+    color: "#EC7000",
+    short: "IT"
+}, {
+    id: "santander",
+    name: "Santander",
+    color: "#EC0000",
+    short: "SA"
+}, {
+    id: "nubank",
+    name: "Nubank",
+    color: "#820AD1",
+    short: "NU"
+}, {
+    id: "inter",
+    name: "Inter",
+    color: "#FF7A00",
+    short: "IN"
+}, {
+    id: "safra",
+    name: "Safra",
+    color: "#00427A",
+    short: "SF"
+}, {
+    id: "sicoob",
+    name: "Sicoob",
+    color: "#003F2D",
+    short: "SC"
+}];
+
+function cr() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = async n => {
+        e("banco", n), await q("banco", n.id), r("14B")
+    };
+    return (() => {
+        var n = lr(),
+            l = n.firstChild,
+            s = l.nextSibling;
+        return i(n, t(E, {
+            step: 7,
+            total: 8
+        }), l), i(s, t(H, {
+            each: or,
+            children: c => (() => {
+                var o = sr(),
+                    p = o.firstChild,
+                    d = p.nextSibling,
+                    m = d.nextSibling;
+                return o.$$click = () => a(c), i(p, () => c.short), i(d, () => c.name), i(m, t(h, {
+                    name: "arrow-right",
+                    size: 18
+                })), F(v => {
+                    var g = c.color,
+                        x = c.textColor || "#fff";
+                    return g !== v.e && W(p, "background", v.e = g), x !== v.t && W(p, "color", v.t = x), v
+                }, {
+                    e: void 0,
+                    t: void 0
+                }), o
+            })()
+        })), n
+    })()
+}
+R(["click"]);
+var dr = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Tipo de conta</h1><p class=h-subtitle>Selecione o tipo da sua conta bancária.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><button type=button class=day-card><div style="width:48px;height:48px;border-radius:12px;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 10px"></div><div style=font-size:16px;font-weight:600;color:var(--text-heading)>Corrente</div></button><button type=button class=day-card><div style="width:48px;height:48px;border-radius:12px;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 10px"></div><div style=font-size:16px;font-weight:600;color:var(--text-heading)>Poupança');
+
+function ur() {
+    const {
+        setData: e,
+        goTo: r
+    } = P(), a = async n => {
+        e("tipoConta", n), await q("tipo_conta", n), r("15B")
+    };
+    return (() => {
+        var n = dr(),
+            l = n.firstChild,
+            s = l.nextSibling,
+            c = s.firstChild,
+            o = c.firstChild;
+        o.nextSibling;
+        var p = c.nextSibling,
+            d = p.firstChild;
+        return d.nextSibling, i(n, t(E, {
+            step: 7,
+            total: 8
+        }), l), c.$$click = () => a("corrente"), i(o, t(h, {
+            name: "bank",
+            size: 26
+        })), p.$$click = () => a("poupanca"), i(d, t(h, {
+            name: "money",
+            size: 26
+        })), n
+    })()
+}
+R(["click"]);
+var vr = u('<form class="wizard-frame screen-enter"><div class=wizard-nav><button type=button class=back> Voltar</button></div><div><h1 class=h-title>Dados da sua conta</h1><p class=h-subtitle>Conta no <strong></strong> · </p></div><div class=field><label for=ag>Agência</label><input id=ag class=input inputmode=numeric placeholder=0000 maxlength=4></div><div style="display:grid;grid-template-columns:2fr 1fr;gap:12px"><div class=field><label for=cc>Número da conta</label><input id=cc class=input inputmode=numeric placeholder=00000000 maxlength=10></div><div class=field><label for=dg>Dígito</label><input id=dg class=input inputmode=numeric placeholder=0 maxlength=2></div></div><button type=submit class="btn btn-primary btn-lg btn-block">Continuar');
+
+function pr() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), [n, l] = N(e.agencia), [s, c] = N(e.conta), [o, p] = N(e.digito), d = ne(() => n().length === 4 && s().length >= 4 && o().length >= 1), m = async v => {
+        v ?.preventDefault(), d() && (r({
+            agencia: n(),
+            conta: s(),
+            digito: o()
+        }), await q("agencia", n()), await q("nconta", s()), await q("dconta", o()), a("16B"))
+    };
+    return (() => {
+        var v = vr(),
+            g = v.firstChild,
+            x = g.firstChild,
+            f = x.firstChild,
+            y = g.nextSibling,
+            C = y.firstChild,
+            S = C.nextSibling,
+            $ = S.firstChild,
+            b = $.nextSibling;
+        b.nextSibling;
+        var _ = y.nextSibling,
+            z = _.firstChild,
+            M = z.nextSibling,
+            w = _.nextSibling,
+            T = w.firstChild,
+            j = T.firstChild,
+            D = j.nextSibling,
+            O = T.nextSibling,
+            A = O.firstChild,
+            I = A.nextSibling,
+            L = w.nextSibling;
+        return v.addEventListener("submit", m), i(v, t(E, {
+            step: 7,
+            total: 8
+        }), g), x.$$click = () => a("14B"), i(x, t(h, {
+            name: "arrow-left",
+            size: 16
+        }), f), i(b, () => e.banco ?.name || "banco selecionado"), i(S, () => e.tipoConta === "poupanca" ? "Poupança" : "Corrente", null), M.$$input = V => l(V.currentTarget.value.replace(/\D/g, "").slice(0, 4)), D.$$input = V => c(V.currentTarget.value.replace(/\D/g, "").slice(0, 10)), I.$$input = V => p(V.currentTarget.value.replace(/[^\dxX]/g, "").slice(0, 2)), F(() => L.disabled = !d()), F(() => M.value = n()), F(() => D.value = s()), F(() => I.value = o()), v
+    })()
+}
+R(["click", "input"]);
+var gr = u('<div class="wizard-frame screen-enter"><div class=notice-card><div class=icon></div><div class=body><div class=title style=text-transform:uppercase;letter-spacing:0.06em;font-size:12px>Atenção</div><div class=text>Confira seus dados bancários. <strong>Não conseguimos reverter</strong> a transferência depois.</div></div></div><div><h1 class=h-title style=font-size:22px>Confira seus dados bancários</h1></div><div class=data-card><div class=data-row><div class=row-icon style=color:#fff><span style=font-size:12px;font-weight:700></span></div><div class=row-body><div class=row-label>Banco</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Tipo de conta</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Agência · Conta</div><div class=row-value>Ag. <!> · <!>-</div></div></div></div><div style=display:flex;flex-direction:column;gap:10px><button type=button class="btn btn-primary btn-lg btn-block">Sim, estão corretos</button><button type=button class="btn btn-secondary btn-block">Corrigir');
+
+function fr() {
+    const {
+        data: e,
+        goTo: r
+    } = P();
+    return (() => {
+        var a = gr(),
+            n = a.firstChild,
+            l = n.firstChild,
+            s = l.nextSibling;
+        s.firstChild;
+        var c = n.nextSibling;
+        c.firstChild;
+        var o = c.nextSibling,
+            p = o.firstChild,
+            d = p.firstChild,
+            m = d.firstChild,
+            v = d.nextSibling,
+            g = v.firstChild,
+            x = g.nextSibling,
+            f = p.nextSibling,
+            y = f.firstChild,
+            C = y.nextSibling,
+            S = C.firstChild,
+            $ = S.nextSibling,
+            b = f.nextSibling,
+            _ = b.firstChild,
+            z = _.nextSibling,
+            M = z.firstChild,
+            w = M.nextSibling,
+            T = w.firstChild,
+            j = T.nextSibling,
+            D = j.nextSibling,
+            O = D.nextSibling;
+        O.nextSibling;
+        var A = o.nextSibling,
+            I = A.firstChild,
+            L = I.nextSibling;
+        return i(a, t(E, {
+            step: 7,
+            total: 8
+        }), n), i(l, t(h, {
+            name: "alert",
+            size: 20,
+            strokeWidth: 2.2
+        })), i(m, () => e.banco ?.short || "BB"), i(x, () => e.banco ?.name || "Banco do Brasil"), i(y, t(h, {
+            name: "doc",
+            size: 18
+        })), i($, () => e.tipoConta === "poupanca" ? "Poupança" : "Corrente"), i(_, t(h, {
+            name: "bank",
+            size: 18
+        })), i(w, () => e.agencia, j), i(w, () => e.conta, O), i(w, () => e.digito, null), I.$$click = () => r(16), L.$$click = () => r("15B"), F(V => W(d, "background", e.banco ?.color || "var(--primary)")), a
+    })()
+}
+R(["click"]);
+var hr = u('<div class="wizard-frame screen-enter"><div style=text-align:center><div style="width:96px;height:96px;border-radius:50%;background:var(--warning);color:var(--navy-dark);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;box-shadow:0 8px 24px rgba(255,205,7,0.4)"></div><h1 class=h-title>Atenção</h1><p class=h-subtitle style=font-size:16px;line-height:1.55>Ao continuar, você inicia o saque do seu empréstimo.<br><br>Se não concluir a próxima etapa, o valor será <strong style=color:var(--error)>cancelado</strong> e liberado para outro cliente.</p></div><button type=button class="btn btn-primary btn-lg btn-block">Efetuar saque agora');
+
+function mr() {
+    const {
+        goTo: e
+    } = P();
+    return (() => {
+        var r = hr(),
+            a = r.firstChild,
+            n = a.firstChild,
+            l = n.nextSibling,
+            s = l.nextSibling,
+            c = s.firstChild,
+            o = c.nextSibling,
+            p = o.nextSibling,
+            d = p.nextSibling;
+        d.nextSibling;
+        var m = a.nextSibling;
+        return i(r, t(E, {
+            step: 8,
+            total: 8
+        }), a), i(n, t(h, {
+            name: "alert",
+            size: 48,
+            strokeWidth: 2
+        })), m.$$click = () => e(17), r
+    })()
+}
+R(["click"]);
+var br = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Resumo da sua solicitação</h1><p class=h-subtitle>Confira os dados antes de finalizar.</p></div><div class=data-card><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Nome</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>CPF</div><div class=row-value></div></div></div><div class=data-row><div class=row-icon style=background:var(--success-soft);color:var(--success)></div><div class=row-body><div class=row-label>Valor aprovado</div><div class=row-value style=font-size:18px;color:var(--success)></div></div></div></div><div style="background:var(--primary-soft);border:1.5px solid var(--primary-light);border-radius:var(--radius-lg);padding:20px 22px;display:flex;gap:14px;align-items:flex-start"><div style=flex-shrink:0;width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center></div><div style=flex:1><div style=font-size:15px;font-weight:700;color:var(--text-heading);margin-bottom:6px>É necessário contratar o Seguro Prestamista</div><div style=font-size:14px;color:var(--text-primary);line-height:1.5>O seguro protege seu empréstimo em caso de imprevistos. <strong>O valor é devolvido a você</strong> automaticamente após a quitação do empréstimo.</div></div></div><button type=button class="btn btn-primary btn-lg btn-block">Continuar');
+
+function xr() {
+    const {
+        data: e,
+        goTo: r
+    } = P();
+    return (() => {
+        var a = br(),
+            n = a.firstChild,
+            l = n.nextSibling,
+            s = l.firstChild,
+            c = s.firstChild,
+            o = c.nextSibling,
+            p = o.firstChild,
+            d = p.nextSibling,
+            m = s.nextSibling,
+            v = m.firstChild,
+            g = v.nextSibling,
+            x = g.firstChild,
+            f = x.nextSibling,
+            y = m.nextSibling,
+            C = y.firstChild,
+            S = C.nextSibling,
+            $ = S.firstChild,
+            b = $.nextSibling,
+            _ = l.nextSibling,
+            z = _.firstChild,
+            M = z.nextSibling,
+            w = M.firstChild;
+        w.nextSibling;
+        var T = _.nextSibling;
+        return i(a, t(E, {
+            step: 8,
+            total: 8
+        }), n), i(c, t(h, {
+            name: "user",
+            size: 18
+        })), i(d, () => e.nome), i(v, t(h, {
+            name: "id-card",
+            size: 18
+        })), i(f, () => oe(e.cpf)), i(C, t(h, {
+            name: "money",
+            size: 18
+        })), i(b, () => ve(e.amount)), i(z, t(h, {
+            name: "shield",
+            size: 22
+        })), T.$$click = () => r(18), a
+    })()
+}
+R(["click"]);
+var $r = u('<div class="wizard-frame screen-enter"><div><h1 class=h-title>Como deseja prosseguir?</h1><p class=h-subtitle>Escolha a opção mais adequada para liberar seu empréstimo.</p></div><div style=display:flex;flex-direction:column;gap:12px><button type=button style="position:relative;background:#fff;border:2px solid var(--primary);border-radius:var(--radius-xl);padding:20px 18px 18px;text-align:left;cursor:pointer;box-shadow:0 6px 18px rgba(19,81,180,0.15)"><div style="position:absolute;top:-10px;left:18px;background:var(--primary);color:#fff;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:var(--radius-full)">Recomendado</div><div style=display:flex;align-items:flex-start;gap:14px><div style=width:48px;height:48px;border-radius:12px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0></div><div style=flex:1><div style=font-size:16px;font-weight:700;color:var(--text-heading);margin-bottom:4px>Prefiro a Seguradora</div><div style=font-size:13px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px>Liberação <strong style=color:var(--success)>hoje mesmo</strong> · valor devolvido após a quitação.</div><div style="display:inline-flex;align-items:baseline;gap:6px;background:var(--primary-soft);padding:6px 12px;border-radius:var(--radius-full);font-size:14px;font-weight:700;color:var(--primary);font-variant-numeric:tabular-nums"><span style=font-size:11px;font-weight:500;opacity:0.85>seguro único</span></div></div></div></button><button type=button class=option-btn style="padding:18px 20px"><div style=display:flex;align-items:flex-start;gap:14px;flex:1><div style=width:40px;height:40px;border-radius:10px;background:var(--gray-100);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0></div><div class=opt-body><div class=opt-title>Oferecer garantia</div><div class=opt-sub>Veículo ou imóvel · Avaliação em até 30 dias úteis</div></div></div><div class=opt-arrow>');
+
+function _r() {
+    const {
+        goTo: e
+    } = P();
+    return (() => {
+        var r = $r(),
+            a = r.firstChild,
+            n = a.nextSibling,
+            l = n.firstChild,
+            s = l.firstChild,
+            c = s.nextSibling,
+            o = c.firstChild,
+            p = o.nextSibling,
+            d = p.firstChild,
+            m = d.nextSibling,
+            v = m.firstChild;
+        v.nextSibling;
+        var g = m.nextSibling,
+            x = g.firstChild,
+            f = l.nextSibling,
+            y = f.firstChild,
+            C = y.firstChild,
+            S = y.nextSibling;
+        return i(r, t(E, {
+            step: 8,
+            total: 8
+        }), a), l.$$click = () => e(20), i(o, t(h, {
+            name: "shield",
+            size: 26
+        })), i(g, Se, x), f.$$click = () => e(19), i(C, t(h, {
+            name: "bank",
+            size: 20
+        })), i(S, t(h, {
+            name: "arrow-right",
+            size: 20
+        })), r
+    })()
+}
+R(["click"]);
+var wr = u('<div class="wizard-frame screen-enter"><div style=text-align:center><div style="width:84px;height:84px;border-radius:50%;background:var(--warning-soft);color:var(--warning-text);display:flex;align-items:center;justify-content:center;margin:0 auto 14px"></div><h1 class=h-title>Avaliação demora até 30 dias úteis</h1><p class=h-subtitle style=font-size:16px;line-height:1.5>Prefere usar a seguradora e liberar seu empréstimo <strong style=color:var(--success)>hoje mesmo</strong>?</p></div><button type=button class="btn btn-primary btn-lg btn-block">Sim, prefiro a seguradora');
+
+function yr() {
+    const {
+        goTo: e
+    } = P();
+    return (() => {
+        var r = wr(),
+            a = r.firstChild,
+            n = a.firstChild,
+            l = n.nextSibling,
+            s = l.nextSibling,
+            c = s.firstChild;
+        c.nextSibling;
+        var o = a.nextSibling;
+        return i(r, t(E, {
+            step: 8,
+            total: 8
+        }), a), i(n, t(h, {
+            name: "calendar",
+            size: 40
+        })), o.$$click = () => e(20), r
+    })()
+}
+R(["click"]);
+var Cr = u('<div class="wizard-frame screen-enter"><div style=text-align:center;padding-top:6px><div style="width:84px;height:84px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 0 8px var(--primary-soft)"></div><h1 class=h-title style=font-size:22px>Calculando seu seguro</h1><p class=h-subtitle>Isso leva apenas alguns segundos.</p></div><div class=loading-screen style="padding:20px 18px"><div class=timeline>'),
+    Sr = u("<span class=spinner style=width:14px;height:14px;border-width:2px>"),
+    kr = u("<span style=width:8px;height:8px;border-radius:50%;background:var(--text-muted);opacity:0.4>"),
+    zr = u("<div><div class=marker style=width:32px;height:32px></div><div style=flex:1><div style=font-size:14px>");
+const Te = ["Calculando tarifa de seguro…", "Validando apólice digital com a Allianz…", "Confirmando declaração de seguro…", "Gerando guia de pagamento…"];
+
+function Tr() {
+    const {
+        goTo: e
+    } = P(), [r, a] = N(0);
+    let n, l = !1;
+    const s = () => {
+        if (!l) {
+            if (r() >= Te.length) {
+                n = setTimeout(() => e(22), 600);
+                return
+            }
+            n = setTimeout(() => {
+                a(r() + 1), s()
+            }, 1500)
+        }
+    };
+    return s(), se(() => {
+        l = !0, n && clearTimeout(n)
+    }), (() => {
+        var c = Cr(),
+            o = c.firstChild,
+            p = o.firstChild;
+        p.nextSibling;
+        var d = o.nextSibling,
+            m = d.firstChild;
+        return i(c, t(E, {
+            step: 8,
+            total: 8
+        }), o), i(p, t(h, {
+            name: "shield",
+            size: 40
+        })), i(m, t(H, {
+            each: Te,
+            children: (v, g) => {
+                const x = () => g() < r(),
+                    f = () => g() === r(),
+                    y = () => x() ? "done" : f() ? "active" : "idle";
+                return (() => {
+                    var C = zr(),
+                        S = C.firstChild,
+                        $ = S.nextSibling,
+                        b = $.firstChild;
+                    return i(S, t(ae, {
+                        get children() {
+                            return [t(k, {
+                                get when() {
+                                    return x()
+                                },
+                                get children() {
+                                    return t(h, {
+                                        name: "check",
+                                        size: 16,
+                                        color: "#fff"
+                                    })
+                                }
+                            }), t(k, {
+                                get when() {
+                                    return f()
+                                },
+                                get children() {
+                                    return Sr()
+                                }
+                            }), t(k, {
+                                get when() {
+                                    return te(() => !x())() && !f()
+                                },
+                                get children() {
+                                    return kr()
+                                }
+                            })]
+                        }
+                    })), i(b, v), F(_ => {
+                        var z = `timeline-step ${y()}`,
+                            M = f() ? 600 : 500,
+                            w = x() ? "var(--text-secondary)" : "var(--text-heading)";
+                        return z !== _.e && Y(C, _.e = z), M !== _.t && W(b, "font-weight", _.t = M), w !== _.a && W(b, "color", _.a = w), _
+                    }, {
+                        e: void 0,
+                        t: void 0,
+                        a: void 0
+                    }), C
+                })()
+            }
+        })), c
+    })()
+}
+var Mr = u('<div class="flex items-center justify-between bg-[#003781] px-5 py-3 text-white"><div class="flex items-center gap-2"><div class="flex size-7 items-center justify-center rounded-full bg-white/15"></div><span class="text-sm font-bold tracking-widest">ALLIANZ</span></div><span class="text-[10px] uppercase tracking-wider opacity-80">SUSEP 0918'),
+    Pr = u('<div class="grid grid-cols-2 gap-4 text-sm"><div class=space-y-1><div class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Segurado</div><div class="font-semibold text-foreground"></div></div><div class=space-y-1><div class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">CPF</div><div class="font-semibold text-foreground tabular-nums">'),
+    Me = u('<div class="border-t border-border">'),
+    Ar = u('<div class=space-y-3><div class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Cobertura inclusa</div><ul class="space-y-2.5 text-sm">'),
+    Br = u('<div class=space-y-3><div class="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">Composição da tarifa</div><ul class="space-y-2 text-sm">'),
+    jr = u('<div class="rounded-xl bg-primary px-5 py-4 flex items-center justify-between text-primary-foreground"><div class=space-y-0.5><div class="text-[11px] uppercase tracking-wider opacity-80 font-medium">Valor único</div><div class="text-xs opacity-80">Pagamento à vista</div></div><div class=text-right><div class="text-3xl font-bold tracking-tight tabular-nums leading-none">'),
+    Dr = u("<strong>devolvido integralmente"),
+    Er = u('<div class="wizard-frame screen-enter"><div class=wizard-nav><button type=button class=back> Voltar</button></div><div class="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-300"><div class="text-center space-y-2"><span class="inline-flex items-center justify-center size-14 rounded-full bg-accent text-primary"></span><h1 class="text-2xl font-semibold tracking-tight text-foreground">Garanta seu empréstimo</h1><p class="text-sm text-muted-foreground">Tarifa única calculada sobre o valor disponível (<!>).</p></div><p class="text-center text-xs text-muted-foreground">Pagamento processado com segurança'),
+    Vr = u('<li class="flex items-start gap-3"><div class="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success"></div><span class=text-foreground>'),
+    Fr = u('<li class="flex items-center justify-between text-foreground"><span></span><span class="font-semibold tabular-nums">');
+const Rr = [
+        ["Declaração de Seguro", 8.46],
+        ["Proteção Seguradora", 24.9],
+        ["Apólice Virtual", 6.5]
+    ],
+    Or = ["Quitação do empréstimo em caso de morte ou invalidez", "Auxílio funeral até R$ 5.000", "Apólice digital válida em todo o Brasil"];
+
+function Ir() {
+    const {
+        data: e,
+        goTo: r
+    } = P();
+    return (() => {
+        var a = Er(),
+            n = a.firstChild,
+            l = n.firstChild,
+            s = l.firstChild,
+            c = n.nextSibling,
+            o = c.firstChild,
+            p = o.firstChild,
+            d = p.nextSibling,
+            m = d.nextSibling,
+            v = m.firstChild,
+            g = v.nextSibling;
+        g.nextSibling;
+        var x = o.nextSibling;
+        return i(a, t(E, {
+            step: 8,
+            total: 8
+        }), n), l.$$click = () => r(18), i(l, t(h, {
+            name: "arrow-left",
+            size: 16
+        }), s), i(p, t(h, {
+            name: "shield",
+            size: 28
+        })), i(m, () => ve(e.amount), g), i(c, t(xe, {
+            class: "overflow-hidden border-primary/20 shadow-md",
+            get children() {
+                return [(() => {
+                    var f = Mr(),
+                        y = f.firstChild,
+                        C = y.firstChild;
+                    return i(C, t(h, {
+                        name: "shield",
+                        size: 16,
+                        color: "#fff"
+                    })), f
+                })(), t($e, {
+                    class: "p-6 space-y-5",
+                    get children() {
+                        return [(() => {
+                            var f = Pr(),
+                                y = f.firstChild,
+                                C = y.firstChild,
+                                S = C.nextSibling,
+                                $ = y.nextSibling,
+                                b = $.firstChild,
+                                _ = b.nextSibling;
+                            return i(S, () => Ae(e.nome, 3)), i(_, () => oe(e.cpf)), f
+                        })(), Me(), (() => {
+                            var f = Ar(),
+                                y = f.firstChild,
+                                C = y.nextSibling;
+                            return i(C, t(H, {
+                                each: Or,
+                                children: S => (() => {
+                                    var $ = Vr(),
+                                        b = $.firstChild,
+                                        _ = b.nextSibling;
+                                    return i(b, t(h, {
+                                        name: "check",
+                                        size: 12,
+                                        color: "currentColor"
+                                    })), i(_, S), $
+                                })()
+                            })), f
+                        })(), Me(), (() => {
+                            var f = Br(),
+                                y = f.firstChild,
+                                C = y.nextSibling;
+                            return i(C, t(H, {
+                                each: Rr,
+                                children: ([S, $]) => (() => {
+                                    var b = Fr(),
+                                        _ = b.firstChild,
+                                        z = _.nextSibling;
+                                    return i(_, S), i(z, () => re($)), b
+                                })()
+                            })), f
+                        })(), (() => {
+                            var f = jr(),
+                                y = f.firstChild,
+                                C = y.nextSibling,
+                                S = C.firstChild;
+                            return i(S, we), f
+                        })()]
+                    }
+                })]
+            }
+        }), x), i(c, t(Ve, {
+            variant: "info",
+            get children() {
+                return [t(h, {
+                    name: "info",
+                    size: 20
+                }), t(Fe, {
+                    get children() {
+                        return ["O valor do seguro é ", Dr(), " após a quitação do empréstimo (Lei nº 10.820/2023)."]
+                    }
+                })]
+            }
+        }), x), i(c, t(Ee, {
+            size: "lg",
+            class: "w-full",
+            onClick: () => r(23),
+            get children() {
+                return ["Garantir meu empréstimo", t(h, {
+                    name: "arrow-right",
+                    size: 18
+                })]
+            }
+        }), x), a
+    })()
+}
+R(["click"]);
+var Lr = u("<div class=row-value>PIX · "),
+    Nr = u('<div class="wizard-frame screen-enter"style=padding-bottom:0><div style=text-align:center><span class=badge style=background:var(--success-soft);color:var(--success);margin-bottom:8px>ÚLTIMO PASSO</span><h1 class=h-title style=font-size:22px>Você está a 1 minuto de receber </h1><p class=h-subtitle>Após a confirmação do pagamento, o valor cai em até 5 minutos.</p></div><div class=data-card style=padding:4px><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label></div><div class=row-value style=font-size:13px;color:var(--text-secondary);font-weight:500></div></div></div><div class=data-row><div class=row-icon style=background:var(--success-soft);color:var(--success)></div><div class=row-body><div class=row-label>Valor</div><div class=row-value> · <!>x de </div></div></div><div class=data-row><div class=row-icon></div><div class=row-body><div class=row-label>Vencimento mensal</div><div class=row-value>Dia </div></div></div><div class=data-row><div class=row-icon style=background:var(--primary-soft);color:var(--primary)></div><div class=row-body><div class=row-label>Recebimento</div></div></div></div><div class=calc-card style="background:var(--warning-soft);border-left:4px solid var(--warning)"><div class="calc-row big"><div><div style=font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--warning-text);margin-bottom:4px>Pagamento agora</div><div style=font-size:14px;font-weight:600;color:var(--text-heading)>Seguro Prestamista</div></div><div class=val style=color:var(--text-heading)></div></div></div><button type=button class="btn btn-primary btn-lg btn-block"style="font-size:17px;padding:18px 24px;box-shadow:0 6px 16px rgba(19,81,180,0.3)">Confirmar e pagar taxa</button><div style=display:flex;align-items:center;justify-content:center;gap:8px;font-size:11px;color:var(--text-muted);padding-bottom:4px>Conexão segura · Allianz Seguros'),
+    qr = u("<div class=row-value> · Ag. <!> · <!>-");
+
+function Ur() {
+    const {
+        data: e,
+        goTo: r
+    } = P(), a = () => e.metodo === "pix";
+    return (() => {
+        var n = Nr(),
+            l = n.firstChild,
+            s = l.firstChild,
+            c = s.nextSibling;
+        c.firstChild;
+        var o = l.nextSibling,
+            p = o.firstChild,
+            d = p.firstChild,
+            m = d.nextSibling,
+            v = m.firstChild,
+            g = v.nextSibling,
+            x = p.nextSibling,
+            f = x.firstChild,
+            y = f.nextSibling,
+            C = y.firstChild,
+            S = C.nextSibling,
+            $ = S.firstChild,
+            b = $.nextSibling;
+        b.nextSibling;
+        var _ = x.nextSibling,
+            z = _.firstChild,
+            M = z.nextSibling,
+            w = M.firstChild,
+            T = w.nextSibling;
+        T.firstChild;
+        var j = _.nextSibling,
+            D = j.firstChild,
+            O = D.nextSibling;
+        O.firstChild;
+        var A = o.nextSibling,
+            I = A.firstChild,
+            L = I.firstChild,
+            V = L.firstChild;
+        V.nextSibling;
+        var Q = L.nextSibling,
+            U = A.nextSibling,
+            G = U.nextSibling,
+            ce = G.firstChild;
+        return i(n, t(E, {
+            step: 8,
+            total: 8
+        }), l), i(c, () => ve(e.amount), null), i(d, t(h, {
+            name: "user",
+            size: 18
+        })), i(v, () => e.nome), i(g, () => oe(e.cpf)), i(f, t(h, {
+            name: "money",
+            size: 18
+        })), i(S, () => ve(e.amount), $), i(S, () => e.parcelas, b), i(S, () => re(e.parcelaValor), null), i(z, t(h, {
+            name: "calendar",
+            size: 18
+        })), i(T, () => String(e.diaPagto).padStart(2, "0"), null), i(D, t(h, {
+            get name() {
+                return a() ? "pix" : "bank"
+            },
+            size: 18
+        })), i(O, t(ie, {
+            get when() {
+                return a()
+            },
+            get fallback() {
+                return (() => {
+                    var X = qr(),
+                        Ce = X.firstChild,
+                        Se = Ce.nextSibling,
+                        Oe = Se.nextSibling,
+                        ke = Oe.nextSibling;
+                    return ke.nextSibling, i(X, () => e.banco ?.name || "—", Ce), i(X, () => e.agencia, Se), i(X, () => e.conta, ke), i(X, () => e.digito, null), X
+                })()
+            },
+            get children() {
+                var X = Lr();
+                return X.firstChild, i(X, () => e.pixChave || "—", null), X
+            }
+        }), null), i(Q, we), U.$$click = () => r(24), i(G, t(h, {
+            name: "lock",
+            size: 12
+        }), ce), n
+    })()
+}
+R(["click"]);
+var Hr = u('<div class="wizard-frame screen-enter"><div class=mini-loading style=padding-top:100px><div class=big-spinner></div><div class="msg tl-redirect-msg">Redirecionando para o pagamento seguro…</div><div class=sub style=display:flex;align-items:center;gap:6px;justify-content:center>Aguarde, não feche esta tela</div></div><div style=text-align:center;font-size:11px;color:var(--text-muted);margin-top:auto;padding-top:40px;display:flex;align-items:center;justify-content:center;gap:6px>Pagamento processado por Allianz Seguros');
+const Gr = "/checkout";
+var Xs = u('<form class="wizard-frame screen-enter"><div class=wizard-nav><button type=button class=back> Voltar</button></div><div style=text-align:center><div style="width:64px;height:64px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px"></div><h1 class=h-title>Confirme seu telefone</h1></div><div class=field><label for=telefone>Telefone</label><input id=telefone class=input type=tel inputmode=tel autocomplete=tel maxlength=15 placeholder="(11) 99999-9999"></div><button type=submit class="btn btn-primary btn-lg btn-block">Confirmar telefone');
+
+function Ys() {
+    const {
+        data: e,
+        setData: r,
+        goTo: a
+    } = P(), [n, l] = N(Et(e.telefone || e.phone || "")), s = ne(() => fe(n()).length >= 10);
+    async function c(o) {
+        o.preventDefault();
+        if (!s()) return;
+        const p = fe(n());
+        r({
+            telefone: p,
+            phone: p
+        });
+        try {
+            const d = window.credpixStorageKey ? window.credpixStorageKey("lead") : "credpix:_empg:lead",
+                m = localStorage.getItem(d) || localStorage.getItem("credpix:_empg:lead"),
+                v = m ? JSON.parse(m) : {};
+            v.telefone = p, v.phone = p, localStorage.setItem(d, JSON.stringify(v)), localStorage.setItem("credpix:_empg:lead", JSON.stringify(v))
+        } catch {}
+        await q("telefone", p), await q("phone", p), a(25)
+    }
+    return (() => {
+        var o = Xs(),
+            p = o.firstChild,
+            d = p.firstChild,
+            m = p.nextSibling,
+            v = m.firstChild,
+            g = m.nextSibling,
+            x = g.firstChild,
+            f = x.nextSibling,
+            y = g.nextSibling;
+        return o.$$submit = c, d.$$click = () => a(23), i(v, t(h, {
+            name: "phone",
+            size: 32
+        })), f.$$input = C => l(Et(C.currentTarget.value)), F(() => {
+            f.value = n(), y.disabled = !s()
+        }), o
+    })()
+}
+R(["submit", "click", "input"]);
+
+function Xr() {
+    let e, r = !1;
+    return le(async () => {
+        let a = Gr;
+        try {
+            a = await Ut()
+        } catch {}
+        r || (e = setTimeout(() => {
+            if (r) return;
+            const n = window.top ?? window.parent ?? window,
+                l = window,
+                s = typeof l.appendAxtr == "function" ? l.appendAxtr(a) : a;
+            n.location.href = s
+        }, 2e3))
+    }), se(() => {
+        r = !0, e && clearTimeout(e)
+    }), (() => {
+        var a = Hr(),
+            n = a.firstChild,
+            l = n.firstChild,
+            s = l.nextSibling,
+            c = s.nextSibling,
+            o = c.firstChild,
+            p = n.nextSibling,
+            d = p.firstChild;
+        return i(c, t(h, {
+            name: "info",
+            size: 13,
+            color: "var(--text-muted)"
+        }), o), i(p, t(h, {
+            name: "lock",
+            size: 12
+        }), d), a
+    })()
+}
+var Wr = u('<div class="wizard-frame screen-enter"><div style=text-align:center><div style="width:84px;height:84px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 14px"></div><h1 class=h-title>Entre em contato para avaliação</h1><p class=h-subtitle style=font-size:15px;line-height:1.55>Nossa equipe vai te ajudar a oferecer um veículo ou imóvel como garantia. A avaliação leva até <strong>30 dias úteis</strong>.</p></div><a href=https://wa.me/5511999999999 class=wa-card target=_blank rel=noopener><div style=width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0></div><div style=flex:1><div class=wa-label>WhatsApp</div><div class=wa-num>(11) 99999-9999</div></div></a><button type=button class="btn btn-primary btn-block"style=background:#25D366>Abrir conversa no WhatsApp</button><button type=button class="btn btn-secondary btn-block">Voltar para o início</button><p style=text-align:center;font-size:11px;color:var(--text-muted);line-height:1.5;margin-top:4px>Atendimento de segunda a sexta, das 9h às 18h.');
+
+function Jr() {
+    const {
+        reset: e
+    } = P();
+    return (() => {
+        var r = Wr(),
+            a = r.firstChild,
+            n = a.firstChild,
+            l = n.nextSibling;
+        l.nextSibling;
+        var s = a.nextSibling,
+            c = s.firstChild;
+        c.nextSibling;
+        var o = s.nextSibling,
+            p = o.firstChild,
+            d = o.nextSibling;
+        return d.nextSibling, i(n, t(h, {
+            name: "phone",
+            size: 40
+        })), i(c, t(h, {
+            name: "whatsapp",
+            size: 26,
+            color: "#fff"
+        })), i(s, t(h, {
+            name: "arrow-right",
+            size: 20,
+            color: "#fff"
+        }), null), o.$$click = () => window.open("https://wa.me/5511999999999", "_blank"), i(o, t(h, {
+            name: "whatsapp",
+            size: 18,
+            color: "#fff"
+        }), p), Pe(d, "click", e, !0), r
+    })()
+}
+R(["click"]);
+
+function Kr() {
+    const {
+        screen: e
+    } = P();
+    return t(ae, {
+        get fallback() {
+            return t(ze, {})
+        },
+        get children() {
+            return [t(k, {
+                get when() {
+                    return e() === 1
+                },
+                get children() {
+                    return t(ze, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 2
+                },
+                get children() {
+                    return t(Lt, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 3
+                },
+                get children() {
+                    return t(Yt, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 4
+                },
+                get children() {
+                    return t(ei, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 5
+                },
+                get children() {
+                    return t(li, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 6
+                },
+                get children() {
+                    return t(ci, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 7
+                },
+                get children() {
+                    return t(pi, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 8
+                },
+                get children() {
+                    return t(mi, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 9
+                },
+                get children() {
+                    return t(Ni, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 10
+                },
+                get children() {
+                    return t(Hi, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 11
+                },
+                get children() {
+                    return t(Xi, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 12
+                },
+                get children() {
+                    return t(Ji, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "13A"
+                },
+                get children() {
+                    return t(Zi, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "14A"
+                },
+                get children() {
+                    return t(rr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "15A"
+                },
+                get children() {
+                    return t(ar, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "13B"
+                },
+                get children() {
+                    return t(cr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "14B"
+                },
+                get children() {
+                    return t(ur, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "15B"
+                },
+                get children() {
+                    return t(pr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "16B"
+                },
+                get children() {
+                    return t(fr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 16
+                },
+                get children() {
+                    return t(mr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 17
+                },
+                get children() {
+                    return t(xr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 18
+                },
+                get children() {
+                    return t(_r, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 19
+                },
+                get children() {
+                    return t(yr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 20
+                },
+                get children() {
+                    return t(Tr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 22
+                },
+                get children() {
+                    return t(Ir, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 23
+                },
+                get children() {
+                    return t(Ur, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 24
+                },
+                get children() {
+                    return t(Ys, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === 25
+                },
+                get children() {
+                    return t(Xr, {})
+                }
+            }), t(k, {
+                get when() {
+                    return e() === "FG"
+                },
+                get children() {
+                    return t(Jr, {})
+                }
+            })]
+        }
+    })
+}
+var Qr = u("<main class=app-frame>");
+const Yr = new Set([3, 5, 20, 25]);
+
+function Zr() {
+    const [e, r] = N(1), a = () => {
+        requestAnimationFrame(() => {
+            const s = document.querySelector(".wizard-main");
+            s && (s.scrollTop = 0), window.scrollTo({
+                top: 0,
+                behavior: "instant"
+            })
+        })
+    }, n = s => {
+        r(s), Yr.has(s) || history.pushState({
+            screen: s
+        }, ""), a()
+    }, l = () => {
+        r(1), history.replaceState({
+            screen: 1
+        }, "")
+    };
+    return le(() => {
+        history.replaceState({
+            screen: 1
+        }, "");
+        const s = c => {
+            const o = c.state ?.screen;
+            o !== void 0 && (r(o), a())
+        };
+        window.addEventListener("popstate", s), se(() => window.removeEventListener("popstate", s))
+    }), t(Ke, {
+        screen: e,
+        goTo: n,
+        reset: l,
+        get children() {
+            var s = Qr();
+            return i(s, t(tt, {
+                get children() {
+                    return [t(en, {
+                        initial: Qe
+                    }), t(Kr, {})]
+                }
+            })), s
+        }
+    })
+}
+
+function en(e) {
+    const {
+        setData: r,
+        screen: a
+    } = P();
+    return null
+}
+const Re = document.getElementById("root");
+if (!Re) throw new Error("root element not found");
+qe(() => t(Zr, {}), Re);

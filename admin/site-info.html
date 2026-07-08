@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../config/site-base.php"></script>
+  <script src="../js/credpix-boot.js"></script>
+  <title>Rodapé e domínios</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      padding: 32px 16px 48px;
+      color: #1a1a1a;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 28px 24px 24px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+    h2 { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+    .intro { font-size: 14px; line-height: 1.55; color: #444; margin-bottom: 20px; }
+    .intro code { font-size: 12px; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; }
+    label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #045acd;
+      box-shadow: 0 0 0 2px rgba(4,90,205,.15);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, #2563eb 0%, #045acd 100%);
+      color: #fff;
+      margin-top: 8px;
+    }
+    .btn-secondary {
+      background: #f5f5f5;
+      border: 1px solid #e5e5e5;
+      color: #333;
+      margin-bottom: 12px;
+    }
+    .btn-danger {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+      width: auto;
+      padding: 8px 14px;
+      margin-top: 8px;
+    }
+    .domain-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .domain-tab {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .domain-tab.active {
+      background: #045acd;
+      border-color: #045acd;
+      color: #fff;
+    }
+    .warn {
+      padding: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #1e40af;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+    .status { margin-top: 12px; font-size: 13px; text-align: center; min-height: 20px; }
+    .status.ok { color: #059669; }
+    .status.err { color: #dc2626; }
+    .host-badge {
+      display: inline-block;
+      font-size: 12px;
+      background: #ecfdf5;
+      color: #047857;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Rodapé e multi-domínio</h1>
+      <p class="intro">
+        Vários domínios podem apontar para a <strong>mesma pasta</strong> no servidor (ex.: <code>/empl</code>).
+        Os pixels Google ficam centralizados em <code>config/google-pixels.json</code> e valem para todos.
+        Aqui você define o rodapé da landing (<code>index.html</code>) por domínio: CNPJ, razão social, telefone e endereço.
+      </p>
+      <p class="host-badge" id="currentHost">Domínio atual: …</p>
+
+      <div class="warn">
+        No <code>.env</code>, use <code>BASE_PATH=/empl</code> e deixe <code>PUBLIC_BASE_URL</code> <strong>vazio</strong>
+        para cada domínio ser detectado automaticamente.
+      </div>
+
+      <div class="domain-tabs" id="domainTabs"></div>
+
+      <h2 id="formTitle">Dados padrão (todos os domínios)</h2>
+      <form id="siteForm">
+        <label for="marca">Marca (nome exibido no copyright)</label>
+        <input id="marca" type="text" maxlength="120">
+
+        <label for="razaoSocial">Razão social</label>
+        <input id="razaoSocial" type="text" maxlength="200">
+
+        <div class="row">
+          <div>
+            <label for="cnpj">CNPJ</label>
+            <input id="cnpj" type="text" maxlength="20" placeholder="00.000.000/0001-00">
+          </div>
+          <div>
+            <label for="telefone">Telefone</label>
+            <input id="telefone" type="text" maxlength="30">
+          </div>
+        </div>
+
+        <label for="endereco">Endereço</label>
+        <textarea id="endereco" rows="2" maxlength="300"></textarea>
+
+        <label for="email">E-mail de contato</label>
+        <input id="email" type="email" maxlength="120">
+
+        <button type="button" class="btn btn-secondary" id="btnAddDomain">+ Adicionar domínio específico</button>
+        <button type="button" class="btn btn-danger" id="btnRemoveDomain" style="display:none">Remover este domínio</button>
+
+        <button type="button" class="btn btn-primary" id="btnSave">Salvar no site</button>
+        <p class="status" id="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    var TOKEN_KEY = 'credpix_analytics_token';
+    var state = { default: {}, domains: {} };
+    var activeKey = '__default__';
+
+    function authHeaders() {
+      var t = sessionStorage.getItem(TOKEN_KEY) || '';
+      var h = { 'Content-Type': 'application/json' };
+      if (t) h['X-Analytics-Token'] = t;
+      return h;
+    }
+
+    function apiUrl() {
+      var path = '/api/site-info.php';
+      if (typeof window.credpixPath === 'function') return window.credpixPath(path);
+      var base = '';
+      if (typeof window.credpixGetBasePath === 'function') {
+        base = window.credpixGetBasePath();
+      } else {
+        base = (window.CREDPIX_BASE_PATH || '').replace(/\/$/, '');
+      }
+      return base ? base + path : path;
+    }
+
+    function setStatus(msg, ok) {
+      var el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    function emptyInfo() {
+      return {
+        marca: '',
+        razaoSocial: '',
+        cnpj: '',
+        telefone: '',
+        endereco: '',
+        email: '',
+      };
+    }
+
+    function readForm() {
+      return {
+        marca: document.getElementById('marca').value.trim(),
+        razaoSocial: document.getElementById('razaoSocial').value.trim(),
+        cnpj: document.getElementById('cnpj').value.trim(),
+        telefone: document.getElementById('telefone').value.trim(),
+        endereco: document.getElementById('endereco').value.trim(),
+        email: document.getElementById('email').value.trim(),
+      };
+    }
+
+    function fillForm(info) {
+      document.getElementById('marca').value = info.marca || '';
+      document.getElementById('razaoSocial').value = info.razaoSocial || '';
+      document.getElementById('cnpj').value = info.cnpj || '';
+      document.getElementById('telefone').value = info.telefone || '';
+      document.getElementById('endereco').value = info.endereco || '';
+      document.getElementById('email').value = info.email || '';
+    }
+
+    function mergedForHost(host) {
+      var base = Object.assign({}, state.default);
+      if (host && state.domains[host]) {
+        return Object.assign(base, state.domains[host]);
+      }
+      return base;
+    }
+
+    function saveCurrentForm() {
+      var data = readForm();
+      if (activeKey === '__default__') {
+        state.default = data;
+      } else {
+        state.domains[activeKey] = data;
+      }
+    }
+
+    function renderTabs() {
+      var tabs = document.getElementById('domainTabs');
+      tabs.innerHTML = '';
+
+      function addTab(key, label) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'domain-tab' + (activeKey === key ? ' active' : '');
+        btn.textContent = label;
+        btn.onclick = function () {
+          saveCurrentForm();
+          activeKey = key;
+          renderTabs();
+          fillForm(activeKey === '__default__' ? state.default : mergedForHost(activeKey));
+          document.getElementById('formTitle').textContent =
+            activeKey === '__default__'
+              ? 'Dados padrão (todos os domínios)'
+              : 'Domínio: ' + activeKey;
+          document.getElementById('btnRemoveDomain').style.display =
+            activeKey === '__default__' ? 'none' : 'inline-block';
+        };
+        tabs.appendChild(btn);
+      }
+
+      addTab('__default__', 'Padrão');
+      Object.keys(state.domains).sort().forEach(function (host) {
+        addTab(host, host);
+      });
+    }
+
+    async function load() {
+      try {
+        var res = await fetch(apiUrl(), { headers: authHeaders() });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Falha ao carregar');
+
+        if (data.default) {
+          state.default = data.default;
+          state.domains = data.domains || {};
+        } else if (data.siteInfo) {
+          state.default = data.siteInfo;
+          state.domains = {};
+        }
+
+        document.getElementById('currentHost').textContent =
+          'Domínio atual: ' + (data.host || window.location.hostname);
+
+        renderTabs();
+        fillForm(state.default);
+        setStatus('Configuração carregada.', true);
+      } catch (e) {
+        setStatus(e.message || 'Erro ao carregar.', false);
+      }
+    }
+
+    document.getElementById('btnAddDomain').onclick = function () {
+      saveCurrentForm();
+      var host = prompt('Domínio (sem http, ex: consultarcredito.info):');
+      if (!host) return;
+      host = host.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+      if (host.indexOf('www.') === 0) host = host.slice(4);
+      if (!host) return;
+      if (!state.domains[host]) {
+        state.domains[host] = Object.assign(emptyInfo(), state.default);
+      }
+      activeKey = host;
+      renderTabs();
+      fillForm(state.domains[host]);
+      document.getElementById('formTitle').textContent = 'Domínio: ' + host;
+      document.getElementById('btnRemoveDomain').style.display = 'inline-block';
+    };
+
+    document.getElementById('btnRemoveDomain').onclick = function () {
+      if (activeKey === '__default__') return;
+      if (!confirm('Remover configuração específica de ' + activeKey + '?')) return;
+      delete state.domains[activeKey];
+      activeKey = '__default__';
+      renderTabs();
+      fillForm(state.default);
+      document.getElementById('formTitle').textContent = 'Dados padrão (todos os domínios)';
+      document.getElementById('btnRemoveDomain').style.display = 'none';
+    };
+
+    document.getElementById('btnSave').onclick = async function () {
+      saveCurrentForm();
+      var btn = document.getElementById('btnSave');
+      btn.disabled = true;
+      setStatus('Salvando...', true);
+      try {
+        var res = await fetch(apiUrl(), {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(state),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.error || 'Falha ao salvar');
+        state.default = data.config.default;
+        state.domains = data.config.domains;
+        renderTabs();
+        setStatus('Salvo em config/domains.json. Vale para todos os domínios na mesma pasta.', true);
+      } catch (e) {
+        setStatus(e.message || 'Erro ao salvar.', false);
+      } finally {
+        btn.disabled = false;
+      }
+    };
+
+    load();
+  </script>
+</body>
+</html>

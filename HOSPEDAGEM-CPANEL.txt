@@ -1,0 +1,24 @@
+CREDPIX — HOSPEDAGEM SÓ COM CPANEL (SEM NODE)
+============================================
+
+1. Envie TODA a pasta do projeto para public_html/empa (ou sua subpasta).
+
+2. Crie/edite o arquivo .env na mesma pasta (copie do .env.example):
+   MASTERFY_API_KEY=sua_chave
+   CPF_API_TOKEN=mesmo_token_do_SuperSim
+
+3. Confirme config/cpf-token.js com o mesmo token Elaiflow (consulta CPF no browser).
+
+4. Permissão de escrita na pasta data/pix (chmod 755 ou 775).
+
+5. Testes no navegador:
+   https://seudominio.com/empa/api/health.php
+   https://seudominio.com/empa/type/wizard/
+
+O QUE RODA ONDE:
+- Wizard + CPF: navegador → bk.elaiflow.dev (igual SuperSim)
+- Pagamento PIX: PHP → pay/api/pix.php
+
+NÃO PRECISA: npm, node, pm2, Setup Node.js App.
+
+Opcional: apague ou ignore server.js e package.json na hospedagem.

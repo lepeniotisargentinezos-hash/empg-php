@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Redirecionando…</title>
+    <meta name="credpix-base-title" content="Redirecionando…">`n    <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="../assets/js/credpix-upsell-init.js"></script>
+</head>
+<body>
+  <p style="font-family:system-ui,sans-serif;text-align:center;margin-top:3rem;color:#6b7280;">
+    Redirecionando…
+  </p>
+  <script src="../assets/js/links.js"></script>
+  <script>
+    (function () {
+      if (typeof redirect === "function") {
+        redirect("back");
+        return;
+      }
+      var url = "/pay/checkout.php?produto=prod_6986314e1cdab";
+      if (typeof window.credpixPath === "function") url = window.credpixPath(url);
+      else if (window.CREDPIX_BASE_PATH) url = window.CREDPIX_BASE_PATH + url;
+      if (window.credpixAppendUtms) url = window.credpixAppendUtms(url);
+      location.replace(url);
+    })();
+  </script>
+</body>
+</html>

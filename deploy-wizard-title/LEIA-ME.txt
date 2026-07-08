@@ -1,0 +1,13 @@
+CredPix â€” deploy-wizard-title (atualizacao parcial)
+===================================================
+
+Corrige aba do wizard: "CredPix Â· Wizard - src" (nao so "src").
+
+Upload no servidor (slug /empa ou /ll):
+  deploy-wizard-title/js/*           -> public_html/SEU_SLUG/js/
+  deploy-wizard-title/type/wizard/index.html -> public_html/SEU_SLUG/type/wizard/
+
+Depois: purge Cloudflare em /SEU_SLUG/js/credpix-utm.php e Ctrl+F5 no wizard.
+
+Teste: /SEU_SLUG/type/wizard/?src=TESTE
+  Esperado: CredPix Â· Wizard - TESTE

@@ -1,0 +1,26 @@
+# Arquivos/pastas que NÃO entram no pacote de deploy.
+# O servidor mantém o que já existe nesses caminhos.
+#
+# Dados de produção (analytics, PIX, logs, backups, Utmify)
+data/
+
+# Segredos e ambiente — nunca sobrescrever no servidor
+.env
+
+# Dependências Node (não usadas no cPanel/PHP)
+node_modules/
+
+# Ferramentas locais / testes
+_probe/
+.git/
+
+# Configurações gravadas no servidor (painel admin / tokens)
+config/google-pixels.json
+config/domains.json
+config/cpf-token.js
+
+# Pacotes gerados localmente (nao enviar de volta ao servidor)
+empa-deploy/
+empa-deploy.broken-*/
+empa-deploy.zip
+dist/

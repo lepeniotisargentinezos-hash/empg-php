@@ -1,0 +1,2932 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="../config/site-base.js"></script>
+  <script src="../js/credpix-boot.js"></script>
+  <title>Dashboard · CredPix Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="analytics-theme.css">
+  <link rel="icon" type="image/png" href="../images/credpix-logo.png">
+  <style>
+    :root {
+      --brand: #22c55e;
+      --brand-soft: rgba(34, 197, 94, 0.14);
+      --brand-glow: rgba(34, 197, 94, 0.35);
+      --nav-accent: #6366f1;
+      --bg: #080c14;
+      --bg-elevated: #0d1321;
+      --surface: #121a2e;
+      --surface-hover: #182038;
+      --border: rgba(148, 163, 184, 0.12);
+      --border-strong: rgba(148, 163, 184, 0.22);
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.15);
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --success: #22c55e;
+      --success-soft: rgba(34, 197, 94, 0.12);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245, 158, 11, 0.12);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.12);
+      --cyan: #06b6d4;
+      --sidebar-w: 252px;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background:
+        radial-gradient(ellipse 120% 80% at 100% -30%, rgba(99, 102, 241, 0.08), transparent 55%),
+        radial-gradient(ellipse 80% 50% at 0% 0%, rgba(34, 197, 94, 0.05), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .hidden { display: none !important; }
+
+    /* Auth */
+    .auth-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.25), transparent),
+        var(--bg);
+    }
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: var(--shadow);
+    }
+    .auth-card .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .auth-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+    .auth-card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+    .auth-card p.sub { margin-top: -4px; margin-bottom: 20px; font-size: 13px; }
+    .auth-card code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: var(--bg-elevated);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .auth-error { color: var(--danger); font-size: 13px; margin-top: 12px; }
+
+    input, select, button { font: inherit; }
+    input, select {
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elevated);
+      color: var(--text);
+      padding: 10px 14px;
+    }
+    input { width: 100%; margin-bottom: 14px; }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .btn {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      transition: transform 0.12s, background 0.15s, box-shadow 0.15s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+    }
+    .btn-ghost:hover { background: var(--surface-hover); }
+    a.btn { text-decoration: none; }
+    .btn-block { width: 100%; padding: 13px; }
+
+    /* Layout */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-elevated);
+      border-right: 1px solid var(--border);
+      padding: 24px 14px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 100;
+    }
+    .sidebar-brand {
+      padding: 4px 12px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .sidebar-brand strong { display: block; font-size: 16px; font-weight: 700; }
+    .sidebar-brand span { font-size: 12px; color: var(--text-muted); margin-top: 2px; display: block; }
+    .nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 8px 12px 6px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 2px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-item .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-item:hover { background: var(--surface); color: var(--text); }
+    a.nav-item { text-decoration: none; }
+    .nav-item.active {
+      background: var(--accent-soft);
+      color: #c7d2fe;
+    }
+    .nav-item.active .icon {
+      background: rgba(99, 102, 241, 0.3);
+    }
+    .nav-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+    .nav-badge.hidden { display: none; }
+    .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+
+    .main {
+      flex: 1;
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse 100% 80% at 100% 0%, rgba(99, 102, 241, 0.06), transparent),
+        var(--bg);
+    }
+    .main-inner { max-width: 1440px; padding: 28px 32px 40px; margin: 0 auto; }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .topbar h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .topbar p { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .toolbar select { min-width: 130px; font-size: 13px; }
+    .toolbar-sync {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding-left: 4px;
+    }
+    .last-sync {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      user-select: none;
+    }
+    .last-sync.fresh { color: #86efac; }
+    .last-sync.stale { color: #fcd34d; }
+
+    .stats-load-error {
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fecaca;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .section { display: none; animation: fadeIn 0.25s ease; }
+    .section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+    /* KPI cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi {
+      background: linear-gradient(145deg, rgba(18, 26, 46, 0.96), rgba(13, 19, 33, 0.92));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--kpi-accent, var(--accent));
+      opacity: 0.85;
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin-top: 8px;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+    .kpi-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .kpi-delta.up { background: var(--success-soft); color: var(--success); }
+    .kpi-delta.down { background: var(--danger-soft); color: var(--danger); }
+    .kpi-delta.neutral { background: var(--surface-hover); color: var(--text-secondary); }
+    .kpi-spark { margin-top: 12px; height: 34px; opacity: 0.9; }
+    .kpi-spark svg { width: 100%; height: 100%; display: block; }
+    .kpi-spark-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .kpi-spark-area { opacity: 0.18; }
+
+    /* Panels */
+    .panel-grid { display: grid; gap: 20px; }
+    .panel-grid.two { grid-template-columns: 1fr; }
+    .panel-grid.three { grid-template-columns: 1fr; }
+    @media (min-width: 900px) {
+      .panel-grid.two { grid-template-columns: 1fr 1fr; }
+      .panel-grid.three { grid-template-columns: 1.2fr 1fr 1fr; }
+    }
+    .panel {
+      background: linear-gradient(180deg, rgba(18, 26, 46, 0.98), rgba(13, 19, 33, 0.98));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .panel:hover {
+      border-color: rgba(99, 102, 241, 0.22);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .panel-head h3 {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-head h3::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .panel-head span { font-size: 12px; color: var(--text-muted); }
+    .panel-full { margin-bottom: 20px; }
+
+    .chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    .chip strong { color: var(--cyan); margin-left: 4px; }
+    .country-list { display: flex; flex-direction: column; gap: 8px; }
+    .country-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .country-row .bar-track { height: 6px; grid-column: 1 / -1; }
+
+    #funnelDropoffPanel, #conversionTimesPanel, #demographicsPanel, #landingBaseTable, #revenueByStatePanel {
+      min-height: 120px;
+    }
+
+    /* Charts */
+    .chart-wrap { min-height: 220px; position: relative; }
+    .chart-wrap--tall { min-height: 300px; }
+    .chart-wrap--wide { min-height: 320px; }
+    .chart-wrap--wide svg { min-height: 300px; }
+    .chart-wrap svg { width: 100%; height: auto; display: block; }
+    .chart-wrap svg .chart-bar {
+      transition: opacity 0.15s ease, filter 0.15s ease;
+      cursor: default;
+    }
+    .chart-wrap svg .chart-bar:hover { opacity: 1 !important; filter: brightness(1.12); }
+    .chart-summary {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 8px 16px;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .chart-summary strong {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .chart-summary em {
+      font-style: normal;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .chart-empty {
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      text-align: center;
+      padding: 28px 24px;
+      border: 1px dashed rgba(148, 163, 184, 0.18);
+      border-radius: var(--radius-sm);
+      background: rgba(8, 12, 20, 0.35);
+    }
+    .chart-empty::before {
+      content: '○';
+      font-size: 22px;
+      opacity: 0.35;
+      line-height: 1;
+    }
+    .chart-empty strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .chart-empty small {
+      display: block;
+      max-width: 280px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .insight-table tbody tr:nth-child(even) { background: rgba(148, 163, 184, 0.03); }
+    .insight-table tbody tr:hover { background: rgba(99, 102, 241, 0.06); }
+    .insight-table td.num { font-variant-numeric: tabular-nums; }
+    .insight-table code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.1);
+      color: #c7d2fe;
+    }
+    .dropoff-wizard td:first-child {
+      padding-left: 28px;
+      position: relative;
+    }
+    .dropoff-wizard td:first-child::before {
+      content: '↳';
+      position: absolute;
+      left: 10px;
+      color: var(--accent);
+      opacity: 0.7;
+    }
+    .dropoff-wizard td:first-child strong {
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .dropoff-section td:first-child strong {
+      color: var(--text);
+    }
+    .conv-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(34, 197, 94, 0.12);
+      color: #86efac;
+    }
+    .conv-badge.low { background: rgba(245, 158, 11, 0.12); color: #fcd34d; }
+    .conv-badge.zero { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); }
+    .donut-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 24px;
+    }
+    .donut-svg { width: 160px; height: 160px; flex-shrink: 0; }
+    .donut-legend { flex: 1; min-width: 180px; }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .legend-row:last-child { border-bottom: none; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .legend-row span:last-child { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    .funnel-step { margin-bottom: 16px; }
+    .funnel-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    .funnel-meta strong { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .bar-track {
+      height: 10px;
+      background: var(--bg-elevated);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.08);
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bar-fill.green { background: linear-gradient(90deg, #22c55e, #06b6d4); }
+    .bar-fill.amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .compare-item {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .compare-item .val { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    .compare-item .lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left;
+      padding: 12px 14px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: rgba(99, 102, 241, 0.04); }
+    td.num { font-variant-numeric: tabular-nums; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .tx-id { font-size: 11px; color: var(--text-muted); max-width: 120px; overflow: hidden; text-overflow: ellipsis; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge.ok { background: var(--success-soft); color: #86efac; }
+    .badge.warn { background: var(--warning-soft); color: #fcd34d; }
+    .badge.bad { background: var(--danger-soft); color: #fca5a5; }
+
+    .alert {
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      border: 1px solid;
+    }
+    .alert.warning { background: var(--warning-soft); border-color: rgba(245, 158, 11, 0.3); color: #fde68a; }
+    .alert.danger { background: var(--danger-soft); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5; }
+    .alert.info { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.3); color: #c7d2fe; }
+    .alert.ok { background: var(--success-soft); border-color: rgba(34, 197, 94, 0.3); color: #86efac; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 32px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(8, 12, 20, 0.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300;
+      backdrop-filter: blur(6px);
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border-strong);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .sidebar-toggle { display: none; }
+    .period-compare { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .compare-chip { font-size: 12px; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px; }
+    .compare-chip em { font-style: normal; opacity: 0.65; margin-left: 4px; }
+    .compare-chip strong { color: var(--text); margin-right: 4px; }
+    .goal-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .goal-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .goal-head h3 { font-size: 14px; font-weight: 600; }
+    .goal-bar { height: 10px; background: var(--bg-elevated); border-radius: 999px; overflow: hidden; }
+    .goal-bar-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #22c55e); border-radius: 999px; transition: width 0.4s ease; }
+    .goal-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; font-size: 12px; color: var(--text-secondary); }
+    .goal-body { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+    .goal-ring { width: 92px; height: 92px; flex-shrink: 0; }
+    .goal-ring svg { transform: rotate(-90deg); display: block; }
+    .goal-ring-track { fill: none; stroke: var(--bg-elevated); stroke-width: 8; }
+    .goal-ring-fill {
+      fill: none;
+      stroke: url(#goalRingGrad);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.85s ease;
+    }
+    .goal-ring-pct {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .goal-ring-wrap { position: relative; width: 92px; height: 92px; flex-shrink: 0; }
+    .goal-content { flex: 1; min-width: 200px; }
+    .recent-feed { max-height: 300px; overflow-y: auto; }
+    .recent-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .recent-row:last-child { border-bottom: none; }
+    .recent-type {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--surface-hover);
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .recent-type.payment_paid { background: rgba(34,197,94,0.15); color: #86efac; }
+    .recent-type.pix_generated { background: rgba(6,182,212,0.15); color: #67e8f9; }
+    .recent-meta { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+    .chart-wrap { position: relative; }
+    .chart-hover-tip {
+      position: absolute;
+      z-index: 5;
+      pointer-events: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid var(--border-strong);
+      font-size: 11px;
+      color: #f8fafc;
+      white-space: nowrap;
+      transform: translate(-50%, -100%);
+      margin-top: -8px;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+    .chart-hover-tip.visible { opacity: 1; }
+    .chart-bar { cursor: crosshair; }
+    .goal-form { display: flex; gap: 8px; align-items: center; }
+    .goal-form input { width: 110px; margin: 0; padding: 8px 10px; }
+    .pix-stuck-alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--warning-soft);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fcd34d;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .pix-stuck-alert.danger { background: var(--danger-soft); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5; }
+    .pixels-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .pixels-footer .chip { font-size: 11px; }
+    .mobile-only { display: none; }
+    .mobile-order-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .toolbar-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .trend.up { color: #86efac; }
+    .trend.down { color: #fca5a5; }
+    .trend.flat { color: var(--text-muted); }
+    .mini-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .mini-kpi {
+      background: linear-gradient(145deg, rgba(18, 26, 46, 0.9), rgba(13, 19, 33, 0.85));
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+    }
+    .mini-kpi span {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+    .mini-kpi strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+    .mini-kpi small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .hourly-chart { position: relative; }
+    .hourly-grid {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 5px;
+      align-items: end;
+      height: 168px;
+      padding: 8px 4px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .hourly-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      position: relative;
+      min-width: 0;
+    }
+    .hourly-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 2px;
+      width: 100%;
+      height: calc(100% - 22px);
+    }
+    .hourly-bar {
+      flex: 1;
+      max-width: 46%;
+      border-radius: 4px 4px 0 0;
+      min-height: 3px;
+      transition: filter 0.15s ease, opacity 0.15s ease;
+    }
+    .hourly-bar.pv { background: linear-gradient(180deg, rgba(129, 140, 248, 0.95), rgba(99, 102, 241, 0.55)); }
+    .hourly-bar.pay { background: linear-gradient(180deg, rgba(74, 222, 128, 0.95), rgba(34, 197, 94, 0.6)); }
+    .hourly-bar.pix-gen { background: linear-gradient(180deg, rgba(251, 191, 36, 0.9), rgba(245, 158, 11, 0.55)); }
+    .hourly-bar.pix-pay { background: linear-gradient(180deg, rgba(74, 222, 128, 0.95), rgba(34, 197, 94, 0.6)); }
+    .price-compare-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 8px; }
+    .price-compare-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      background: linear-gradient(145deg, rgba(18, 26, 46, 0.9), rgba(13, 19, 33, 0.85));
+    }
+    .price-compare-card.is-winner { border-color: rgba(74, 222, 128, 0.45); box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.15); }
+    .price-compare-card h4 { margin: 0 0 12px; font-size: 15px; }
+    .price-compare-insight {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(129, 140, 248, 0.25);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    .conv-rate-line {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 56px;
+      margin-top: 8px;
+    }
+    .conv-rate-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; }
+    .conv-rate-bar {
+      width: 100%;
+      max-width: 28px;
+      border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.9), rgba(14, 165, 233, 0.5));
+      min-height: 4px;
+    }
+    .hourly-col:hover .hourly-bar { filter: brightness(1.1); }
+    .hourly-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .hourly-tip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      min-width: 120px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      font-size: 10px;
+      line-height: 1.45;
+      color: #e2e8f0;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .hourly-col:hover .hourly-tip,
+    .hourly-col:focus-within .hourly-tip { opacity: 1; }
+    .hourly-tip strong { display: block; color: #86efac; font-size: 11px; margin-bottom: 2px; }
+    .hourly-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .hourly-legend .dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+    .hourly-legend .dot.pv { background: #818cf8; }
+    .hourly-legend .dot.pay { background: #4ade80; }
+    .hourly-legend .dot.rev { background: #fbbf24; }
+    .flow-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 8px; align-items: center; margin-bottom: 8px; font-size: 12px; }
+    .flow-bar-wrap { position: relative; background: var(--bg-elevated); border-radius: 999px; height: 22px; overflow: hidden; }
+    .flow-bar { height: 100%; background: linear-gradient(90deg, rgba(99,102,241,0.5), rgba(6,182,212,0.6)); border-radius: 999px; }
+    .flow-bar-wrap span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+    .utm-block { margin-bottom: 16px; }
+    .utm-block h4 { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ad-spend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .ad-spend-grid label span { display: block; font-size: 12px; margin-bottom: 4px; color: var(--text-secondary); }
+    .ad-spend-grid input { width: 100%; margin: 0; }
+    .panel-note { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+    .system-status-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 16px; margin-top: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; }
+    .status-pill { padding: 3px 8px; border-radius: 999px; font-weight: 600; font-size: 10px; text-transform: uppercase; }
+    .status-pill.ok { background: var(--success-soft); color: #86efac; }
+    .status-pill.warn { background: var(--warning-soft); color: #fde68a; }
+    .status-pill.bad { background: var(--danger-soft); color: #fca5a5; }
+    .status-text { color: var(--text-muted); }
+    .orders-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+    .orders-filters input, .orders-filters select { width: auto; min-width: 200px; margin: 0; flex: 1; }
+    .session-row { cursor: pointer; }
+    .session-row:hover { background: var(--surface-hover); }
+    .modal { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.65); }
+    .modal-card { position: relative; width: min(640px, 100%); max-height: 80vh; overflow: auto; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+    .modal-card h3 { margin-bottom: 12px; }
+    .session-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; margin-bottom: 16px; }
+    .session-timeline { list-style: none; padding: 0; }
+    .session-timeline li { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .session-timeline .t { color: var(--text-muted); font-size: 11px; margin-right: 8px; }
+    .session-timeline .type { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan); }
+    .sale-toast { position: fixed; bottom: 24px; right: 24px; z-index: 500; background: linear-gradient(135deg, #166534, #22c55e); color: #fff; padding: 14px 20px; border-radius: 12px; font-weight: 600; box-shadow: 0 8px 30px rgba(34,197,94,0.35); transform: translateY(120%); transition: transform 0.3s ease; }
+    .sale-toast.show { transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      .sidebar-toggle { display: inline-flex; }
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+      body.sidebar-open .sidebar { transform: translateX(0); }
+      body.sidebar-open::before { content: ''; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+      .mini-kpi-row { grid-template-columns: 1fr; }
+      .price-compare-grid { grid-template-columns: 1fr; }
+      .hourly-chart { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .hourly-grid { grid-template-columns: repeat(24, minmax(16px, 1fr)); min-width: 520px; }
+      .flow-row { grid-template-columns: 1fr; }
+      .mobile-hide { display: none !important; }
+      .mobile-only { display: block; }
+      details.mobile-panel:not([open]) .panel-body-inner { display: none; }
+      .toolbar { flex-wrap: wrap; }
+      .toolbar select { font-size: 12px; padding: 8px 10px; max-width: 140px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="brand">Analytics</div>
+      <h1>Entrar no dashboard</h1>
+      <p class="sub">Métricas de funil, campanhas e receita — tracking otimizado (1 evento por page view).</p>
+      <input type="password" id="tokenInput" placeholder="Token de acesso" autocomplete="off">
+      <button type="button" class="btn btn-primary btn-block" id="authBtn">Acessar painel</button>
+      <p class="auth-error hidden" id="authError"></p>
+      <p style="font-size:12px;color:var(--text-secondary);margin-top:16px;text-align:center">
+        Painel travando? <a href="analytics-diag.html" style="color:var(--accent)">Abrir diagnóstico</a>
+        (não apaga dados)
+      </p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span>Dashboard de análise</span>
+      </div>
+      <div class="nav-label">Menu</div>
+      <nav>
+        <button type="button" class="nav-item active" data-section="overview">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg></span>
+          Visão geral <span id="liveNavBadge" class="nav-badge hidden"></span>
+        </button>
+        <button type="button" class="nav-item" data-section="orders">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6L5 3H2"/></svg></span>
+          Pedidos
+        </button>
+        <button type="button" class="nav-item" data-section="campaigns">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11v2a4 4 0 0 0 4 4h.5"/><path d="M7 9V7a5 5 0 0 1 10 0v6"/><path d="M11 17h6l2 4H9l2-4z"/></svg></span>
+          Campanhas
+        </button>
+        <button type="button" class="nav-item" data-section="upsells">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></span>
+          Upsells
+        </button>
+        <button type="button" class="nav-item" data-section="utmify">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+          Utmify
+        </button>
+        <button type="button" class="nav-item" data-section="products">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></span>
+          Produtos
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="pixels-google.html" class="nav-item" id="pixelsPageLink">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+          Pixels Google
+        </a>
+        <button type="button" class="nav-item theme-toggle btn btn-ghost" id="themeToggleBtn" title="Alternar tema claro/escuro">◐ Tema</button>
+        <button type="button" class="nav-item" id="logoutBtn">
+          <span class="icon icon-svg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+          Sair
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div id="loadingBar" class="loading-bar" aria-hidden="true"></div>
+      <div class="main-inner">
+        <div id="statsLoadError" class="stats-load-error hidden" role="alert"></div>
+        <div class="topbar topbar-v2">
+          <div class="topbar-head">
+            <div>
+              <h2 id="sectionTitle">Visão geral</h2>
+              <p id="sectionDesc">Resumo do funil e receita no período</p>
+            </div>
+            <button type="button" class="btn btn-ghost sidebar-toggle" id="sidebarToggle" aria-label="Menu">☰</button>
+          </div>
+          <div class="toolbar-primary">
+            <select id="periodSelect" title="Período">
+              <option value="1">Hoje</option>
+              <option value="7">7 dias</option>
+              <option value="30">30 dias</option>
+              <option value="60">60 dias</option>
+              <option value="90">90 dias</option>
+            </select>
+            <div class="toolbar-sync">
+              <span id="lastSyncLabel" class="last-sync" title="Última sincronização">—</span>
+              <button type="button" class="btn btn-primary" id="refreshBtn">↻ Atualizar</button>
+            </div>
+            <button type="button" class="btn btn-ghost" id="toggleFiltersBtn" aria-expanded="true">Filtros ▾</button>
+            <div class="export-menu-wrap">
+              <button type="button" class="btn btn-ghost" id="exportMenuBtn">Exportar ▾</button>
+              <div class="export-menu hidden" id="exportMenu">
+                <button type="button" id="exportBtn">Pedidos CSV</button>
+                <button type="button" id="exportEventsBtn">Eventos CSV</button>
+              </div>
+            </div>
+            <a href="pixels-google.html" class="btn btn-ghost" id="pixelsPageBtn">Pixels</a>
+          </div>
+          <div class="toolbar-filters-wrap" id="toolbarFiltersWrap">
+            <div class="toolbar-filters">
+              <select id="productFilter" title="Produto" class="filter-orders">
+                <option value="">Todos produtos</option>
+              </select>
+              <select id="srcFilter" title="Campanha">
+                <option value="">Todas campanhas</option>
+              </select>
+              <select id="utmCampaignFilter" title="UTM Campaign" class="filter-orders">
+                <option value="">UTM campaign</option>
+              </select>
+              <select id="utmMediumFilter" title="UTM Medium" class="filter-orders">
+                <option value="">UTM medium</option>
+              </select>
+              <select id="utmContentFilter" title="UTM Content" class="filter-orders">
+                <option value="">UTM content</option>
+              </select>
+            </div>
+            <div id="filterChips" class="filter-chips"></div>
+          </div>
+        </div>
+
+        <div id="systemStatusBar" class="system-status-bar status-bar-sticky"></div>
+
+        <div id="skeletonGrid" class="skeleton-grid hidden" aria-hidden="true"></div>
+        <div id="dashboardContent" class="skeleton-wrap">
+          <div class="skeleton-target">
+        <section id="sec-overview" class="section active">
+          <div id="mobileCompact" class="mobile-only">
+            <div id="mobileGoalPanel" class="goal-panel mobile-goal-panel"></div>
+            <div id="mobileKpis" class="kpi-grid"></div>
+            <div class="panel panel-muted" style="margin-top:16px">
+              <div class="panel-head"><h3>Funil</h3></div>
+              <div id="mobileFunnel"></div>
+            </div>
+            <div class="panel panel-muted" style="margin-top:16px">
+              <div class="panel-head"><h3>Últimos pedidos</h3></div>
+              <div id="mobileOrders"></div>
+            </div>
+          </div>
+          <div class="overview-hero mobile-hide">
+            <div id="dailyGoalPanel" class="goal-panel panel-hero"></div>
+            <div id="overviewKpis" class="kpi-grid"></div>
+            <div id="overviewAlerts"></div>
+          </div>
+          <h3 class="section-divider mobile-hide"><span>Atividade</span></h3>
+          <details class="mobile-panel" open>
+            <summary>Últimos eventos</summary>
+            <div class="panel panel-muted panel-full panel-body-inner" style="margin-bottom:20px">
+              <div class="panel-head"><h3>Últimos eventos</h3><span>atividade recente no período</span></div>
+              <div id="overviewRecentFeed" class="recent-feed"></div>
+            </div>
+          </details>
+          <details class="mobile-panel" open>
+            <summary>Receita no período</summary>
+            <div class="panel panel-muted panel-full panel-body-inner">
+              <div class="panel-head"><h3>Receita no período</h3><span id="overviewChartLabel">—</span></div>
+              <div class="chart-wrap chart-wrap--tall chart-wrap--wide" id="overviewRevenueChart"></div>
+            </div>
+          </details>
+          <div class="panel panel-muted panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Visitantes ao vivo</h3><span>requer ANALYTICS_LIVE=1</span></div>
+            <div id="liveVisitorsPanel"></div>
+          </div>
+          <h3 class="section-divider"><span>Funil</span></h3>
+          <div class="panel panel-full panel-hero" style="margin-top:0">
+            <div class="panel-head"><h3>Funil de conversão</h3><span>landing → pago · etapas unificadas por jornada</span></div>
+            <div id="overviewFunnel"></div>
+          </div>
+          <h3 class="section-divider"><span>Análise</span></h3>
+          <details class="mobile-panel" open>
+            <summary>Queda e tempo de conversão</summary>
+            <div class="panel-grid two panel-body-inner" style="margin-top:0">
+              <div class="panel panel-muted">
+                <div class="panel-head"><h3>Queda entre etapas</h3><span>wizard detalhado · abandono no funil</span></div>
+                <div id="funnelDropoffPanel"></div>
+              </div>
+              <div class="panel panel-muted">
+                <div class="panel-head"><h3>Tempo até conversão</h3><span>medianas por sessão</span></div>
+                <div id="conversionTimesPanel"></div>
+              </div>
+            </div>
+          </details>
+          <details class="mobile-panel" open>
+            <summary>Atividade por hora</summary>
+            <div class="panel panel-muted panel-full panel-body-inner" style="margin-top:0">
+              <div class="panel-head"><h3>Atividade por hora</h3><span>views e pagamentos no período</span></div>
+              <div class="chart-wrap" id="hourlyActivityChart"></div>
+            </div>
+          </details>
+          <details class="mobile-panel" open>
+            <summary>PIX por horário (pendente vs pago)</summary>
+            <div class="panel panel-muted panel-full panel-body-inner" style="margin-top:0">
+              <div class="panel-head"><h3>Conversão PIX por horário</h3><span>PIX gerados vs confirmados · taxa por hora</span></div>
+              <div class="chart-wrap" id="pixHourlyConversionChart"><div class="chart-empty">Carregando PIX por horário…</div></div>
+            </div>
+          </details>
+          <details class="mobile-panel" open>
+            <summary>Comparativo R$ 29,86 vs R$ 39,86</summary>
+            <div class="panel panel-muted panel-full panel-body-inner" style="margin-top:0">
+              <div class="panel-head"><h3>Lucro: preço do produto principal</h3><span>checkout principal no período</span></div>
+              <div id="mainPriceComparisonPanel"><div class="chart-empty">Carregando comparativo de preço…</div></div>
+            </div>
+          </details>
+          <h3 class="section-divider"><span>Audiência</span></h3>
+          <details class="mobile-panel" open>
+            <summary>Demografia</summary>
+            <div class="panel-grid two panel-body-inner" style="margin-top:0">
+              <div class="panel panel-muted">
+                <div class="panel-head"><h3>Perfil demográfico</h3><span>via consulta CPF no wizard</span></div>
+                <div id="demographicsPanel"></div>
+              </div>
+              <div class="panel panel-muted">
+                <div class="panel-head"><h3>Faixa etária — pagos</h3><span>pedidos com perfil</span></div>
+                <div id="demographicsPaidChart" class="chart-wrap"></div>
+              </div>
+            </div>
+          </details>
+          <h3 class="section-divider"><span>Geo &amp; tráfego</span></h3>
+          <details class="mobile-panel" open>
+            <summary>Geo e landing</summary>
+            <div class="panel-grid two panel-body-inner" style="margin-top:0">
+              <div class="panel panel-muted">
+                <div class="panel-head"><h3>Receita por estado</h3><span>CF-Region · Cloudflare</span></div>
+                <div id="revenueByStatePanel" class="country-list"></div>
+              </div>
+              <div class="panel panel-muted">
+                <div class="panel-head"><h3>Top cidades</h3><span>pagamentos e visitantes online</span></div>
+                <div id="topCitiesPanel" class="country-list"></div>
+              </div>
+            </div>
+            <div class="panel panel-muted panel-full" style="margin-top:20px">
+              <div class="panel-head"><h3>Performance por landing</h3><span>base_path</span></div>
+              <div id="landingBaseTable"></div>
+            </div>
+            <div class="panel panel-muted panel-full" style="margin-top:20px">
+              <div class="panel-head"><h3>Fluxo entre páginas</h3><span>transições mais frequentes</span></div>
+              <div id="pageFlowPanel"></div>
+            </div>
+          </details>
+          <h3 class="section-divider"><span>Operação</span></h3>
+          <details class="mobile-panel" open>
+            <summary>Configuração de alertas</summary>
+            <div class="panel panel-muted panel-full panel-body-inner" style="margin-top:0">
+              <div class="panel-head"><h3>Alertas automáticos</h3><span>limites do painel</span></div>
+              <div id="alertsConfigPanel"></div>
+            </div>
+          </details>
+        </section>
+
+        <!-- ORDERS -->
+        <section id="sec-orders" class="section">
+          <div id="ordersKpis" class="kpi-grid"></div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Pedidos pagos</h3><span id="ordersCount">0 pedidos</span></div>
+            <div class="orders-filters">
+              <input type="search" id="ordersSearch" placeholder="Buscar produto, src, transação…">
+              <select id="ordersUtmifyFilter">
+                <option value="all">Utmify: todos</option>
+                <option value="ok">Utmify OK</option>
+                <option value="failed">Utmify com falha</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>#</th><th>Data</th><th>Produto</th><th>Valor</th><th>Idade</th><th>Sexo</th><th>src</th><th>Campanha</th><th>Utmify</th><th>Transação</th></tr></thead>
+                <tbody id="ordersTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>PIX pendentes</h3><span>gerados sem confirmação</span></div>
+            <div id="pixPendingAlert"></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Data</th><th>Produto</th><th>Valor</th><th>Idade</th><th>Sexo</th><th>Tempo PIX</th><th>src</th><th>Utmify</th><th>Transação</th></tr></thead>
+                <tbody id="pixPendingTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- UPSELLS -->
+        <section id="sec-upsells" class="section">
+          <div id="upsellsKpis" class="kpi-grid"></div>
+          <div class="panel-grid two" style="margin-top:20px">
+            <div class="panel">
+              <div class="panel-head"><h3>Receita front vs upsell</h3></div>
+              <div id="upsellMixChart" class="chart-wrap"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Top upsells (receita)</h3></div>
+              <div id="upsellTopChart" class="chart-wrap"></div>
+            </div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Funil upsells 1–20</h3><span>views · cliques · pagamentos</span></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>#</th><th>Views</th><th>Cliques</th><th>Pagos</th><th>Take rate</th><th>Receita</th></tr></thead>
+                <tbody id="upsellsDetailTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- CAMPAIGNS -->
+        <section id="sec-campaigns" class="section">
+          <div id="campaignsKpis" class="kpi-grid"></div>
+          <div class="panel-grid two">
+            <div class="panel">
+              <div class="panel-head"><h3>Receita por campanha</h3><span>clique na linha para filtrar</span></div>
+              <div class="chart-wrap" id="campaignsChart"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Taxa de conversão</h3><span>landing → pedido</span></div>
+              <div class="chart-wrap" id="campaignsConvChart"></div>
+            </div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Investimento por campanha (ROAS/CPA)</h3></div>
+            <div id="adSpendPanel"></div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>ROAS no tempo</h3><span>investimento proporcional à receita diária</span></div>
+            <div class="chart-wrap" id="roasTimelineChart"></div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Detalhamento UTM</h3></div>
+            <div id="utmBreakdownPanel"></div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Campanhas</h3><span>clique na linha para filtrar pedidos</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>src</th><th>Sessões</th><th>Landing</th><th>Pedidos</th><th>Receita</th><th>Conv.</th><th>Invest.</th><th>ROAS</th><th>CPA</th></tr></thead>
+                <tbody id="campaignsTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Webhooks recentes</h3><span>últimos PIX/pagamentos</span></div>
+            <div id="webhooksPanel"></div>
+          </div>
+        </section>
+
+        <!-- UTMIFY -->
+        <section id="sec-utmify" class="section">
+          <div class="panel panel-full">
+            <div class="panel-head"><h3>Pedidos com falha Utmify</h3><span>reenvio manual</span></div>
+            <div id="utmifyFailuresPanel"></div>
+          </div>
+          <div class="panel panel-full" style="margin-top:20px">
+            <div class="panel-head"><h3>Logs recentes</h3><span>data/utmify/log-*.jsonl</span></div>
+            <div id="utmifyLogsPanel"></div>
+          </div>
+        </section>
+
+        <!-- PRODUCTS -->
+        <section id="sec-products" class="section">
+          <div class="panel-grid two">
+            <div class="panel">
+              <div class="panel-head"><h3>Mix de receita</h3></div>
+              <div id="productsDonut"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Receita por produto</h3></div>
+              <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Valor</th></tr></thead><tbody id="revenueTable"></tbody></table></div>
+            </div>
+          </div>
+          <p class="panel-note" style="margin-top:16px">Detalhamento de upsells 1–20 está na aba <strong>Upsells</strong>.</p>
+        </section>
+
+          </div>
+        </div>
+        <div id="pixelsFooter" class="pixels-footer"></div>
+        <p class="footer-note" id="lastUpdated"></p>
+      </div>
+    </main>
+  </div>
+
+  <button type="button" id="backToTop" class="back-to-top" title="Voltar ao topo" aria-label="Voltar ao topo">↑</button>
+
+  <div id="sessionModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <h3>Jornada da sessão</h3>
+      <button type="button" class="btn btn-ghost" id="sessionModalClose" style="position:absolute;top:12px;right:12px">Fechar</button>
+      <div id="sessionModalBody"></div>
+    </div>
+  </div>
+  <div id="saleToast" class="sale-toast"></div>
+  <div id="loading" class="loading-overlay hidden"><div class="spinner"></div></div>
+
+  <script>
+  (function () {
+    var src = 'analytics-panel.js';
+    if (typeof window.credpixPath === 'function') {
+      src = window.credpixPath('/admin/analytics-panel.js');
+    } else if (window.CREDPIX_BASE_PATH) {
+      src = String(window.CREDPIX_BASE_PATH).replace(/\/$/, '') + '/admin/analytics-panel.js';
+    }
+    document.write('<script src="' + src.replace(/"/g, '&quot;') + '?v=20260531"><\/script>');
+  })();
+  </script>
+  <script>
+  (function () {
+    'use strict';
+    var TOKEN_KEY = 'credpix_analytics_token';
+    var DISPLAY_TZ = 'America/Sao_Paulo';
+    var FILTER_KEY = 'credpix_analytics_filters';
+    var syncLabelTimer = null;
+    var lastStatsLoadedAt = null;
+    var currentStats = null;
+    var CHART_COLORS = ['#6366f1', '#22c55e', '#06b6d4', '#f59e0b', '#ec4899', '#8b5cf6', '#14b8a6', '#f97316'];
+
+    var SECTIONS = {
+      overview: { title: 'Visão geral', desc: 'Resumo do funil e receita no período' },
+      orders: { title: 'Pedidos', desc: 'Pagamentos confirmados no checkout' },
+      campaigns: { title: 'Campanhas', desc: 'Performance por parâmetro src' },
+      upsells: { title: 'Upsells', desc: 'Performance dos upsells 1–20' },
+      utmify: { title: 'Utmify', desc: 'Falhas de envio e logs da integração' },
+      products: { title: 'Produtos', desc: 'Receita por produto' }
+    };
+
+    function apiBase() {
+      if (window.credpixPath) return window.credpixPath('/api/analytics.php');
+      return (window.CREDPIX_BASE_PATH || '') + '/api/analytics.php';
+    }
+    function pixelsPageUrl() {
+      if (window.credpixPath) return window.credpixPath('/admin/pixels-google.html');
+      return (window.CREDPIX_BASE_PATH || '') + '/admin/pixels-google.html';
+    }
+    (function wirePixelsLinks() {
+      var url = pixelsPageUrl();
+      var link = document.getElementById('pixelsPageLink');
+      var btn = document.getElementById('pixelsPageBtn');
+      if (link) link.href = url;
+      if (btn) btn.href = url;
+    })();
+    function authHeaders() {
+      var t = sessionStorage.getItem(TOKEN_KEY) || '';
+      return t ? { 'X-Analytics-Token': t } : {};
+    }
+    function getToken() { return sessionStorage.getItem(TOKEN_KEY) || ''; }
+    function setToken(t) { sessionStorage.setItem(TOKEN_KEY, t); }
+    function clearToken() { sessionStorage.removeItem(TOKEN_KEY); }
+
+    function fmtAgo(ms) {
+      if (!ms) return '—';
+      var min = Math.round(ms / 60000);
+      if (min < 1) return 'agora';
+      if (min < 60) return min + ' min';
+      return Math.round(min / 60) + 'h';
+    }
+
+    function fmtDate(ts) {
+      if (!ts) return '—';
+      return new Date(Number(ts)).toLocaleString('pt-BR', { timeZone: DISPLAY_TZ });
+    }
+    function fmtTime(ts) {
+      if (!ts) return '—';
+      return new Date(Number(ts)).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: DISPLAY_TZ });
+    }
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function buildFilterQuery() {
+      var days = document.getElementById('periodSelect').value;
+      var url = 'days=' + encodeURIComponent(days);
+      var src = document.getElementById('srcFilter').value;
+      var product = document.getElementById('productFilter').value;
+      var utmCampaign = document.getElementById('utmCampaignFilter').value;
+      var utmMedium = document.getElementById('utmMediumFilter').value;
+      var utmContent = document.getElementById('utmContentFilter').value;
+      if (src) url += '&src=' + encodeURIComponent(src);
+      if (product) url += '&product=' + encodeURIComponent(product);
+      if (utmCampaign) url += '&utm_campaign=' + encodeURIComponent(utmCampaign);
+      if (utmMedium) url += '&utm_medium=' + encodeURIComponent(utmMedium);
+      if (utmContent) url += '&utm_content=' + encodeURIComponent(utmContent);
+      return url;
+    }
+
+    function downloadCsvBlob(blob, filename) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    }
+
+    function onStatsLoadError(e) {
+      if (e && e.message !== 'auth') showStatsError(e.message || 'Erro ao carregar');
+    }
+
+    function renderInsightsPanels(stats) {
+      renderOverviewInline(stats);
+    }
+
+    function renderOverviewInline(stats) {
+      stats = stats || {};
+      var dropoff = (stats.funnel && stats.funnel.dropoff) || [];
+      var dropEl = document.getElementById('funnelDropoffPanel');
+      if (dropEl) {
+        if (!dropoff.length) {
+          dropEl.innerHTML = chartEmpty('funnel', 'Sem dados de funil', 'Aguardando tráfego no período.');
+        } else {
+          dropEl.innerHTML =
+            '<div class="table-wrap"><table class="insight-table"><thead><tr><th>Etapa</th><th>Sessões</th><th>Queda vs anterior</th><th>Retenção vs landing</th></tr></thead><tbody>' +
+            dropoff.map(function (r) {
+              return '<tr><td><strong>' + esc(r.label) + '</strong></td><td class="num">' + esc(r.count) +
+                '</td><td class="num">' + esc(r.drop_from_prev_pct || 0) + '%</td><td class="num">' +
+                esc(r.retain_from_landing_pct || 0) + '%</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        }
+      }
+      var ct = stats.conversion_times;
+      var ctEl = document.getElementById('conversionTimesPanel');
+      if (ctEl) {
+        if (!ct) {
+          ctEl.innerHTML = chartEmpty('chart', 'Tempo de conversão', 'Aparece quando há sessões com landing, PIX e pagamento.');
+        } else {
+          ctEl.innerHTML =
+            '<div class="mini-kpi-row">' +
+            '<div class="mini-kpi"><span>Landing → PIX</span><strong>' + esc(ct.landing_to_pix_label || '—') + '</strong></div>' +
+            '<div class="mini-kpi"><span>PIX → Pago</span><strong>' + esc(ct.pix_to_paid_label || '—') + '</strong></div>' +
+            '<div class="mini-kpi"><span>Landing → Pago</span><strong>' + esc(ct.landing_to_paid_label || '—') + '</strong></div>' +
+            '</div>';
+        }
+      }
+      if (typeof window.renderHourlyActivityChart === 'function') {
+        window.renderHourlyActivityChart('hourlyActivityChart', stats.hourly_activity || []);
+      } else {
+        var hourEl = document.getElementById('hourlyActivityChart');
+        if (hourEl) hourEl.innerHTML = chartEmpty('chart', 'Atividade por hora', 'Gráfico indisponível.');
+      }
+      renderDashboardExtraPanels(stats);
+      var demo = stats.demographics || {};
+      var demoEl = document.getElementById('demographicsPanel');
+      var demoChart = document.getElementById('demographicsPaidChart');
+      if (demoEl) {
+        var hasLeads = (demo.verified_leads || 0) > 0;
+        var hasPaidProfile = (demo.paid_with_profile || 0) > 0;
+        var hasPaidBands = (demo.age_bands_paid || []).length > 0;
+        if (!hasLeads && !hasPaidProfile && !hasPaidBands) {
+          var totalPaid = demo.payments_total || 0;
+          var demoHint = totalPaid > 0
+            ? totalPaid + ' pedido(s) sem idade/sexo nos registros antigos. Novos PIX incluem perfil após consulta CPF.'
+            : 'Consulte CPF no wizard (idade/sexo) e confirme pagamentos no período.';
+          demoEl.innerHTML = chartEmpty('chart', 'Perfil demográfico', demoHint);
+          if (demoChart) {
+            demoChart.innerHTML = chartEmpty('chart', 'Faixa etária — pagos',
+              totalPaid > 0 ? 'Perfil não gravado nos pagamentos recuperados.' : 'Sem pedidos pagos com perfil no período.');
+          }
+        } else if (hasLeads) {
+          demoEl.innerHTML =
+            '<div class="mini-kpi-row">' +
+            '<div class="mini-kpi"><span>CPFs verificados</span><strong>' + esc(demo.verified_leads) + '</strong></div>' +
+            '<div class="mini-kpi"><span>Idade média</span><strong>' + esc(demo.avg_age != null ? demo.avg_age + ' anos' : '—') + '</strong></div>' +
+            '<div class="mini-kpi"><span>Pagos c/ perfil</span><strong>' + esc(demo.paid_with_profile || 0) + '</strong></div>' +
+            '</div>';
+        } else {
+          demoEl.innerHTML =
+            '<div class="mini-kpi-row">' +
+            '<div class="mini-kpi"><span>Pagos c/ perfil</span><strong>' + esc(demo.paid_with_profile || 0) + '</strong>' +
+            '<small>' + esc(demo.avg_age_paid != null ? 'média ' + demo.avg_age_paid + ' anos' : '') + '</small></div>' +
+            '</div>';
+        }
+        if (demoChart && (hasPaidProfile || hasPaidBands)) {
+          var bands = demo.age_bands_paid || [];
+          demoChart.innerHTML = bands.length
+            ? bands.map(function (b) {
+              return '<div class="country-row"><span>' + esc(b.label || b.band) + '</span><strong>' + esc(b.count) + '</strong></div>';
+            }).join('')
+            : chartEmpty('chart', 'Faixa etária — pagos', 'Nenhum pedido pago com idade registrada.');
+        }
+      }
+      var states = (stats.revenue_by_state || []).filter(function (r) {
+        return (r.revenue_cents || 0) > 0 && r.state_key !== '__unknown__' && (r.state || r.state_label);
+      });
+      if (!states.length) {
+        states = (stats.revenue_by_state || []).filter(function (r) {
+          return (r.revenue_cents || 0) > 0;
+        });
+      }
+      var stateEl = document.getElementById('revenueByStatePanel');
+      if (stateEl) {
+        if (!states.length) {
+          stateEl.innerHTML = chartEmpty('geo', 'Receita por estado', 'Precisa de pedidos pagos no período + geo Cloudflare (CF-Region).');
+        } else {
+          var smax = Math.max(1, states[0].revenue_cents || 1);
+          stateEl.innerHTML = states.slice(0, 10).map(function (r) {
+            var pct = Math.round(((r.revenue_cents || 0) / smax) * 100);
+            return '<div class="country-row"><span>' + esc(r.state_label || r.state) + ' · ' + esc(r.payments) + ' pedido(s)</span>' +
+              '<strong>' + esc(r.revenue_formatted) + '</strong><div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div></div>';
+          }).join('');
+        }
+      }
+      var bases = stats.funnel_by_base || [];
+      var baseEl = document.getElementById('landingBaseTable');
+      if (baseEl) {
+        if (!bases.length) {
+          baseEl.innerHTML = chartEmpty('chart', 'Performance por landing', 'Nenhuma landing registrada.');
+        } else {
+          baseEl.innerHTML =
+            '<div class="table-wrap"><table><thead><tr><th>Base path</th><th>Landing</th><th>Pagos</th><th>Receita</th><th>Conv.</th></tr></thead><tbody>' +
+            bases.map(function (r) {
+              return '<tr><td><code>' + esc(r.base_path) + '</code></td><td class="num">' + esc(r.landing) +
+                '</td><td class="num">' + esc(r.payments) + '</td><td class="num">' + esc(r.revenue_formatted) +
+                '</td><td class="num">' + esc(r.conversion_rate) + '%</td></tr>';
+            }).join('') + '</tbody></table></div>';
+        }
+      }
+      var cities = stats.top_cities || [];
+      var cityEl = document.getElementById('topCitiesPanel');
+      if (cityEl) {
+        if (!cities.length) {
+          cityEl.innerHTML = chartEmpty('geo', 'Top cidades', 'Cidades com geo Cloudflare nos pagamentos ou live.');
+        } else {
+          var cmax = Math.max(1, cities[0].revenue_cents || cities[0].online || 1);
+          cityEl.innerHTML = cities.slice(0, 10).map(function (r) {
+            var score = Math.max(r.revenue_cents || 0, (r.online || 0) * 1000);
+            var pct = Math.round((score / cmax) * 100);
+            return '<div class="country-row"><span>' + esc(r.city) + ' (' + esc(r.country || '—') + ')</span>' +
+              '<strong>' + esc(r.revenue_formatted || '—') + '</strong><div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div></div>';
+          }).join('');
+        }
+      }
+      var links = (stats.transition_sankey && stats.transition_sankey.links) || [];
+      if (!links.length && (stats.transitions || []).length) {
+        links = stats.transitions.slice(0, 12).map(function (t) {
+          var parts = String(t.flow || '').split(' → ');
+          return { from: parts[0] || '?', to: parts[1] || '?', value: t.count || 0 };
+        });
+      }
+      var flowEl = document.getElementById('pageFlowPanel');
+      if (flowEl) {
+        if (!links.length) {
+          flowEl.innerHTML = chartEmpty('chart', 'Fluxo entre páginas', 'Transições registradas na navegação.');
+        } else {
+          var fmax = Math.max(1, links[0].value || 1);
+          flowEl.innerHTML = links.slice(0, 12).map(function (l) {
+            var pct = Math.round(((l.value || 0) / fmax) * 100);
+            return '<div class="flow-row"><span>' + esc(l.from) + '</span><div class="flow-bar-wrap"><div class="flow-bar" style="width:' +
+              Math.max(pct, 6) + '%"></div><span>' + esc(l.value) + '</span></div><span>→ ' + esc(l.to) + '</span></div>';
+          }).join('');
+        }
+      }
+      var live = stats.live || {};
+      var liveEl = document.getElementById('liveVisitorsPanel');
+      if (liveEl) {
+        if (live.disabled) {
+          liveEl.innerHTML = chartEmpty('chart', 'Visitantes ao vivo', 'Defina ANALYTICS_LIVE=1 no .env.');
+        } else {
+          var sessions = live.sessions || [];
+          liveEl.innerHTML =
+            '<div class="mini-kpi-row"><div class="mini-kpi"><span>Online agora</span><strong>' + esc(live.total || 0) +
+            '</strong></div></div>' +
+            (sessions.length
+              ? '<div class="live-chips" style="margin-top:12px">' + sessions.slice(0, 12).map(function (s) {
+                return '<span class="chip">' + esc(s.page_label || s.page || '—') + '</span>';
+              }).join('') + '</div>'
+              : '<div class="chart-empty" style="margin-top:12px">Nenhum visitante ativo</div>');
+        }
+      }
+      var alertsEl = document.getElementById('alertsConfigPanel');
+      if (alertsEl) {
+        var cfg = stats.alerts_config || {};
+        alertsEl.innerHTML =
+          '<p class="panel-note">Limites dos alertas automáticos no painel (horário comercial America/Sao_Paulo).</p>' +
+          '<div class="ad-spend-grid">' +
+          '<label><span>Horas sem venda (alerta)</span><input type="number" min="1" max="24" id="alertNoSaleHours" value="' +
+            esc(cfg.no_sale_hours != null ? cfg.no_sale_hours : 2) + '"></label>' +
+          '<label><span>PIX stale (minutos)</span><input type="number" min="5" max="240" id="alertStalePix" value="' +
+            esc(cfg.stale_pix_minutes != null ? cfg.stale_pix_minutes : 30) + '"></label>' +
+          '<label><span>Comercial início (h)</span><input type="number" min="0" max="23" id="alertBizStart" value="' +
+            esc(cfg.business_hours_start != null ? cfg.business_hours_start : 8) + '"></label>' +
+          '<label><span>Comercial fim (h)</span><input type="number" min="1" max="24" id="alertBizEnd" value="' +
+            esc(cfg.business_hours_end != null ? cfg.business_hours_end : 22) + '"></label>' +
+          '</div><button type="button" class="btn btn-ghost" id="saveAlertsConfigBtn">Salvar alertas</button>';
+      }
+      var liveBadge = document.getElementById('liveNavBadge');
+      if (liveBadge) {
+        var online = live.enabled !== false ? (live.total || 0) : 0;
+        if (online > 0) {
+          liveBadge.textContent = String(online);
+          liveBadge.classList.remove('hidden');
+        } else {
+          liveBadge.classList.add('hidden');
+        }
+      }
+    }
+
+    function renderOverviewPanels(stats) {
+      if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.renderOverviewPanels === 'function') {
+        try {
+          CredpixAnalyticsPanel.renderOverviewPanels(stats);
+        } catch (err) {
+          console.error('[CredpixAnalytics] renderOverviewPanels', err);
+          renderOverviewInline(stats);
+          return;
+        }
+      } else {
+        renderOverviewInline(stats);
+        return;
+      }
+      renderDashboardExtraPanels(stats);
+    }
+
+    function renderOrdersPixInline(stats) {
+      stats = stats || {};
+      var utmifyOn = stats.utmify && stats.utmify.enabled;
+      var orders = Array.isArray(stats.orders) ? stats.orders : [];
+      var pixRows = Array.isArray(stats.pix_pending) ? stats.pix_pending : [];
+      var tbody = document.getElementById('ordersTable');
+      if (tbody) {
+        if (!orders.length) {
+          tbody.innerHTML = '<tr><td colspan="10" class="chart-empty">Nenhum pedido no período</td></tr>';
+        } else {
+          tbody.innerHTML = orders.map(function (o, idx) {
+            return '<tr class="session-row" data-session="' + esc(o.session_id || '') + '"><td class="num">' + esc(o.order_num != null ? o.order_num : idx + 1) +
+              '</td><td>' + fmtDate(o.ts) + '</td><td>' + esc(o.product_name) + '</td><td class="num">' + esc(o.amount_formatted) +
+              '</td><td class="num">' + esc(o.lead_age != null ? o.lead_age + ' anos' : '—') + '</td><td>' + esc(o.lead_gender_label || '—') +
+              '</td><td>' + esc(o.traffic_src || '—') + '</td><td>' + esc(o.utm_campaign || '—') + '</td><td>' +
+              renderUtmifyBadges(o.utmify, utmifyOn) + '</td><td class="tx-id">' + esc(o.transaction_id || '—') + '</td></tr>';
+          }).join('');
+        }
+      }
+      var pixBody = document.getElementById('pixPendingTable');
+      var alertEl = document.getElementById('pixPendingAlert');
+      if (alertEl) {
+        if (!pixRows.length) alertEl.innerHTML = '';
+        else {
+          alertEl.innerHTML = '<div class="pix-stuck-alert">' + pixRows.length + ' PIX pendente(s) · ' +
+            esc((stats.totals && stats.totals.pix_pending_value_formatted) || 'R$ 0,00') + ' parado(s)</div>';
+        }
+      }
+      if (pixBody) {
+        if (!pixRows.length) {
+          pixBody.innerHTML = '<tr><td colspan="9" class="chart-empty">Nenhum PIX pendente</td></tr>';
+        } else {
+          pixBody.innerHTML = pixRows.map(function (p) {
+            var pixBadge = !utmifyOn ? '<span class="badge warn">Off</span>'
+              : (!p.utmify || !p.utmify.tx_found ? '<span class="badge warn">—</span>'
+              : (p.utmify.waiting_sent ? '<span class="badge ok">PIX ✓</span>' : '<span class="badge bad">PIX ✗</span>'));
+            return '<tr class="session-row" data-session="' + esc(p.session_id || '') + '"><td>' + fmtDate(p.ts) +
+              '</td><td>' + esc(p.product_name) + '</td><td class="num">' + esc(p.amount_formatted) +
+              '</td><td class="num">' + esc(p.lead_age != null ? p.lead_age + ' anos' : '—') + '</td><td>' + esc(p.lead_gender_label || '—') +
+              '</td><td class="num">' + esc(p.age_label || '—') + '</td><td>' + esc(p.traffic_src || '—') +
+              '</td><td>' + pixBadge + '</td><td class="tx-id">' + esc(p.transaction_id || '—') + '</td></tr>';
+          }).join('');
+        }
+      }
+    }
+
+    function renderOrdersPixTables(stats) {
+      if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.renderOrdersTables === 'function') {
+        try {
+          CredpixAnalyticsPanel.renderOrdersTables(stats);
+          return;
+        } catch (err) {
+          console.error('[CredpixAnalytics] renderOrdersTables', err);
+        }
+      }
+      renderOrdersPixInline(stats);
+    }
+
+    function renderCampaignsInline(stats) {
+      stats = stats || {};
+      var camps = Array.isArray(stats.campaigns) ? stats.campaigns : [];
+      var tbody = document.getElementById('campaignsTable');
+      if (tbody) {
+        if (!camps.length) {
+          tbody.innerHTML = '<tr><td colspan="9" class="chart-empty">Nenhuma campanha no período</td></tr>';
+        } else {
+          tbody.innerHTML = camps.map(function (r) {
+            return '<tr class="src-row" data-src="' + esc(r.src || '') + '" style="cursor:pointer"><td><strong>' + esc(r.src) +
+              '</strong></td><td class="num">' + esc(r.sessions) + '</td><td class="num">' + esc(r.landing) + '</td><td class="num">' +
+              esc(r.payments) + '</td><td class="num">' + esc(r.revenue_formatted) + '</td><td class="num">' + esc(r.conversion_rate) +
+              '%</td><td class="num">' + esc(r.ad_spend_formatted || '—') + '</td><td class="num">' +
+              (r.roas != null ? esc(r.roas) + 'x' : '—') + '</td><td class="num">' + esc(r.cpa_formatted || '—') + '</td></tr>';
+          }).join('');
+        }
+      }
+      var spendEl = document.getElementById('adSpendPanel');
+      if (spendEl && !spendEl.innerHTML.trim()) {
+        spendEl.innerHTML = chartEmpty('chart', 'Investimento por src', 'Cadastre valores em reais para calcular ROAS e CPA.');
+      }
+      var utmEl = document.getElementById('utmBreakdownPanel');
+      if (utmEl && !utmEl.innerHTML.trim()) {
+        utmEl.innerHTML = chartEmpty('chart', 'Sem UTM no período', 'UTMs aparecem nos eventos com parâmetros de campanha.');
+      }
+      var whEl = document.getElementById('webhooksPanel');
+      if (whEl && !whEl.innerHTML.trim()) {
+        var wh = stats.webhooks_recent || [];
+        if (!wh.length) {
+          whEl.innerHTML = '<div class="chart-empty">Nenhum webhook registrado</div>';
+        } else {
+          whEl.innerHTML = wh.slice(0, 10).map(function (r) {
+            var tag = r.verify_method === 'api' ? 'API OK'
+              : (r.verify_method === 'local' ? 'Local OK'
+              : (r.signature_valid === false
+                ? [r.reason, r.api_reason, r.local_reason].filter(Boolean).join(' · ') || 'rejeitado'
+                : 'HMAC OK'));
+            return '<div class="recent-item"><span>' + fmtDate(r.ts) + '</span> · ' + esc(r.status || '—') + ' · ' + esc(tag) + '</div>';
+          }).join('');
+        }
+      }
+    }
+
+    function renderCampaignsPanels(stats) {
+      if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.renderCampaignsPanels === 'function') {
+        try {
+          CredpixAnalyticsPanel.renderCampaignsPanels(stats);
+          return;
+        } catch (err) {
+          console.error('[CredpixAnalytics] renderCampaignsPanels', err);
+        }
+      }
+      renderCampaignsInline(stats);
+    }
+
+    function renderCampaignsSection(stats) {
+      stats = stats || {};
+      var t = stats.totals || {};
+      var camps = Array.isArray(stats.campaigns) ? stats.campaigns : [];
+      renderKpiGrid('campaignsKpis', [
+        { label: 'Campanhas', value: camps.length, color: '#6366f1' },
+        { label: 'Melhor src (receita)', value: camps[0] ? camps[0].src : '—', color: '#22c55e', sub: camps[0] ? camps[0].revenue_formatted : '' },
+        { label: 'Pedidos (total)', value: t.payments, color: '#06b6d4' }
+      ]);
+      renderHorizontalBars('campaignsChart', camps.map(function (r) {
+        return { label: r.src, value: r.revenue_cents, formatted: r.revenue_formatted };
+      }), 'value', 'formatted');
+      renderHorizontalBars('campaignsConvChart', camps.map(function (r) {
+        return { label: r.src, value: r.conversion_rate, formatted: r.conversion_rate + '%' };
+      }), 'value', 'formatted');
+      renderRoasTimeline('roasTimelineChart', stats.roas_timeline || []);
+      renderCampaignsPanels(stats);
+    }
+
+    function chartEmpty(type, title, hint) {
+      return '<div class="chart-empty" data-empty-type="' + esc(type || 'chart') + '">' +
+        (title ? '<strong>' + esc(title) + '</strong>' : '') +
+        (hint ? '<small>' + esc(hint) + '</small>' : '') + '</div>';
+    }
+
+    function initTheme() {
+      var saved = localStorage.getItem('credpix_analytics_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved === 'light' ? 'light' : 'dark');
+      var btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.textContent = (saved === 'light' ? '◑' : '◐') + ' Tema';
+    }
+
+    function toggleTheme() {
+      var cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      var next = cur === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('credpix_analytics_theme', next);
+      var btn = document.getElementById('themeToggleBtn');
+      if (btn) btn.textContent = (next === 'light' ? '◑' : '◐') + ' Tema';
+    }
+
+    function renderFilterChips() {
+      var el = document.getElementById('filterChips');
+      if (!el) return;
+      var chips = [];
+      var days = document.getElementById('periodSelect');
+      if (days && days.value !== '1') {
+        chips.push({ label: days.options[days.selectedIndex].text, clear: function () { days.value = '1'; } });
+      }
+      var map = [
+        ['srcFilter', 'src'],
+        ['productFilter', 'product'],
+        ['utmCampaignFilter', 'UTM'],
+        ['utmMediumFilter', 'Medium'],
+        ['utmContentFilter', 'Content'],
+      ];
+      map.forEach(function (pair) {
+        var sel = document.getElementById(pair[0]);
+        if (sel && sel.value) {
+          chips.push({
+            label: pair[1] + ': ' + sel.value,
+            clear: (function (s) { return function () { s.value = ''; }; })(sel),
+          });
+        }
+      });
+      if (!chips.length) {
+        el.innerHTML = '';
+        return;
+      }
+      el.innerHTML = chips.map(function (c, i) {
+        return '<span class="filter-chip">' + esc(c.label) +
+          '<button type="button" data-chip="' + i + '" aria-label="Remover filtro">×</button></span>';
+      }).join('');
+      el.querySelectorAll('button[data-chip]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var idx = parseInt(btn.getAttribute('data-chip'), 10);
+          if (chips[idx]) chips[idx].clear();
+          saveFilters();
+          loadStats().catch(onStatsLoadError);
+        });
+      });
+    }
+
+    function setLoading(on) {
+      var bar = document.getElementById('loadingBar');
+      var sk = document.getElementById('skeletonGrid');
+      var wrap = document.getElementById('dashboardContent');
+      var overlay = document.getElementById('loading');
+      if (bar) bar.classList.toggle('active', on);
+      if (sk) {
+        if (on && !sk.innerHTML) {
+          sk.innerHTML = '<div class="skeleton-block"></div><div class="skeleton-block"></div><div class="skeleton-block"></div><div class="skeleton-block"></div>';
+        }
+        sk.classList.toggle('hidden', !on);
+      }
+      if (wrap) wrap.classList.toggle('is-loading', on);
+      if (overlay) overlay.classList.add('hidden');
+    }
+
+    function renderTable(id, rows, cols, empty) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (!rows.length) {
+        el.innerHTML = '<tr><td colspan="' + cols + '" style="color:var(--text-muted);text-align:center;padding:24px">' + esc(empty || 'Sem dados') + '</td></tr>';
+        return;
+      }
+      el.innerHTML = rows.join('');
+    }
+
+    function renderSparklineSvg(rows, color) {
+      rows = rows || [];
+      if (rows.length < 2) return '';
+      var values = rows.map(function (r) { return r.value || 0; });
+      var max = Math.max.apply(null, values.concat([1]));
+      var w = 120;
+      var h = 32;
+      var step = w / (values.length - 1);
+      var pts = values.map(function (v, i) {
+        var x = i * step;
+        var y = h - 4 - ((v / max) * (h - 8));
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      });
+      var area = 'M0,' + h + ' L' + pts.join(' L') + ' L' + w + ',' + h + ' Z';
+      var stroke = color || '#6366f1';
+      return '<div class="kpi-spark"><svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+        '<path class="kpi-spark-area" d="' + area + '" fill="' + stroke + '"></path>' +
+        '<polyline class="kpi-spark-line" points="' + pts.join(' ') + '" stroke="' + stroke + '"></polyline></svg></div>';
+    }
+
+    function saveFilters() {
+      try {
+        localStorage.setItem(FILTER_KEY, JSON.stringify({
+          days: document.getElementById('periodSelect').value,
+          src: document.getElementById('srcFilter').value,
+          product: document.getElementById('productFilter').value,
+          utmCampaign: document.getElementById('utmCampaignFilter').value,
+          utmMedium: document.getElementById('utmMediumFilter').value,
+          utmContent: document.getElementById('utmContentFilter').value,
+        }));
+      } catch (e) { /* ignore */ }
+    }
+
+    function restoreFilters() {
+      try {
+        var raw = localStorage.getItem(FILTER_KEY);
+        if (!raw) return;
+        var f = JSON.parse(raw);
+        if (f.days != null) document.getElementById('periodSelect').value = String(f.days);
+        if (f.src != null) document.getElementById('srcFilter').value = f.src;
+        if (f.product != null) document.getElementById('productFilter').value = f.product;
+        if (f.utmCampaign != null) document.getElementById('utmCampaignFilter').value = f.utmCampaign;
+        if (f.utmMedium != null) document.getElementById('utmMediumFilter').value = f.utmMedium;
+        if (f.utmContent != null) document.getElementById('utmContentFilter').value = f.utmContent;
+      } catch (e) { /* ignore */ }
+    }
+
+    function renderRecentFeed(containerId, recent) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      recent = (recent || []).slice().reverse();
+      if (!recent.length) {
+        el.innerHTML = '<div class="chart-empty">Nenhum evento recente no período</div>';
+        return;
+      }
+      el.innerHTML = recent.slice(0, 25).map(function (ev) {
+        var type = ev.type || 'evento';
+        var label = ev.page_label || ev.product_name || type;
+        var amt = ev.amount_cents ? formatFullReais(ev.amount_cents) : '';
+        var src = ev.traffic_src || ev.utm_source || '';
+        return '<div class="recent-row"><div><span class="recent-type ' + esc(type) + '">' + esc(type.replace(/_/g, ' ')) +
+          '</span><div>' + esc(label) + (amt ? ' · <strong>' + esc(amt) + '</strong>' : '') + '</div>' +
+          (src ? '<div class="recent-meta">' + esc(src) + '</div>' : '') + '</div>' +
+          '<span class="recent-meta">' + fmtTime(ev.ts) + '</span></div>';
+      }).join('');
+    }
+
+    function attachBarChartTooltips(container, rows, opts) {
+      if (!container || !rows || !rows.length) return;
+      var existing = container.querySelector('.chart-hover-tip');
+      if (existing) existing.remove();
+      var tip = document.createElement('div');
+      tip.className = 'chart-hover-tip';
+      container.style.position = 'relative';
+      container.appendChild(tip);
+      var bars = container.querySelectorAll('.chart-bar');
+      bars.forEach(function (bar, i) {
+        var r = rows[i] || {};
+        bar.addEventListener('mouseenter', function (e) {
+          var val = opts && opts.currency ? (r.formatted || formatFullReais(r.value || 0)) : (r.formatted || String(r.value || 0));
+          tip.innerHTML = '<strong>' + esc(r.label || '') + '</strong><br>' + esc(val);
+          tip.classList.add('visible');
+          var rect = container.getBoundingClientRect();
+          tip.style.left = (e.clientX - rect.left) + 'px';
+          tip.style.top = (e.clientY - rect.top) + 'px';
+        });
+        bar.addEventListener('mousemove', function (e) {
+          var rect = container.getBoundingClientRect();
+          tip.style.left = (e.clientX - rect.left) + 'px';
+          tip.style.top = (e.clientY - rect.top) + 'px';
+        });
+        bar.addEventListener('mouseleave', function () {
+          tip.classList.remove('visible');
+        });
+      });
+    }
+
+    function renderKpiGrid(containerId, items) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      el.innerHTML = items.map(function (k) {
+        var spark = k.sparkline ? renderSparklineSvg(k.sparkline, k.color) : '';
+        return '<div class="kpi" style="--kpi-accent:' + (k.color || 'var(--accent)') + '">' +
+          '<div class="kpi-label">' + esc(k.label) + '</div>' +
+          '<div class="kpi-value">' + esc(k.value) + '</div>' +
+          (k.sub ? '<div class="kpi-sub">' + esc(k.sub) + '</div>' : '') +
+          (k.delta ? '<div class="kpi-delta ' + k.deltaCls + '">' + esc(k.delta) + '</div>' : '') +
+          spark +
+          '</div>';
+      }).join('');
+    }
+
+    function renderAlerts(containerId, alerts) {
+      var box = document.getElementById(containerId);
+      if (!box) return;
+      box.innerHTML = (alerts || []).map(function (a) {
+        var level = a.level || 'ok';
+        if (level === 'critical') level = 'danger';
+        return '<div class="alert ' + esc(level) + '">' + esc(a.message) + '</div>';
+      }).join('');
+    }
+
+    function renderFunnel(containerId, f) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      var steps = [
+        { key: 'landing', label: 'Landing' },
+        { key: 'wizard', label: 'Wizard' },
+        { key: 'checkout', label: 'Checkout' },
+        { key: 'pix_generated', label: 'PIX gerado' },
+        { key: 'payment_paid', label: 'Pago' },
+        { key: 'upsell', label: 'Upsell' }
+      ];
+      var max = f.landing || 1;
+      if (!max) {
+        el.innerHTML = chartEmpty('funnel', 'Sem dados de funil', 'Aguardando tráfego no período.');
+        return;
+      }
+      var html = '<div class="funnel-cascade">';
+      var prev = null;
+      steps.forEach(function (s) {
+        var n = f[s.key] || 0;
+        var pct = Math.round((n / max) * 100);
+        var width = Math.max(28, pct);
+        if (prev !== null && prev > n && prev > 0) {
+          var drop = Math.round(((prev - n) / prev) * 100);
+          html += '<div class="funnel-cascade-drop">↓ ' + drop + '% vs etapa anterior</div>';
+        }
+        html += '<div class="funnel-cascade-step"><div class="funnel-cascade-meta"><span>' + s.label +
+          '</span><strong>' + n + ' · ' + pct + '%</strong></div>' +
+          '<div class="funnel-cascade-bar" style="width:' + width + '%"></div></div>';
+        prev = n;
+      });
+      html += '</div>';
+      el.innerHTML = html;
+    }
+
+    function formatCompactReais(cents) {
+      if (!cents || cents <= 0) return '';
+      var v = cents / 100;
+      if (v >= 10000) return 'R$ ' + (v / 1000).toFixed(1).replace('.', ',') + 'k';
+      if (v >= 1000) return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+      return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+    }
+
+    function formatAxisReais(cents) {
+      if (!cents || cents <= 0) return '0';
+      var v = cents / 100;
+      if (v >= 1000) return (v / 1000).toFixed(v >= 10000 ? 0 : 1).replace('.', ',') + 'k';
+      return String(Math.round(v));
+    }
+
+    function formatFullReais(cents) {
+      var v = (cents || 0) / 100;
+      var parts = v.toFixed(2).split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return 'R$ ' + parts.join(',');
+    }
+
+    function shouldShowBarValue(value, max, dense, allValues) {
+      if (!value || value <= 0) return false;
+      if (!dense) return true;
+      if (value >= max * 0.12) return true;
+      var sorted = (allValues || []).slice().sort(function (a, b) { return b - a; });
+      var cutoff = sorted[Math.min(2, Math.max(0, sorted.length - 1))] || 0;
+      return value >= cutoff && cutoff > 0;
+    }
+
+    function renderHourlyActivityChart(containerId, rows) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      rows = rows || [];
+      var totalPv = rows.reduce(function (s, r) { return s + (r.page_views || 0); }, 0);
+      var totalPay = rows.reduce(function (s, r) { return s + (r.payments || 0); }, 0);
+      var totalRev = rows.reduce(function (s, r) { return s + (r.revenue_cents || 0); }, 0);
+      if (!rows.length || (totalPv === 0 && totalPay === 0)) {
+        el.innerHTML = '<div class="chart-empty">Nenhuma view ou pagamento no período selecionado.</div>';
+        return;
+      }
+      var maxPv = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.page_views || 0); }, 1));
+      var maxPay = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.payments || 0); }, 1));
+      el.innerHTML =
+        '<div class="hourly-chart"><div class="hourly-grid">' + rows.map(function (r) {
+          var pvH = Math.max(3, Math.round(((r.page_views || 0) / maxPv) * 100));
+          var payH = Math.max(3, Math.round(((r.payments || 0) / maxPay) * 100));
+          var tip = esc(r.label) + '<br>' + (r.page_views || 0) + ' views · ' + (r.payments || 0) + ' pago(s)';
+          if ((r.revenue_cents || 0) > 0) {
+            tip += '<br><strong>' + esc(r.revenue_formatted || formatFullReais(r.revenue_cents)) + '</strong>';
+          }
+          return '<div class="hourly-col" tabindex="0">' +
+            '<div class="hourly-tip">' + tip + '</div>' +
+            '<div class="hourly-bars">' +
+            '<div class="hourly-bar pv" style="height:' + pvH + '%" title="' + esc(r.label) + ': ' + (r.page_views || 0) + ' views"></div>' +
+            '<div class="hourly-bar pay" style="height:' + payH + '%" title="' + esc(r.label) + ': ' + (r.payments || 0) + ' pagos"></div>' +
+            '</div><span class="hourly-label">' + esc(r.label) + '</span></div>';
+        }).join('') + '</div>' +
+        '<div class="hourly-legend">' +
+        '<span><i class="dot pv"></i> Views (' + totalPv + ')</span>' +
+        '<span><i class="dot pay"></i> Pagos (' + totalPay + ')</span>' +
+        (totalRev > 0 ? '<span><i class="dot rev"></i> Receita ' + esc(formatFullReais(totalRev)) + '</span>' : '') +
+        '</div></div>';
+    }
+    window.renderHourlyActivityChart = renderHourlyActivityChart;
+
+    function renderPixHourlyConversionChart(containerId, data) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      data = data || {};
+      if (data.error) {
+        el.innerHTML = chartEmpty('chart', 'PIX por horário', 'Erro: ' + data.error);
+        return;
+      }
+      var rows = data.hours || [];
+      var totals = data.totals || {};
+      var totalGen = rows.reduce(function (s, r) { return s + (r.pix_generated || 0); }, 0);
+      if (!rows.length || totalGen === 0) {
+        el.innerHTML = chartEmpty('chart', 'PIX por horário', 'Nenhum PIX gerado no período. Gere PIX no funil para ver conversão por hora.');
+        return;
+      }
+      var maxGen = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.pix_generated || 0); }, 1));
+      var maxConv = Math.max(1, rows.reduce(function (m, r) { return Math.max(m, r.conversion_rate || 0); }, 1));
+      el.innerHTML =
+        '<div class="mini-kpi-row" style="margin-bottom:14px">' +
+        '<div class="mini-kpi"><span>PIX gerados</span><strong>' + (totals.pix_generated || 0) + '</strong></div>' +
+        '<div class="mini-kpi"><span>PIX pagos</span><strong>' + (totals.pix_paid || 0) + '</strong><small>' +
+          (totals.pix_pending || 0) + ' pendente(s)</small></div>' +
+        '<div class="mini-kpi"><span>Conversão geral</span><strong>' + (totals.conversion_rate || 0) + '%</strong></div>' +
+        '</div>' +
+        '<div class="hourly-chart"><div class="hourly-grid">' + rows.map(function (r) {
+          var genH = Math.max(3, Math.round(((r.pix_generated || 0) / maxGen) * 100));
+          var payH = Math.max(3, Math.round(((r.pix_paid || 0) / maxGen) * 100));
+          var tip = esc(r.label) + '<br>' + (r.pix_generated || 0) + ' gerados · ' + (r.pix_paid || 0) + ' pagos' +
+            '<br>' + (r.pix_pending || 0) + ' pendentes<br><strong>' + (r.conversion_rate || 0) + '% conv.</strong>';
+          return '<div class="hourly-col" tabindex="0"><div class="hourly-tip">' + tip + '</div><div class="hourly-bars">' +
+            '<div class="hourly-bar pix-gen" style="height:' + genH + '%"></div>' +
+            '<div class="hourly-bar pix-pay" style="height:' + payH + '%"></div>' +
+            '</div><span class="hourly-label">' + esc(r.label) + '</span></div>';
+        }).join('') + '</div>' +
+        '<div class="hourly-legend">' +
+        '<span><i class="dot" style="background:#f59e0b"></i> Gerados (' + totalGen + ')</span>' +
+        '<span><i class="dot pay"></i> Pagos (' + (totals.pix_paid || 0) + ')</span></div>' +
+        '<div class="conv-rate-line">' + rows.map(function (r) {
+          var h = Math.max(4, Math.round(((r.conversion_rate || 0) / maxConv) * 100));
+          return '<div class="conv-rate-col" title="' + esc(r.label) + ': ' + (r.conversion_rate || 0) + '%">' +
+            '<div class="conv-rate-bar" style="height:' + h + '%"></div>' +
+            '<span class="hourly-label">' + esc(r.label) + '</span></div>';
+        }).join('') + '</div>' +
+        '<p style="margin:10px 0 0;font-size:11px;color:var(--text-muted)">Amarelo = PIX gerado · Verde = pago · Azul = % conversão na hora.</p>';
+    }
+    window.renderPixHourlyConversionChart = renderPixHourlyConversionChart;
+
+    function renderMainPriceComparisonChart(containerId, cmp) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      cmp = cmp || {};
+      if (cmp.error) {
+        el.innerHTML = chartEmpty('chart', 'Comparativo de preço', 'Erro: ' + cmp.error);
+        return;
+      }
+      var tiers = cmp.tiers || [];
+      if (!cmp.has_data) {
+        el.innerHTML = chartEmpty('chart', 'Comparativo R$ 29,86 vs R$ 39,86',
+          'Ainda não há PIX do checkout principal com esses valores no período filtrado.');
+        return;
+      }
+      var winner = cmp.winner_label || '';
+      el.innerHTML =
+        '<div class="price-compare-grid">' + tiers.map(function (t) {
+          var isWin = winner && t.label === winner;
+          return '<div class="price-compare-card' + (isWin ? ' is-winner' : '') + '">' +
+            '<h4>' + esc(t.label) + (isWin ? ' · melhor receita' : '') + '</h4>' +
+            '<div class="mini-kpi-row" style="grid-template-columns:1fr 1fr">' +
+            '<div class="mini-kpi"><span>PIX gerados</span><strong>' + (t.pix_generated || 0) + '</strong></div>' +
+            '<div class="mini-kpi"><span>Pagos</span><strong>' + (t.pix_paid || 0) + '</strong><small>' +
+              (t.conversion_rate || 0) + '% conv.</small></div></div>' +
+            '<div class="mini-kpi-row" style="grid-template-columns:1fr 1fr;margin-top:8px">' +
+            '<div class="mini-kpi"><span>Receita</span><strong>' + esc(t.revenue_formatted || '—') + '</strong></div>' +
+            '<div class="mini-kpi"><span>Receita / PIX</span><strong>' + esc(t.revenue_per_pix_formatted || '—') + '</strong>' +
+              '<small>' + (t.pix_pending || 0) + ' pendente(s)</small></div></div></div>';
+        }).join('') + '</div>' +
+        '<div class="price-compare-insight">' + esc(cmp.insight || '') +
+        '<br><small style="opacity:0.85">Receita de PIX pagos no período. Não inclui custo de tráfego por preço.</small></div>';
+    }
+    window.renderMainPriceComparisonChart = renderMainPriceComparisonChart;
+
+    function renderDashboardExtraPanels(stats) {
+      renderPixHourlyConversionChart('pixHourlyConversionChart', stats && stats.pix_hourly_conversion);
+      renderMainPriceComparisonChart('mainPriceComparisonPanel', stats && stats.main_price_comparison);
+    }
+
+    function renderSvgBarChart(containerId, rows, opts) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      if (!rows || !rows.length) {
+        el.innerHTML = '<div class="chart-empty">Sem dados no período selecionado</div>';
+        return;
+      }
+      opts = opts || {};
+      var barCount = rows.length;
+      var dense = opts.dense != null ? opts.dense : barCount > 12;
+      var showValues = opts.showValues !== false;
+      var labelHeadroom = showValues ? 28 : 0;
+      var h = opts.height || (dense ? 280 : 240);
+      var padL = opts.currency ? 48 : 10;
+      var padR = 10;
+      var padT = 14 + labelHeadroom;
+      var padB = 40;
+      var w = opts.width || (dense ? 960 : 520);
+      var chartH = h - padT - padB;
+      var values = rows.map(function (r) { return r.value || 0; });
+      var max = Math.max.apply(null, values.concat([1]));
+      var scaleMax = showValues ? max * 1.14 : max;
+      var gap = (w - padL - padR) / barCount;
+      var barW = Math.max(4, Math.min(gap * 0.72, dense ? 22 : 28));
+      var baseColor = opts.color || '#6366f1';
+      var gradId = 'grad_' + String(containerId).replace(/\W/g, '_');
+
+      var grid = '';
+      var ySteps = 4;
+      for (var t = 0; t <= ySteps; t++) {
+        var tickVal = Math.round(max * (1 - t / ySteps));
+        var yLine = padT + (t / ySteps) * chartH;
+        grid += '<line x1="' + padL + '" y1="' + yLine + '" x2="' + (w - padR) + '" y2="' + yLine + '" stroke="rgba(148,163,184,0.12)" stroke-dasharray="3 5"/>';
+        if (opts.currency) {
+          grid += '<text x="' + (padL - 8) + '" y="' + (yLine + 4) + '" text-anchor="end" fill="#64748b" font-size="9" font-family="DM Sans,sans-serif">' +
+            esc(formatAxisReais(tickVal)) + '</text>';
+        }
+      }
+
+      var barParts = [];
+      var valueParts = [];
+      rows.forEach(function (r, i) {
+        var val = r.value || 0;
+        var bh = val > 0 ? Math.max(4, (val / scaleMax) * chartH) : 2;
+        var x = padL + i * gap + (gap - barW) / 2;
+        var y = padT + chartH - bh;
+        var color = opts.mono ? baseColor : (r.color || CHART_COLORS[i % CHART_COLORS.length]);
+        var fill = opts.gradient ? 'url(#' + gradId + ')' : color;
+        var lbl = String(r.label || '');
+
+        barParts.push(
+          '<rect class="chart-bar" x="' + x + '" y="' + y + '" width="' + barW + '" height="' + bh + '" rx="4" fill="' + fill + '" opacity="' + (val > 0 ? '0.92' : '0.25') + '">' +
+          '<title>' + esc(lbl) + ': ' + esc(r.formatted || (opts.currency ? formatFullReais(val) : val)) + '</title></rect>' +
+          '<text x="' + (x + barW / 2) + '" y="' + (h - 12) + '" text-anchor="middle" fill="#64748b" font-size="' + (dense ? '8' : '9') + '" font-family="DM Sans,sans-serif">' +
+          esc(lbl) + '</text>'
+        );
+
+        if (showValues && shouldShowBarValue(val, max, dense, values)) {
+          var txt = opts.currency ? formatCompactReais(val) : (r.formatted || String(val));
+          var ty = Math.max(padT + 10, y - 8);
+          var cx = x + barW / 2;
+          valueParts.push(
+            '<text x="' + cx + '" y="' + ty + '" text-anchor="middle" fill="#f8fafc" font-size="' + (dense ? '10' : '11') + '" font-weight="700" font-family="DM Sans,sans-serif" paint-order="stroke fill" stroke="#0f172a" stroke-width="3" stroke-linejoin="round">' +
+            esc(txt) + '</text>'
+          );
+        }
+      });
+
+      var bars = barParts.join('') + valueParts.join('');
+
+      var defs = opts.gradient
+        ? '<defs><linearGradient id="' + gradId + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a5b4fc"/><stop offset="100%" stop-color="' + baseColor + '"/></linearGradient></defs>'
+        : '';
+      var total = values.reduce(function (s, v) { return s + v; }, 0);
+      var summary = opts.currency && total > 0
+        ? '<div class="chart-summary">Total no gráfico: <strong>' + esc(formatFullReais(total)) + '</strong>' +
+          (dense ? '<em>Passe o mouse nas barras para ver o valor exato</em>' : '') + '</div>'
+        : '';
+      el.innerHTML = summary + '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Gráfico de barras">' +
+        defs + grid + bars + '</svg>';
+      attachBarChartTooltips(el, rows, opts);
+    }
+
+    function renderDonut(containerId, items) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      if (!items || !items.length) {
+        el.innerHTML = '<div class="chart-empty">Sem receita no período</div>';
+        return;
+      }
+      var total = items.reduce(function (s, i) { return s + (i.cents || 0); }, 0) || 1;
+      var offset = 0;
+      var segments = items.map(function (item, i) {
+        var pct = (item.cents / total) * 100;
+        var color = item.color || CHART_COLORS[i % CHART_COLORS.length];
+        var seg = color + ' ' + offset + '% ' + (offset + pct) + '%';
+        offset += pct;
+        return seg;
+      }).join(', ');
+      var legend = items.map(function (item, i) {
+        var pct = Math.round((item.cents / total) * 100);
+        return '<div class="legend-row"><span class="legend-dot" style="background:' +
+          (item.color || CHART_COLORS[i % CHART_COLORS.length]) + '"></span>' +
+          '<span>' + esc(item.label) + '</span><span>' + pct + '% · ' + esc(item.formatted) + '</span></div>';
+      }).join('');
+      el.innerHTML = '<div class="donut-wrap"><div class="donut-svg" style="background:conic-gradient(' + segments + ');border-radius:50%;mask:radial-gradient(circle,transparent 52%,#000 53%)"></div>' +
+        '<div class="donut-legend">' + legend + '</div></div>';
+    }
+
+    function renderHorizontalBars(containerId, rows, valueKey, formattedKey) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      if (!rows || !rows.length) {
+        el.innerHTML = chartEmpty('chart', 'Sem dados', 'Nenhuma campanha no período.');
+        return;
+      }
+      var max = Math.max.apply(null, rows.map(function (r) { return r[valueKey] || 0; })) || 1;
+      el.innerHTML =
+        '<div class="chart-legend"><span><i style="background:var(--brand)"></i> Comparativo</span></div>' +
+        rows.slice(0, 8).map(function (r, i) {
+          var pct = Math.round(((r[valueKey] || 0) / max) * 100);
+          return '<div class="funnel-step"><div class="funnel-meta"><span>' + esc(r.label) +
+            '</span><strong>' + esc(r[formattedKey] || r[valueKey]) + '</strong></div>' +
+            '<div class="bar-track"><div class="bar-fill" style="width:' + Math.max(pct, 3) + '%;background:' +
+            CHART_COLORS[i % CHART_COLORS.length] + '"></div></div></div>';
+        }).join('');
+    }
+
+    var regionNames;
+    try {
+      regionNames = new Intl.DisplayNames(['pt-BR'], { type: 'region' });
+    } catch (e) {
+      regionNames = null;
+    }
+
+    function countryLabel(code) {
+      if (!code || code === 'XX') return 'Desconhecido';
+      if (regionNames) {
+        try { return regionNames.of(code) || code; } catch (e) { /* ignore */ }
+      }
+      return code;
+    }
+
+    function timelineRows(timeline, dayMode) {
+      var rows = dayMode ? (timeline.by_day || []) : (timeline.by_hour || []);
+      return rows.map(function (r) {
+        return { label: r.label, value: r.amount_cents || 0, formatted: r.amount_formatted };
+      });
+    }
+
+    function renderUtmifyBadges(u, enabled) {
+      if (!enabled) return '<span class="badge warn">Off</span>';
+      if (!u || !u.tx_found) return '<span class="badge warn" title="TX não encontrada">—</span>';
+      var pix = u.waiting_sent ? '<span class="badge ok">PIX ✓</span>' : '<span class="badge bad">PIX ✗</span>';
+      var paid = u.paid_sent ? '<span class="badge ok">Pago ✓</span>' : '<span class="badge warn">Pago ○</span>';
+      return pix + ' ' + paid;
+    }
+
+    function renderProductFilter(list, selected) {
+      var sel = document.getElementById('productFilter');
+      var html = '<option value="">Todos produtos</option>';
+      (list || []).forEach(function (row) {
+        html += '<option value="' + esc(row.product) + '"' + (selected === row.product ? ' selected' : '') + '>' +
+          esc(row.product) + ' (' + row.count + ')</option>';
+      });
+      sel.innerHTML = html;
+    }
+
+    function renderUtmFilterSelect(id, list, selected, placeholder) {
+      var sel = document.getElementById(id);
+      if (!sel) return;
+      var html = '<option value="">' + esc(placeholder) + '</option>';
+      (list || []).forEach(function (row) {
+        html += '<option value="' + esc(row.value) + '"' + (selected === row.value ? ' selected' : '') + '>' +
+          esc(row.value) + ' (' + row.count + ')</option>';
+      });
+      sel.innerHTML = html;
+    }
+
+    function renderDailyGoalPanel(goal, periodDays) {
+      var targets = ['dailyGoalPanel', 'mobileGoalPanel'];
+      targets.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        goal = goal || {};
+        if (periodDays !== 1) {
+          el.innerHTML = '';
+          el.classList.add('hidden');
+          return;
+        }
+        el.classList.remove('hidden');
+        var target = goal.target_cents || 0;
+        var pct = goal.progress_pct != null ? goal.progress_pct : 0;
+        var targetReais = target > 0 ? (target / 100).toFixed(2).replace('.', ',') : '';
+        var ringPct = Math.min(100, Math.max(0, pct));
+        var circ = 2 * Math.PI * 36;
+        var dash = (ringPct / 100) * circ;
+        var gradId = id === 'mobileGoalPanel' ? 'goalRingGradM' : 'goalRingGrad';
+        el.innerHTML =
+          '<div class="goal-head"><h3>Meta diária de receita</h3>' +
+          (id === 'dailyGoalPanel'
+            ? '<div class="goal-form"><input type="text" id="dailyGoalInput" placeholder="Meta R$" value="' + esc(targetReais) + '">' +
+              '<button type="button" class="btn btn-ghost" id="saveDailyGoalBtn">Salvar meta</button></div>'
+            : '<span class="panel-note" style="margin:0">' + esc(goal.current_formatted || 'R$ 0,00') + '</span>') +
+          '</div>' +
+          '<div class="goal-body">' +
+          '<div class="goal-ring-wrap">' +
+          '<svg class="goal-ring" viewBox="0 0 88 88" aria-hidden="true">' +
+          '<defs><linearGradient id="' + gradId + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs>' +
+          '<circle class="goal-ring-track" cx="44" cy="44" r="36"></circle>' +
+          '<circle class="goal-ring-fill" cx="44" cy="44" r="36" stroke="url(#' + gradId + ')" stroke-dasharray="' + dash + ' ' + circ + '" stroke-dashoffset="0"></circle>' +
+          '</svg>' +
+          (target > 0 ? '<div class="goal-ring-pct">' + ringPct + '%</div>' : '') +
+          '</div>' +
+          '<div class="goal-content">' +
+          '<div class="goal-bar"><div class="goal-bar-fill" style="width:' + Math.min(100, pct) + '%"></div></div>' +
+          '<div class="goal-meta"><span><strong>' + esc(goal.current_formatted || 'R$ 0,00') + '</strong> de ' +
+          esc(target > 0 ? goal.target_formatted : 'meta não definida') + '</span>' +
+          (target > 0 ? '<span>' + pct + '% da meta</span>' : '<span>Defina meta no desktop</span>') +
+          '</div></div></div>';
+      });
+    }
+
+    function saveDailyGoal() {
+      var inp = document.getElementById('dailyGoalInput');
+      if (!inp) return;
+      var reais = parseFloat(String(inp.value).replace(',', '.')) || 0;
+      fetch(apiBase(), {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+        body: JSON.stringify({ action: 'daily_goal', target_reais: reais }),
+      }).then(function (res) { return res.json(); }).then(function (data) {
+        if (!data.success) throw new Error(data.error || 'Falha ao salvar meta');
+        loadStats().catch(onStatsLoadError);
+      }).catch(function (err) { alert(err.message || 'Erro ao salvar meta'); });
+    }
+
+    function renderMobileCompact(stats) {
+      var t = stats.totals || {};
+      var f = stats.funnel || {};
+      renderKpiGrid('mobileKpis', [
+        { label: 'Receita', value: t.revenue_formatted, color: 'var(--brand)' },
+        { label: 'Pedidos', value: t.payments, color: '#22c55e' },
+        { label: 'PIX pend.', value: t.pix_pending || 0, color: '#f59e0b' },
+        { label: 'Conversão', value: (t.conversion_rate || 0) + '%', color: '#06b6d4' }
+      ]);
+      renderFunnel('mobileFunnel', f);
+      var ordersEl = document.getElementById('mobileOrders');
+      if (!ordersEl) return;
+      var orders = (stats.orders || []).slice(0, 5);
+      if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.getFilteredOrders === 'function') {
+        orders = CredpixAnalyticsPanel.getFilteredOrders(stats).slice(0, 5);
+      }
+      if (!orders.length) {
+        ordersEl.innerHTML = chartEmpty('orders', 'Nenhum pedido', 'No período selecionado.');
+        return;
+      }
+      ordersEl.innerHTML = orders.map(function (o) {
+        return '<div class="mobile-order-row session-row" data-session="' + esc(o.session_id || '') + '">' +
+          '<span>' + esc(o.product_name) + '<br><small style="color:var(--text-muted)">' + fmtTime(o.ts) + '</small></span>' +
+          '<strong>' + esc(o.amount_formatted) + '</strong></div>';
+      }).join('');
+    }
+
+    function renderPixelsFooter(stats) {
+      var el = document.getElementById('pixelsFooter');
+      if (!el) return;
+      var px = stats.google_pixels || {};
+      var active = px.active || [];
+      if (!active.length) {
+        el.innerHTML = '<span>Pixels Google: nenhum ativo em config/google-pixels.json</span>';
+        return;
+      }
+      el.innerHTML = '<span>Pixels ativos no checkout:</span>' + active.map(function (p) {
+        return '<span class="chip" title="' + esc(p.send_to) + '">🎯 ' + esc(p.name) + '</span>';
+      }).join('');
+    }
+
+    function renderUpsellSection(stats) {
+      var summary = stats.upsell_summary || {};
+      var report = stats.upsell_report || [];
+      renderKpiGrid('upsellsKpis', [
+        { label: 'Receita upsell', value: summary.upsell_revenue_formatted || 'R$ 0,00', color: '#22c55e', sub: (summary.upsell_share_pct || 0) + '% do total' },
+        { label: 'Receita front', value: summary.front_revenue_formatted || 'R$ 0,00', color: '#6366f1' },
+        { label: 'Pagos upsell', value: summary.upsell_payments || 0, color: '#f59e0b' },
+        { label: 'Pagos front', value: summary.front_payments || 0, color: '#06b6d4' }
+      ]);
+      renderSvgBarChart('upsellMixChart', [
+        { label: 'Front', value: summary.front_revenue_cents || 0, formatted: summary.front_revenue_formatted, color: '#6366f1' },
+        { label: 'Upsell', value: summary.upsell_revenue_cents || 0, formatted: summary.upsell_revenue_formatted, color: '#22c55e' }
+      ], { currency: true, gradient: true });
+      var topUpsells = report.filter(function (r) { return r.revenue_cents > 0; })
+        .sort(function (a, b) { return b.revenue_cents - a.revenue_cents; }).slice(0, 8);
+      renderSvgBarChart('upsellTopChart', topUpsells.map(function (r, i) {
+        return { label: 'UP' + r.upsell, value: r.revenue_cents, formatted: r.revenue_formatted, color: CHART_COLORS[i % CHART_COLORS.length] };
+      }), { currency: true, gradient: true });
+      renderTable('upsellsDetailTable', report.map(function (r) {
+        return '<tr><td>Upsell ' + r.upsell + '</td><td class="num">' + r.views + '</td><td class="num">' + r.clicks +
+          '</td><td class="num">' + r.payments + '</td><td class="num">' + r.take_rate + '%</td><td class="num">' +
+          esc(r.revenue_formatted) + '</td></tr>';
+      }), 6, 'Sem dados de upsell');
+    }
+
+    function renderRoasTimeline(containerId, rows) {
+      var el = document.getElementById(containerId);
+      if (!el) return;
+      rows = rows || [];
+      if (!rows.length) {
+        el.innerHTML = '<div class="chart-empty">ROAS aparece quando há receita e investimento cadastrado em Campanhas.</div>';
+        return;
+      }
+      renderSvgBarChart(containerId, rows.map(function (r, i) {
+        return {
+          label: r.label,
+          value: r.roas != null ? r.roas : 0,
+          formatted: r.roas != null ? (r.roas + 'x') : '—',
+          color: CHART_COLORS[i % CHART_COLORS.length]
+        };
+      }), { height: 220 });
+    }
+
+    function kpiDeltaFromCompare(block, suffix) {
+      if (!block) return { sub: '', delta: '', deltaCls: 'neutral' };
+      var v = block.change_pts != null ? block.change_pts : block.change_pct;
+      if (v == null) return { sub: '', delta: '', deltaCls: 'neutral' };
+      var cls = v > 0 ? 'up' : v < 0 ? 'down' : 'neutral';
+      var sign = v > 0 ? '+' : '';
+      suffix = suffix || '%';
+      return {
+        sub: block.current_formatted || block.current != null ? String(block.current_formatted || block.current) : '',
+        delta: sign + v + suffix,
+        deltaCls: cls
+      };
+    }
+
+    function renderSrcFilter(list, selected) {
+      var sel = document.getElementById('srcFilter');
+      var html = '<option value="">Todas campanhas</option>';
+      (list || []).forEach(function (row) {
+        html += '<option value="' + esc(row.src) + '"' + (selected === row.src ? ' selected' : '') + '>' +
+          esc(row.src) + ' (' + row.count + ')</option>';
+      });
+      sel.innerHTML = html;
+    }
+
+    function renderStats(stats) {
+      currentStats = stats;
+
+      /* Insights — analytics-panel.js (fallback mínimo se JS não carregar) */
+      if (window.CredpixAnalyticsPanel) {
+        try {
+          CredpixAnalyticsPanel.render(stats);
+        } catch (panelErr) {
+          console.error('[CredpixAnalyticsPanel]', panelErr);
+        }
+      } else {
+        console.warn('[Analytics] analytics-panel.js não carregou — usando renderizadores inline.');
+      }
+      try { renderOverviewPanels(stats); } catch (ovErr) { console.error('[Analytics] visão geral', ovErr); renderOverviewInline(stats); }
+      renderOrdersPixTables(stats);
+      try { renderCampaignsSection(stats); } catch (campErr) { console.error('[Analytics] campanhas', campErr); }
+
+      var t = stats.totals || {};
+      var f = stats.funnel || {};
+      var dayMode = (stats.period_days || 1) > 1;
+      var timeline = stats.revenue_timeline || {};
+      var sparks = stats.sparklines || {};
+
+      renderProductFilter(stats.available_products, stats.filter_product);
+      renderSrcFilter(stats.available_srcs, stats.filter_src);
+      var utms = stats.available_utms || {};
+      renderUtmFilterSelect('utmCampaignFilter', utms.utm_campaign, stats.filter_utm_campaign, 'UTM campaign');
+      renderUtmFilterSelect('utmMediumFilter', utms.utm_medium, stats.filter_utm_medium, 'UTM medium');
+      renderUtmFilterSelect('utmContentFilter', utms.utm_content, stats.filter_utm_content, 'UTM content');
+
+      renderDailyGoalPanel(stats.daily_goal, stats.period_days);
+      renderMobileCompact(stats);
+      renderPixelsFooter(stats);
+
+      /* Overview */
+      var pc = stats.period_compare || {};
+      var revCmp = kpiDeltaFromCompare(pc.revenue);
+      var payCmp = kpiDeltaFromCompare(pc.payments);
+      var convCmp = kpiDeltaFromCompare(pc.conversion, ' pp');
+      renderKpiGrid('overviewKpis', [
+        {
+          label: 'Receita',
+          value: t.revenue_formatted,
+          color: '#6366f1',
+          sparkline: sparks.revenue,
+          sub: (pc.revenue && pc.revenue.previous_formatted ? 'antes: ' + pc.revenue.previous_formatted : (stats.period_days || 1) + ' dia(s)'),
+          delta: revCmp.delta ? revCmp.delta + ' ' + (pc.label || '') : '',
+          deltaCls: revCmp.deltaCls
+        },
+        {
+          label: 'Pedidos',
+          value: t.payments,
+          color: '#22c55e',
+          sparkline: sparks.payments,
+          sub: (pc.payments && pc.payments.previous != null ? 'antes: ' + pc.payments.previous : 'ticket ' + (t.avg_ticket_formatted || '—')),
+          delta: payCmp.delta ? payCmp.delta + ' ' + (pc.label || '') : '',
+          deltaCls: payCmp.deltaCls
+        },
+        {
+          label: 'Sessões',
+          value: t.unique_sessions || 0,
+          color: '#06b6d4',
+          sub: (t.page_views || 0) + ' page views'
+        },
+        {
+          label: 'Conversão',
+          value: (t.conversion_rate || 0) + '%',
+          color: '#f59e0b',
+          sub: (pc.conversion && pc.conversion.previous != null ? 'antes: ' + pc.conversion.previous + '%' : 'landing → pago'),
+          delta: convCmp.delta ? convCmp.delta + ' ' + (pc.label || '') : '',
+          deltaCls: convCmp.deltaCls
+        }
+      ]);
+      renderAlerts('overviewAlerts', (function () {
+        var list = (stats.alerts || []).slice();
+        var st = (stats.system && stats.system.storage) || stats.storage || {};
+        if (st.level === 'warn') {
+          list.unshift({ level: 'warning', message: 'Log de hoje: ' + (st.today_bytes_human || '—') + ' · ' + (st.today_lines || 0).toLocaleString('pt-BR') + ' eventos' });
+        }
+        if (st.level === 'critical') {
+          list.unshift({ level: 'critical', message: 'Volume crítico hoje (' + (st.today_bytes_human || '—') + '). Mantenha período em Hoje; logs antigos arquivam sozinhos.' });
+        }
+        return list;
+      })());
+      renderRecentFeed('overviewRecentFeed', stats.recent);
+      var overviewChartLabel = document.getElementById('overviewChartLabel');
+      if (overviewChartLabel) overviewChartLabel.textContent = dayMode ? 'Por dia' : 'Por hora';
+      renderSvgBarChart('overviewRevenueChart', timelineRows(timeline, dayMode), {
+        currency: true,
+        gradient: true,
+        mono: true,
+        dense: !dayMode,
+        width: dayMode ? 720 : 960,
+        height: dayMode ? 260 : 300,
+      });
+      renderFunnel('overviewFunnel', f);
+
+      /* Orders */
+      renderKpiGrid('ordersKpis', [
+        { label: 'Pedidos pagos', value: t.payments, color: '#22c55e', sparkline: sparks.payments, sub: 'ticket ' + (t.avg_ticket_formatted || '—') },
+        { label: 'Receita', value: t.revenue_formatted, color: '#6366f1', sparkline: sparks.revenue },
+        { label: 'PIX gerados', value: t.pix_generated, color: '#06b6d4', sub: (t.pix_to_paid_rate || 0) + '% viraram pedido' },
+        { label: 'PIX pendentes', value: t.pix_pending || 0, color: '#f59e0b' },
+        { label: 'Idade média', value: (stats.demographics && stats.demographics.avg_age_paid != null) ? (stats.demographics.avg_age_paid + ' anos') : '—', color: '#8b5cf6', sub: (stats.demographics && stats.demographics.paid_with_profile) ? (stats.demographics.paid_with_profile + ' c/ perfil') : 'consulta CPF' }
+      ]);
+      document.getElementById('ordersCount').textContent = (function () {
+        if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.getFilteredOrders === 'function') {
+          return CredpixAnalyticsPanel.getFilteredOrders(stats).length;
+        }
+        return (Array.isArray(stats.orders) ? stats.orders : []).length;
+      })() + ' pedido(s)';
+
+      /* Tabelas pedidos/PIX — renderOrdersPixTables() acima */
+
+      /* Upsells */
+      renderUpsellSection(stats);
+
+      /* Products */
+      var productDonut = (stats.revenue_by_product || []).map(function (r, i) {
+        return { label: r.product, cents: r.amount_cents, formatted: r.amount_formatted, color: CHART_COLORS[i % CHART_COLORS.length] };
+      });
+      renderDonut('productsDonut', productDonut);
+      renderTable('revenueTable', (stats.revenue_by_product || []).map(function (r) {
+        return '<tr><td>' + esc(r.product) + '</td><td class="num">' + esc(r.amount_formatted) + '</td></tr>';
+      }), 2);
+
+      document.getElementById('lastUpdated').textContent =
+        'Dados do período selecionado · use ↻ Atualizar para recarregar';
+      renderFilterChips();
+    }
+
+    var currentSection = 'overview';
+
+    function updateLastSyncLabel() {
+      var el = document.getElementById('lastSyncLabel');
+      if (!el) return;
+      if (!lastStatsLoadedAt) {
+        el.textContent = '—';
+        el.className = 'last-sync';
+        return;
+      }
+      var min = Math.floor((Date.now() - lastStatsLoadedAt) / 60000);
+      el.className = 'last-sync' + (min < 2 ? ' fresh' : min >= 10 ? ' stale' : '');
+      var base;
+      if (min < 1) {
+        base = 'Atualizado agora';
+      } else if (min === 1) {
+        base = 'Atualizado há 1 min';
+      } else {
+        base = 'Atualizado há ' + min + ' min';
+      }
+      var cache = currentStats && currentStats._cache;
+      if (cache && cache.hit) {
+        base += ' · cache ' + (cache.age_sec || 0) + 's';
+      }
+      el.textContent = base;
+    }
+
+    function markStatsLoaded() {
+      lastStatsLoadedAt = Date.now();
+      updateLastSyncLabel();
+    }
+
+    function startSyncLabelTicker() {
+      if (syncLabelTimer) clearInterval(syncLabelTimer);
+      syncLabelTimer = setInterval(updateLastSyncLabel, 30000);
+    }
+
+    function stopSyncLabelTicker() {
+      if (syncLabelTimer) clearInterval(syncLabelTimer);
+      syncLabelTimer = null;
+    }
+
+    function verifyAuth() {
+      return fetch(apiBase() + '?action=ping', { headers: authHeaders() })
+        .then(function (res) {
+          return res.text().then(function (text) {
+            var data;
+            try { data = JSON.parse(text); } catch (e) {
+              throw new Error('Servidor não respondeu JSON. Veja analytics-diag.html ou Error Log do cPanel.');
+            }
+            return { res: res, data: data };
+          });
+        })
+        .then(function (ref) {
+          if (ref.res.status === 401) {
+            clearToken();
+            showAuth('Token inválido');
+            throw new Error('auth');
+          }
+          if (!ref.data.success) throw new Error(ref.data.error || 'Falha na autenticação');
+        });
+    }
+
+    function showStatsError(msg) {
+      var el = document.getElementById('statsLoadError');
+      if (!el) return;
+      if (!msg) {
+        el.classList.add('hidden');
+        el.textContent = '';
+        return;
+      }
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function loadStats() {
+      var url = apiBase() + '?' + buildFilterQuery();
+      setLoading(true);
+      return fetch(url, { headers: authHeaders() })
+        .then(function (res) {
+          return res.text().then(function (text) {
+            var data;
+            try { data = JSON.parse(text); } catch (e) {
+              var hint = (text && text.charAt(0) === '<')
+                ? 'Servidor sobrecarregado ou timeout PHP. Use período "Hoje" e aguarde 1 min.'
+                : 'Resposta inválida do servidor';
+              if (text && text.length < 400) hint += ': ' + text.trim();
+              throw new Error(hint);
+            }
+            return { res: res, data: data };
+          });
+        })
+        .then(function (ref) {
+          if (ref.res.status === 401) { clearToken(); showAuth('Token inválido'); throw new Error('auth'); }
+          if (!ref.data.success) throw new Error(ref.data.error || 'Erro ao carregar');
+          showStatsError('');
+          renderStats(ref.data.stats);
+          markStatsLoaded();
+        })
+        .catch(function (e) {
+          if (e.message !== 'auth') showStatsError(e.message);
+          throw e;
+        })
+        .finally(function () { setLoading(false); });
+    }
+
+    function showAuth(msg) {
+      document.getElementById('authScreen').classList.remove('hidden');
+      document.getElementById('app').classList.add('hidden');
+      var err = document.getElementById('authError');
+      err.textContent = msg || '';
+      err.classList.toggle('hidden', !msg);
+    }
+    function showApp() {
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      startSyncLabelTicker();
+    }
+
+    function switchSection(name) {
+      currentSection = name;
+      document.querySelectorAll('.nav-item[data-section]').forEach(function (el) {
+        el.classList.toggle('active', el.getAttribute('data-section') === name);
+      });
+      document.querySelectorAll('.section').forEach(function (el) {
+        el.classList.toggle('active', el.id === 'sec-' + name);
+      });
+      var meta = SECTIONS[name] || SECTIONS.overview;
+      document.getElementById('sectionTitle').textContent = meta.title;
+      document.getElementById('sectionDesc').textContent = meta.desc;
+      document.querySelectorAll('.filter-orders').forEach(function (el) {
+        el.classList.toggle('hidden', name !== 'orders' && name !== 'overview' && name !== 'campaigns' && name !== 'upsells');
+      });
+      if (window.CredpixAnalyticsPanel) {
+        CredpixAnalyticsPanel.onSectionChange(name);
+      }
+    }
+
+    document.querySelectorAll('.nav-item[data-section]').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchSection(btn.getAttribute('data-section')); });
+    });
+    initTheme();
+    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+    document.getElementById('toggleFiltersBtn').addEventListener('click', function () {
+      var wrap = document.getElementById('toolbarFiltersWrap');
+      var btn = document.getElementById('toggleFiltersBtn');
+      var collapsed = wrap.classList.toggle('collapsed');
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      btn.textContent = collapsed ? 'Filtros ▸' : 'Filtros ▾';
+    });
+    document.getElementById('exportMenuBtn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.getElementById('exportMenu').classList.toggle('hidden');
+    });
+    document.addEventListener('click', function () {
+      var menu = document.getElementById('exportMenu');
+      if (menu) menu.classList.add('hidden');
+    });
+    document.getElementById('exportMenu').addEventListener('click', function (e) { e.stopPropagation(); });
+    var backTop = document.getElementById('backToTop');
+    if (backTop) {
+      window.addEventListener('scroll', function () {
+        backTop.classList.toggle('visible', window.scrollY > 400);
+      });
+      backTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    document.getElementById('authBtn').addEventListener('click', function () {
+      setToken(document.getElementById('tokenInput').value.trim());
+      verifyAuth().then(function () {
+        showApp();
+        switchSection('overview');
+        loadStats().catch(function (e) {
+          if (e.message !== 'auth') showStatsError(e.message);
+        });
+      }).catch(function (e) {
+        if (e.message !== 'auth') document.getElementById('authError').textContent = e.message;
+      });
+    });
+    document.getElementById('tokenInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') document.getElementById('authBtn').click();
+    });
+    document.getElementById('refreshBtn').addEventListener('click', function () { loadStats().catch(function (e) { onStatsLoadError(e); }); });
+    document.getElementById('periodSelect').addEventListener('change', function () { saveFilters(); loadStats().catch(onStatsLoadError); });
+    document.getElementById('srcFilter').addEventListener('change', function () { saveFilters(); loadStats().catch(onStatsLoadError); });
+    document.getElementById('productFilter').addEventListener('change', function () { saveFilters(); loadStats().catch(onStatsLoadError); });
+    ['utmCampaignFilter', 'utmMediumFilter', 'utmContentFilter'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('change', function () { saveFilters(); loadStats().catch(onStatsLoadError); });
+    });
+    document.addEventListener('click', function (e) {
+      if (e.target.id === 'saveDailyGoalBtn') saveDailyGoal();
+    });
+    document.getElementById('exportBtn').addEventListener('click', function () {
+      if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.exportFilteredOrders === 'function') {
+        CredpixAnalyticsPanel.exportFilteredOrders();
+        return;
+      }
+      var days = document.getElementById('periodSelect').value;
+      var url = apiBase() + '?export=orders&' + buildFilterQuery();
+      fetch(url, { headers: authHeaders() }).then(function (res) {
+        if (!res.ok) throw new Error('Export falhou');
+        return res.blob();
+      }).then(function (blob) {
+        downloadCsvBlob(blob, 'credpix-pedidos-' + days + 'd.csv');
+      }).catch(function (e) { alert(e.message); });
+    });
+    document.getElementById('exportEventsBtn').addEventListener('click', function () {
+      if (window.CredpixAnalyticsPanel && typeof CredpixAnalyticsPanel.exportEventsCsv === 'function') {
+        CredpixAnalyticsPanel.exportEventsCsv();
+        return;
+      }
+      var days = document.getElementById('periodSelect').value;
+      fetch(apiBase() + '?export=csv&' + buildFilterQuery(), { headers: authHeaders() })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Export falhou');
+          return res.blob();
+        })
+        .then(function (blob) { downloadCsvBlob(blob, 'credpix-eventos-' + days + 'd.csv'); })
+        .catch(function (e) { alert(e.message); });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      clearToken();
+      stopSyncLabelTicker();
+      lastStatsLoadedAt = null;
+      showAuth('');
+    });
+    document.getElementById('campaignsTable').addEventListener('click', function (e) {
+      var row = e.target.closest('.src-row');
+      if (!row) return;
+      document.getElementById('srcFilter').value = row.getAttribute('data-src') || '';
+      switchSection('orders');
+      loadStats().catch(onStatsLoadError);
+    });
+
+    if (getToken()) {
+      restoreFilters();
+      verifyAuth().then(function () {
+        showApp();
+        switchSection(currentSection);
+        loadStats().catch(function (e) {
+          if (e.message !== 'auth') showStatsError(e.message);
+        });
+      }).catch(function () { showAuth(''); });
+    } else {
+      showAuth('');
+    }
+
+    if (window.CredpixAnalyticsPanel) {
+      CredpixAnalyticsPanel.init({
+        esc: esc,
+        fmtDate: fmtDate,
+        fmtTime: fmtTime,
+        fmtAgo: fmtAgo,
+        countryLabel: countryLabel,
+        apiBase: apiBase,
+        authHeaders: authHeaders,
+        renderUtmifyBadges: renderUtmifyBadges,
+        reloadStats: function () { loadStats().catch(onStatsLoadError); },
+        switchSection: switchSection,
+        chartEmpty: chartEmpty,
+        diagPageUrl: function () {
+          if (window.credpixPath) return window.credpixPath('/admin/analytics-diag.html');
+          return (window.CREDPIX_BASE_PATH || '') + '/admin/analytics-diag.html';
+        },
+      });
+    }
+  })();
+  </script>
+</body>
+</html>
