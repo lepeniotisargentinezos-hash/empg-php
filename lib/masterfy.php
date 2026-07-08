@@ -170,7 +170,7 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
             'name'  => $payer['name'] ?? 'Cliente',
             'taxId' => $taxId,
             'email' => $payer['email'] ?? 'cliente@email.com',
-            'phone' => preg_replace('/\D/', '', (string) ($payer['phone'] ?? '11999999999')),
+            'phone' => '+55' . preg_replace('/\D/', '', (string) ($payer['phone'] ?? '11999999999')),
         ],
         'items'    => [[
             'quantity' => 1,

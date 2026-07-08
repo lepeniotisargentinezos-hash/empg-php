@@ -170,7 +170,7 @@ async function createPixPayment(opts) {
       name: payer.name || 'Cliente',
       taxId,
       email: payer.email || 'cliente@email.com',
-      phone: String(payer.phone || payer.telefone || '11999999999').replace(/\D/g, ''),
+      phone: '+55' + String(payer.phone || payer.telefone || '11999999999').replace(/\D/g, ''),
     },
     items: [
       {
