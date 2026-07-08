@@ -1,5 +1,8 @@
 .env
 node_modules/
+api/error_log
+*.error_log
+error_log
 empa-deploy/
 empa-deploy.zip
 empa-deploy-full/
