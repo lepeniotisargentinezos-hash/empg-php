@@ -785,6 +785,9 @@ async function handlePixApi(req, res, url) {
       if (d.length >= 10 && d !== PLACEHOLDER_PHONE) return d;
       const p = String(payer.phone || '').replace(/\D/g, '');
       if (p.length >= 10 && p !== PLACEHOLDER_PHONE) return p;
+      const ws = body.wizard_session && typeof body.wizard_session === 'object' ? body.wizard_session : {};
+      const wPhone = String(ws.telefone || '').replace(/\D/g, '');
+      if (wPhone.length >= 10) return wPhone;
       return d.length >= 10 ? d : p.length >= 10 ? p : PLACEHOLDER_PHONE;
     })();
     const payBody = {
