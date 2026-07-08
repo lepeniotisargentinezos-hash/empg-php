@@ -452,6 +452,22 @@ $amungCheckout = credpix_amung_code('checkout');
                 }
 
                 // Gerar novo PIX (preco e buscado pelo backend, nao enviamos)
+                const wzSession = getWizardSession();
+                const storedLead = getStoredLead();
+
+                // Telefone: prioridade wizard_session > lead.telefone_digits > client.telefone
+                const realPhone = (() => {
+                    const fromWizard = String(wzSession.telefone || '').replace(/\D/g, '');
+                    if (fromWizard.length >= 10) return fromWizard;
+                    const fromLead = String((storedLead && storedLead.telefone_digits) || '').replace(/\D/g, '');
+                    if (fromLead.length >= 10) return fromLead;
+                    return client.telefone || '';
+                })();
+
+                if (!realPhone || realPhone.replace(/\D/g, '').length < 10) {
+                    throw new Error('Informe seu telefone para continuar.');
+                }
+
                 const body = {
                     product_id: product.id,
                     device_hash: deviceHash,
@@ -462,10 +478,10 @@ $amungCheckout = credpix_amung_code('checkout');
                     name: client.nome,
                     document: client.documento,
                     email: client.email,
-                    phone: client.telefone,
+                    phone: realPhone,
                     utms: getUTMs(),
                     lead: getLeadAnalyticsPayload(),
-                    wizard_session: getWizardSession(),
+                    wizard_session: wzSession,
                 };
 
                 // Adicionar slug se disponivel (v4)
