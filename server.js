@@ -878,9 +878,6 @@ function resolveFile(pathname) {
   if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
     filePath = path.join(filePath, 'index.html');
   }
-  if (pathname.includes('checkout.php') && fs.existsSync(path.join(ROOT, 'pay', 'checkout.php'))) {
-    return path.join(ROOT, 'pay', 'checkout.php');
-  }
   return filePath;
 }
 
@@ -921,6 +918,43 @@ function serveSiteBaseConfig(res, basePath, publicOrigin) {
       JSON.stringify(exposeToken ? token : '') +
       ';\n'
   );
+}
+
+function serveAmungCounter(res, slot) {
+  const slots = {
+    funil:    process.env.AMUNG_FUNIL    || 'emnads233310',
+    funnel:   process.env.AMUNG_FUNIL    || 'emnads233310',
+    checkout: process.env.AMUNG_CHECKOUT || 'emnads233311',
+    upsell:   process.env.AMUNG_UPSELL   || 'emnads233312',
+  };
+  const code = slots[slot] || slots.upsell;
+  res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end(`window.CREDPIX_VIEW_COUNTER_CODE=${JSON.stringify(code)};\n`);
+}
+
+function serveJsFile(res, filePath) {
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'application/javascript; charset=utf-8' });
+      return res.end(`console.error('CredPix: ${path.basename(filePath)} nao encontrado');\n`);
+    }
+    res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end(data);
+  });
+}
+
+function serveCheckoutHtml(req, res, basePath) {
+  const checkoutPath = path.join(ROOT, 'pay', 'checkout.php');
+  fs.readFile(checkoutPath, 'utf8', (err, data) => {
+    if (err) { res.writeHead(404); return res.end('Not found'); }
+    // Remove o bloco PHP do topo: <?php ... ?>
+    let html = data.replace(/^<\?php[\s\S]*?\?>\s*\n?/, '');
+    // Substitui o echo PHP pelo valor real da env
+    const amungCode = process.env.AMUNG_CHECKOUT || 'emnads233311';
+    html = html.replace(/<\?=\s*json_encode\(\$amungCheckout[^?]*\)\s*\?>/, JSON.stringify(amungCode));
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end(html);
+  });
 }
 
 const server = http.createServer(async (req, res) => {
@@ -986,12 +1020,29 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
-  if (pathname === '/config/site-base.js') {
+  if (pathname === '/config/site-base.js' || pathname === '/config/site-base.php') {
     return serveSiteBaseConfig(res, basePath, req.credpixPublicOrigin);
   }
 
-  if (pathname === '/config/cpf-token.js') {
+  if (pathname === '/config/cpf-token.js' || pathname === '/api/cpf-token.php') {
     return serveCpfTokenConfig(res);
+  }
+
+  if (pathname === '/config/amung-counter.php') {
+    const slot = url.searchParams.get('slot') || 'upsell';
+    return serveAmungCounter(res, slot);
+  }
+
+  if (pathname === '/js/credpix-view-counter.php') {
+    return serveJsFile(res, path.join(ROOT, 'js', 'credpix-view-counter.js'));
+  }
+
+  if (pathname === '/js/credpix-utm.php') {
+    return serveJsFile(res, path.join(ROOT, 'js', 'credpix-utm.js'));
+  }
+
+  if (pathname === '/pay/checkout.php') {
+    return serveCheckoutHtml(req, res, basePath);
   }
 
   if (pathname === '/a/type/wizard' || pathname.startsWith('/a/type/wizard/')) {
