@@ -210,7 +210,7 @@ async function handleConsultarCpfRoute(req, res, url) {
       error: result.message || toWizardResponse(result).error,
     });
   }
-  return json(res, 200, result.data);
+  return json(res, 200, { success: true, data: result.data });
 }
 
 async function handleTypeApi(req, res, pathname, basePath) {
