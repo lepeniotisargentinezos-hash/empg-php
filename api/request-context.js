@@ -67,18 +67,21 @@ function detectBasePath(pathname) {
     return fromIndex[1];
   }
 
+  const INTERNAL_PREFIXES = ['/type/', '/pay/', '/up/', '/admin/', '/api/', '/js/', '/css/', '/config/', '/images/', '/a/'];
+  const isInternal = (p) => INTERNAL_PREFIXES.some((prefix) => p.startsWith(prefix));
+
   const rel = pathname.replace(/^\//, '').replace(/\/$/, '');
-  if (rel && !rel.includes('.')) {
+  if (rel && !rel.includes('.') && !isInternal(pathname)) {
     const indexPath = path.join(ROOT, rel, 'index.html');
     if (fs.existsSync(indexPath)) {
       return '/' + rel;
     }
-    if (fs.existsSync(path.join(ROOT, 'index.html')) && !pathname.startsWith('/type/') && !pathname.startsWith('/pay/')) {
+    if (fs.existsSync(path.join(ROOT, 'index.html'))) {
       return '/' + rel;
     }
   }
 
-  if (pathname !== '/' && pathname.endsWith('/') && !pathname.startsWith('/type/') && !pathname.startsWith('/pay/')) {
+  if (pathname !== '/' && pathname.endsWith('/') && !isInternal(pathname)) {
     const folder = pathname.slice(0, -1);
     if (folder && fs.existsSync(path.join(ROOT, 'index.html'))) {
       return folder;
