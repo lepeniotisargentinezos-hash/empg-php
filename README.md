@@ -1,4 +1,4 @@
-# CredPix · Funil de Empréstimo
+# CredPix · Funil de Empréstimo v2
 
 Plataforma multi-domínio para captação de leads e cobrança via PIX, com painel administrativo centralizado (Hub Central) para monitorar múltiplos sites simultaneamente.
 
