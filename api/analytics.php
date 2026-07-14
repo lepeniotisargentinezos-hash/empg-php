@@ -1,5 +1,7 @@
 <?php
 declare(strict_types=1);
+ini_set('display_errors', '0');
+error_reporting(E_ALL);
 
 require_once dirname(__DIR__) . '/lib/bootstrap.php';
 require_once dirname(__DIR__) . '/lib/admin-auth.php';

@@ -22,9 +22,9 @@
     return fallback;
   }
 
-  var DEFAULT_CODE = envCode('CREDPIX_AMUNG_FUNIL', 'emnads233310');
-  var CHECKOUT_CODE = envCode('CREDPIX_AMUNG_CHECKOUT', 'emnads233311');
-  var UPSELL_CODE = envCode('CREDPIX_AMUNG_UPSELL', 'emnads233312');
+  var DEFAULT_CODE = envCode('CREDPIX_AMUNG_FUNIL');
+  var CHECKOUT_CODE = envCode('CREDPIX_AMUNG_CHECKOUT');
+  var UPSELL_CODE = envCode('CREDPIX_AMUNG_UPSELL');
 
   function isUpsellPath(path) {
     return (

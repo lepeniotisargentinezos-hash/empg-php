@@ -16,6 +16,7 @@ const {
   getToken,
 } = require('./api/consultar-cpf');
 const masterfy = require('./api/masterfy');
+const anubis = require('./api/anubis');
 const googlePixels = require('./api/google-pixels');
 const analytics = require('./api/analytics');
 const utmify = require('./api/utmify');
@@ -48,6 +49,35 @@ function loadEnvFile() {
 }
 
 loadEnvFile();
+
+const SITE_CONFIG_GROUPS = [
+  { id: 'pagamento', label: 'Pagamento', icon: '💳', vars: [
+    { key: 'PAYMENT_GATEWAY',   label: 'Gateway ativo',        type: 'select', options: ['anubis', 'masterfy'] },
+    { key: 'MASTERFY_API_KEY',  label: 'MasterFy API Key',     type: 'password' },
+    { key: 'ANUBIS_PUBLIC_KEY', label: 'AnubisPay Public Key', type: 'text' },
+    { key: 'ANUBIS_SECRET_KEY', label: 'AnubisPay Secret Key', type: 'password' },
+    { key: 'WEBHOOK_SECRET',    label: 'Webhook Secret',       type: 'password' },
+  ]},
+  { id: 'analytics', label: 'Analytics', icon: '📊', vars: [
+    { key: 'ANALYTICS_SECRET',     label: 'Token admin (leitura)',  type: 'password' },
+    { key: 'ANALYTICS_INGEST_KEY', label: 'Token ingest (escrita)', type: 'password' },
+  ]},
+  { id: 'utmify', label: 'UTMify', icon: '📣', vars: [
+    { key: 'UTMIFY_API_TOKEN', label: 'API Token',  type: 'password' },
+    { key: 'UTMIFY_PLATFORM',  label: 'Plataforma', type: 'text' },
+  ]},
+  { id: 'cpf', label: 'Consulta CPF', icon: '🪪', vars: [
+    { key: 'CPF_BRASIL_API_KEY', label: 'Brasil API Key',      type: 'password' },
+    { key: 'CPF_API_TOKEN',      label: 'Elaiflow Token',      type: 'password' },
+    { key: 'CPF_CLIENT_DIRECT',  label: 'Consulta no browser', type: 'select', options: ['0', '1'] },
+    { key: 'REMOTE_CPF',         label: 'CPF remoto (legado)', type: 'select', options: ['0', '1'] },
+  ]},
+  { id: 'amung', label: 'Amung (contadores)', icon: '📡', vars: [
+    { key: 'AMUNG_FUNIL',    label: 'Funil ID',    type: 'text' },
+    { key: 'AMUNG_CHECKOUT', label: 'Checkout ID', type: 'text' },
+    { key: 'AMUNG_UPSELL',   label: 'Upsell ID',   type: 'text' },
+  ]},
+];
 
 const sessions = new Map();
 const pixTransactions = new Map();
@@ -405,6 +435,81 @@ async function generatePixMock(productId, body, req) {
   };
 }
 
+function activeGateway() {
+  return (process.env.PAYMENT_GATEWAY || 'masterfy').toLowerCase().trim();
+}
+
+function gatewayConfigured() {
+  return activeGateway() === 'anubis' ? anubis.isConfigured() : masterfy.isConfigured();
+}
+
+async function generatePixAnubis(req, body, sessionData) {
+  const productId = body.product_id;
+  const effectiveSession = (body.wizard_session && typeof body.wizard_session === 'object')
+    ? Object.assign({}, sessionData, body.wizard_session)
+    : sessionData;
+
+  const PLACEHOLDER_PHONE = '11999999999';
+  const resolvePhone = () => {
+    // Wizard tem prioridade — é o número que o cliente digitou
+    const candidates = [
+      effectiveSession.telefone,
+      sessionData && sessionData.telefone,
+      body.telefone,
+      body.phone,
+    ];
+    for (const c of candidates) {
+      const d = String(c || '').replace(/\D/g, '');
+      if (d.length >= 10 && d !== PLACEHOLDER_PHONE) return d;
+    }
+    return PLACEHOLDER_PHONE;
+  };
+
+  const created = await anubis.createPixPayment({
+    req,
+    productId,
+    deviceHash: body.device_hash,
+    payer: {
+      name: body.name,
+      document: body.document,
+      email: body.email,
+      phone: resolvePhone(),
+    },
+  });
+
+  const paymentId = created.payment_id;
+  const payer = {
+    name: body.name || 'Cliente',
+    document: body.document,
+    email: body.email || 'cliente@email.com',
+    phone: body.phone || '11999999999',
+  };
+  const txData = utmify.txContext(payer, body, productId, created.amount_cents, {
+    anubis_id: paymentId,
+    gateway: 'anubis',
+    status: 'pending',
+    pix_code: created.qr_code,
+    amount_cents: created.amount_cents,
+    production: true,
+    client_ip: utmify.clientIp(req),
+    created: Math.floor(Date.now() / 1000),
+  });
+
+  savePixTransaction(paymentId, txData);
+  await utmify.notifyPixGenerated(paymentId, txData).catch((err) => console.error('[Utmify]', err.message));
+  savePixTransaction(paymentId, txData);
+
+  return {
+    success: true,
+    production: true,
+    pix: {
+      transaction_id: paymentId,
+      qr_code: created.qr_code,
+      qr_code_url: pixQrUrl(created.qr_code),
+    },
+  };
+}
+
 async function generatePixMasterfy(req, body, sessionData) {
   const productId = body.product_id;
   const loanAmount = toNumber(body.loan_amount);
@@ -493,6 +598,36 @@ async function checkPixStatus(transactionId) {
     return { success: true, status: tx.status };
   }
 
+  if (tx.anubis_id && anubis.isConfigured() && !tx.mock) {
+    const ANUBIS_POLL_INTERVAL_MS = 5000;
+    const lastCheck = tx._anubis_last_check || 0;
+    if (Date.now() - lastCheck < ANUBIS_POLL_INTERVAL_MS) {
+      return { success: true, status: tx.status || 'pending' };
+    }
+    tx._anubis_last_check = Date.now();
+    savePixTransaction(transactionId, tx);
+    try {
+      const payment = await anubis.getPayment(tx.anubis_id);
+      const data = payment.data || payment;
+      const rawStatus = data.status || data.Status || 'PENDING';
+      const status = anubis.mapStatus(rawStatus);
+      tx.status = status;
+      if (status === 'paid') {
+        const paidAtRaw = data.PaidAt || data.paidAt;
+        const paidAt = paidAtRaw
+          ? Math.floor(Date.parse(String(paidAtRaw)) / 1000) || Math.floor(Date.now() / 1000)
+          : Math.floor(Date.now() / 1000);
+        await utmify.notifyPixPaid(transactionId, tx, paidAt).catch((e) => console.error('[Utmify]', e.message));
+        logCheckoutPaid(transactionId, tx);
+      }
+      savePixTransaction(transactionId, tx);
+      return { success: true, status };
+    } catch (err) {
+      console.error('[Anubis status]', err.message);
+      return { success: true, status: tx.status || 'pending' };
+    }
+  }
+
   if (tx.masterfy_id && masterfy.isConfigured() && !tx.mock) {
     try {
       const payment = await masterfy.getPayment(tx.masterfy_id);
@@ -526,6 +661,94 @@ async function checkPixStatus(transactionId) {
   }
 
   return { success: true, status: tx.status };
+}
+
+function siteConfigEnvFile() {
+  const local = path.join(ROOT, '.env.local');
+  return fs.existsSync(local) ? local : path.join(ROOT, '.env');
+}
+
+function siteConfigReadLines(filePath) {
+  if (!fs.existsSync(filePath)) return [];
+  return fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+}
+
+function siteConfigGetValue(lines, key) {
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t || t.startsWith('#')) continue;
+    const eq = t.indexOf('=');
+    if (eq === -1) continue;
+    if (t.slice(0, eq).trim() !== key) continue;
+    let v = t.slice(eq + 1).trim();
+    if (v.length >= 2 && ((v[0] === '"' && v[v.length - 1] === '"') || (v[0] === "'" && v[v.length - 1] === "'"))) {
+      v = v.slice(1, -1);
+    }
+    return v;
+  }
+  return process.env[key] || '';
+}
+
+async function handleSiteConfig(req, res) {
+  const token    = req.headers['x-analytics-token'] || '';
+  const expected = process.env.ANALYTICS_SECRET || '';
+  if (!token || !expected || token !== expected) {
+    return json(res, 401, { error: 'Unauthorized' });
+  }
+
+  const allAllowed = SITE_CONFIG_GROUPS.flatMap((g) => g.vars.map((v) => v.key));
+  const envFile    = siteConfigEnvFile();
+
+  if (req.method === 'GET') {
+    const lines  = siteConfigReadLines(envFile);
+    const values = {};
+    for (const key of allAllowed) values[key] = siteConfigGetValue(lines, key);
+    return json(res, 200, {
+      success: true,
+      config: values,
+      groups: SITE_CONFIG_GROUPS,
+      env_file: path.basename(envFile),
+    });
+  }
+
+  if (req.method === 'POST') {
+    const raw     = await readBody(req);
+    const body    = parseJsonBody(raw);
+    const updates = body.updates && typeof body.updates === 'object' ? body.updates : {};
+
+    for (const key of Object.keys(updates)) {
+      if (!allAllowed.includes(key)) {
+        return json(res, 400, { error: 'Chave não permitida: ' + key });
+      }
+    }
+
+    const lines   = siteConfigReadLines(envFile);
+    const applied = [];
+
+    for (const [key, val] of Object.entries(updates)) {
+      const value = String(val);
+      let found   = false;
+      for (let i = 0; i < lines.length; i++) {
+        const t = lines[i].trim();
+        if (!t || t.startsWith('#')) continue;
+        const eq = t.indexOf('=');
+        if (eq === -1) continue;
+        if (t.slice(0, eq).trim() === key) {
+          lines[i] = key + '=' + value;
+          found = true;
+          break;
+        }
+      }
+      if (!found) lines.push(key + '=' + value);
+      process.env[key] = value;
+      applied.push(key);
+    }
+
+    fs.writeFileSync(envFile, lines.join('\n') + '\n', 'utf8');
+    return json(res, 200, { success: true, updated: applied });
+  }
+
+  return json(res, 405, { error: 'Method not allowed' });
 }
 
 async function handleAnalyticsApi(req, res, url) {
@@ -698,6 +921,49 @@ async function handleMasterfyWebhook(req, res) {
   return json(res, 200, { received: true });
 }
 
+async function handleAnubisWebhook(req, res) {
+  if (req.method === 'GET') return json(res, 200, { ok: true, gateway: 'anubis' });
+
+  const raw = await readBody(req);
+  const body = parseJsonBody(raw);
+  const paymentId = String(body.Id || body.id || '');
+  const rawStatus = String(body.Status || body.status || 'PENDING');
+  const status = anubis.mapStatus(rawStatus);
+  const amountCents = Math.round(parseFloat(body.Amount || body.amount || 0) * 100);
+
+  // Acha a transação na memória (busca pelo anubis_id ou diretamente pela chave)
+  let txId = paymentId;
+  let txData = pixTransactions.get(paymentId) || {};
+  for (const [id, tx] of pixTransactions.entries()) {
+    if (tx.anubis_id === paymentId) {
+      txId = id;
+      txData = tx;
+      break;
+    }
+  }
+
+  // Atualiza status na memória
+  txData.status = status;
+  txData.anubis_id = txData.anubis_id || paymentId;
+  txData.gateway = 'anubis';
+  if (amountCents > 0 && !txData.amount_cents) txData.amount_cents = amountCents;
+  savePixTransaction(txId, txData);
+
+  if (status === 'paid') {
+    const paidAtRaw = body.PaidAt || body.paidAt;
+    const paidAt = paidAtRaw
+      ? Math.floor(Date.parse(String(paidAtRaw)) / 1000) || Math.floor(Date.now() / 1000)
+      : Math.floor(Date.now() / 1000);
+    await utmify.notifyPixPaid(txId, txData, paidAt).catch((e) => console.error('[Utmify]', e.message));
+    savePixTransaction(txId, txData);
+  }
+
+  // Loga no analytics (inclui webhook log + payment_paid event se status=paid)
+  analytics.logPaymentFromWebhook(paymentId, status, txData, true);
+
+  return json(res, 200, { received: true, gateway: 'anubis' });
+}
+
 async function handlePixApi(req, res, url) {
   if (PROXY_API && !masterfy.isConfigured()) {
     return proxyToRemote(req, res, url.pathname + url.search);
@@ -757,10 +1023,11 @@ async function handlePixApi(req, res, url) {
 
     const useMock = process.env.PAYMENT_MOCK === '1';
 
-    if (!useMock && !masterfy.isConfigured()) {
+    if (!useMock && !gatewayConfigured()) {
+      const gwName = activeGateway() === 'anubis' ? 'Anubis' : 'MasterFy';
       return json(res, 200, {
         success: false,
-        error: 'MASTERFY_API_KEY não configurada. Adicione no arquivo .env e reinicie o servidor.',
+        error: `${gwName} não configurado. Adicione as chaves no arquivo .env e reinicie o servidor.`,
       });
     }
 
@@ -801,13 +1068,31 @@ async function handlePixApi(req, res, url) {
     try {
       const result = useMock
         ? await generatePixMock(productId, payBody, req)
-        : await generatePixMasterfy(req, payBody, session.data);
+        : activeGateway() === 'anubis'
+          ? await generatePixAnubis(req, payBody, session.data)
+          : await generatePixMasterfy(req, payBody, session.data);
+      const utms = body.utms && typeof body.utms === 'object' ? body.utms : (session.data && session.data.utms) || {};
+      const geo  = analytics.clientGeoFromRequest(req);
+      const sd   = session.data || {};
       analytics.appendEvent({
         type: 'pix_generated',
+        ts: Date.now(),
         session_id: 'pix_' + (result.pix && result.pix.transaction_id),
         product_id: productId,
+        amount_cents: result.pix ? products[productId]?.amountCents : undefined,
         funnel_step: 'checkout',
-        meta: { transaction_id: result.pix && result.pix.transaction_id },
+        traffic_src: utms.src || utms.utm_source || null,
+        utm_source: utms.utm_source || null,
+        utm_medium: utms.utm_medium || null,
+        utm_campaign: utms.utm_campaign || null,
+        country: geo.country || null,
+        continent: geo.continent || null,
+        lead_age: sd.lead_age || sd.idade || null,
+        lead_gender: sd.lead_gender || sd.sexo || null,
+        meta: {
+          transaction_id: result.pix && result.pix.transaction_id,
+          gateway: activeGateway(),
+        },
       });
       return json(res, 200, result);
     } catch (err) {
@@ -929,10 +1214,9 @@ function serveSiteBaseConfig(res, basePath, publicOrigin) {
 
 function serveAmungCounter(res, slot) {
   const slots = {
-    funil:    process.env.AMUNG_FUNIL    || 'emnads233310',
-    funnel:   process.env.AMUNG_FUNIL    || 'emnads233310',
-    checkout: process.env.AMUNG_CHECKOUT || 'emnads233311',
-    upsell:   process.env.AMUNG_UPSELL   || 'emnads233312',
+    funil:    process.env.AMUNG_FUNIL    || '',
+    checkout: process.env.AMUNG_CHECKOUT || '',
+    upsell:   process.env.AMUNG_UPSELL   || '',
   };
   const code = slots[slot] || slots.upsell;
   res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
@@ -957,7 +1241,7 @@ function serveCheckoutHtml(req, res, basePath) {
     // Remove o bloco PHP do topo: <?php ... ?>
     let html = data.replace(/^<\?php[\s\S]*?\?>\s*\n?/, '');
     // Substitui o echo PHP pelo valor real da env
-    const amungCode = process.env.AMUNG_CHECKOUT || 'emnads233311';
+    const amungCode = process.env.AMUNG_CHECKOUT || '';
     html = html.replace(/<\?=\s*json_encode\(\$amungCheckout[^?]*\)\s*\?>/, JSON.stringify(amungCode));
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
     res.end(html);
@@ -1000,12 +1284,20 @@ const server = http.createServer(async (req, res) => {
     return handleMasterfyWebhook(req, res);
   }
 
+  if (pathname === '/pay/api/webhook-anubis.php') {
+    return handleAnubisWebhook(req, res);
+  }
+
   if (pathname === '/pay/api/pix.php') {
     return handlePixApi(req, res, url);
   }
 
   if (pathname === '/api/google-pixels.json') {
     return handleGooglePixelsApi(req, res);
+  }
+
+  if (pathname === '/api/site-config.php' || pathname === '/api/site-config') {
+    return handleSiteConfig(req, res);
   }
 
   if (

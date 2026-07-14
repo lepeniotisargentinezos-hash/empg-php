@@ -15,9 +15,8 @@ credpix_load_env();
 $base = trim((string) (getenv('BASE_PATH') ?: ''));
 $origin = trim((string) (getenv('PUBLIC_BASE_URL') ?: ''));
 
-if ($base !== '') {
-    echo 'window.CREDPIX_BASE_PATH=' . json_encode($base, JSON_UNESCAPED_SLASHES) . ";\n";
-}
+// Sempre emite — mesmo vazio — para sobrescrever locks antigos do sessionStorage
+echo 'window.CREDPIX_BASE_PATH=' . json_encode($base, JSON_UNESCAPED_SLASHES) . ";\n";
 if ($origin !== '') {
     echo 'window.CREDPIX_PUBLIC_ORIGIN=' . json_encode(rtrim($origin, '/'), JSON_UNESCAPED_SLASHES) . ";\n";
 }
@@ -27,9 +26,9 @@ if ($host !== '') {
     echo 'window.CREDPIX_HOST=' . json_encode($host, JSON_UNESCAPED_SLASHES) . ";\n";
 }
 
-$amungFunil = trim((string) (getenv('AMUNG_FUNIL') ?: 'emnads233310'));
-$amungCheckout = trim((string) (getenv('AMUNG_CHECKOUT') ?: 'emnads233311'));
-$amungUpsell = trim((string) (getenv('AMUNG_UPSELL') ?: 'emnads233312'));
+$amungFunil    = trim((string) (getenv('AMUNG_FUNIL')    ?: ''));
+$amungCheckout = trim((string) (getenv('AMUNG_CHECKOUT') ?: ''));
+$amungUpsell   = trim((string) (getenv('AMUNG_UPSELL')   ?: ''));
 echo 'window.CREDPIX_AMUNG_FUNIL=' . json_encode($amungFunil, JSON_UNESCAPED_SLASHES) . ";\n";
 echo 'window.CREDPIX_AMUNG_CHECKOUT=' . json_encode($amungCheckout, JSON_UNESCAPED_SLASHES) . ";\n";
 echo 'window.CREDPIX_AMUNG_UPSELL=' . json_encode($amungUpsell, JSON_UNESCAPED_SLASHES) . ";\n";

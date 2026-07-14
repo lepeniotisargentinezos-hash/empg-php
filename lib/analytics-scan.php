@@ -214,44 +214,64 @@ function credpix_analytics_scan_events(
     };
 
     $pushRecent = static function (array $ev) use (&$recentRing, $recentMax): void {
+        $meta = is_array($ev['meta'] ?? null) ? $ev['meta'] : [];
         $recentRing[] = [
-            'ts' => $ev['ts'] ?? 0,
-            'type' => $ev['type'] ?? '',
-            'page_label' => $ev['page_label'] ?? null,
+            'ts'           => $ev['ts'] ?? 0,
+            'type'         => $ev['type'] ?? '',
+            'page'         => $ev['page'] ?? null,
+            'page_label'   => $ev['page_label'] ?? null,
+            'funnel_step'  => $ev['funnel_step'] ?? null,
+            'wizard_step'  => $meta['step'] ?? $meta['field'] ?? null,
             'product_name' => $ev['product_name'] ?? null,
             'amount_cents' => $ev['amount_cents'] ?? null,
-            'utm_source' => $ev['utm_source'] ?? null,
-            'traffic_src' => $ev['traffic_src'] ?? null,
+            'traffic_src'  => $ev['traffic_src'] ?? null,
+            'utm_source'   => $ev['utm_source'] ?? null,
+            'country'      => $ev['country'] ?? null,
+            'city'         => $ev['city'] ?? null,
+            'region'       => $ev['region'] ?? null,
         ];
         if (count($recentRing) > $recentMax) {
             array_shift($recentRing);
         }
     };
 
-    $trackConversion = static function (array $ev) use (&$conversionSessions, $jk): void {
+    /* Chave preferencial: device_hash (persistente entre sessões) > session_id */
+    $conversionKey = static function (array $ev) use ($jk): string {
+        $dev = trim((string) ($ev['device_hash'] ?? ''));
+        if ($dev !== '') {
+            return 'd_' . $dev;
+        }
         $sid = $jk($ev);
-        if ($sid === '' || $sid === 'anon') {
+        return ($sid !== '' && $sid !== 'anon') ? $sid : '';
+    };
+
+    $trackConversion = static function (array $ev) use (&$conversionSessions, $conversionKey): void {
+        $key = $conversionKey($ev);
+        if ($key === '') {
             return;
         }
-        if (!isset($conversionSessions[$sid])) {
-            $conversionSessions[$sid] = ['landing' => null, 'pix' => null, 'paid' => null];
+        if (!isset($conversionSessions[$key])) {
+            $conversionSessions[$key] = ['landing' => null, 'pix' => null, 'paid' => null];
         }
-        $ts = (int) ($ev['ts'] ?? 0);
-        if (($ev['funnel_step'] ?? '') === 'landing' || ($ev['page_label'] ?? '') === 'Landing' || ($ev['page_label'] ?? '') === 'Início') {
-            if ($conversionSessions[$sid]['landing'] === null || ($ts > 0 && $ts < $conversionSessions[$sid]['landing'])) {
-                $conversionSessions[$sid]['landing'] = $ts;
+        $ts   = (int) ($ev['ts'] ?? 0);
+        $type = (string) ($ev['type'] ?? '');
+
+        $applyMin = function (string $slot, int $ts) use (&$conversionSessions, $key): void {
+            if ($conversionSessions[$key][$slot] === null || ($ts > 0 && $ts < $conversionSessions[$key][$slot])) {
+                $conversionSessions[$key][$slot] = $ts;
             }
+        };
+
+        /* Landing: só page_view de landing conta */
+        if ($type === 'page_view' && (
+            ($ev['funnel_step'] ?? '') === 'landing' ||
+            ($ev['page_label'] ?? '') === 'Landing' ||
+            ($ev['page_label'] ?? '') === 'Início'
+        )) {
+            $applyMin('landing', $ts);
         }
-        if (($ev['type'] ?? '') === 'pix_generated') {
-            if ($conversionSessions[$sid]['pix'] === null || ($ts > 0 && $ts < $conversionSessions[$sid]['pix'])) {
-                $conversionSessions[$sid]['pix'] = $ts;
-            }
-        }
-        if (($ev['type'] ?? '') === 'payment_paid') {
-            if ($conversionSessions[$sid]['paid'] === null || ($ts > 0 && $ts < $conversionSessions[$sid]['paid'])) {
-                $conversionSessions[$sid]['paid'] = $ts;
-            }
-        }
+        if ($type === 'pix_generated')  $applyMin('pix',  $ts);
+        if ($type === 'payment_paid')   $applyMin('paid', $ts);
     };
 
     $trackCampaign = static function (array $ev) use (&$campaignsMap, &$paidTxSeenCampaign, $jk): void {

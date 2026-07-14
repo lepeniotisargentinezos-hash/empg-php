@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Central · Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="analytics-theme.css">
+  <style>
+    :root {
+      /* Identidade visual do site: azul #045acd, escuro #0F1B36, dourado #C28B52 */
+      --brand: #045acd;
+      --brand-soft: rgba(4,90,205,0.14);
+      --brand-glow: rgba(4,90,205,0.35);
+      --nav-accent: #045acd;
+      --bg: #060d1a;
+      --bg-elevated: #0a1428;
+      --surface: #0f1b36;
+      --surface-hover: #152040;
+      --border: rgba(4,90,205,0.15);
+      --border-strong: rgba(4,90,205,0.28);
+      --text: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #045acd;
+      --accent-soft: rgba(4,90,205,0.15);
+      --accent-glow: rgba(4,90,205,0.35);
+      --success: #22c55e;
+      --success-soft: rgba(34,197,94,0.12);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245,158,11,0.12);
+      --danger: #ef4444;
+      --danger-soft: rgba(239,68,68,0.12);
+      --gold: #C28B52;
+      --cyan: #3b82f6;
+      --sidebar-w: 268px;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.5);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'DM Sans',system-ui,sans-serif;
+      background: radial-gradient(ellipse 120% 80% at 100% -30%,rgba(4,90,205,.08),transparent 55%),
+                  radial-gradient(ellipse 80% 50% at 0% 0%,rgba(4,90,205,.04),transparent 50%),
+                  var(--bg);
+      color:var(--text);min-height:100vh;line-height:1.5;
+    }
+    .hidden{display:none!important}
+    input,select,button,textarea{font:inherit}
+    input,select,textarea{
+      border-radius:var(--radius-sm);border:1px solid var(--border-strong);
+      background:var(--bg-elevated);color:var(--text);padding:10px 14px;
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+    .btn{
+      cursor:pointer;font-weight:600;font-size:14px;border:none;
+      border-radius:var(--radius-sm);display:inline-flex;align-items:center;
+      justify-content:center;gap:8px;padding:10px 16px;
+      transition:transform .12s,background .15s,box-shadow .15s;
+    }
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:linear-gradient(135deg,#045acd,#0349A8);color:#fff;box-shadow:0 4px 14px var(--accent-glow)}
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-ghost{background:var(--surface);border:1px solid var(--border-strong);color:var(--text)}
+    .btn-ghost:hover{background:var(--surface-hover)}
+    .btn-danger{background:var(--danger-soft);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+    .btn-danger:hover{background:rgba(239,68,68,.2)}
+    .btn-sm{font-size:12px;padding:6px 12px}
+    .btn-block{width:100%;padding:13px}
+
+    /* Auth */
+    .auth-screen{
+      min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+      background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(4,90,205,.25),transparent),var(--bg);
+    }
+    .auth-card{
+      width:100%;max-width:400px;background:var(--surface);
+      border:1px solid var(--border-strong);border-radius:20px;padding:36px;box-shadow:var(--shadow);
+    }
+    .auth-card::before{
+      content:'';display:block;height:4px;margin:-36px -36px 24px;
+      border-radius:20px 20px 0 0;
+      background:linear-gradient(90deg,var(--accent),#06b6d4);
+    }
+    .auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+    .auth-logo .logo-icon{
+      width:40px;height:40px;border-radius:10px;
+      background:linear-gradient(135deg,#045acd,#0349A8);
+      display:flex;align-items:center;justify-content:center;font-size:20px;
+    }
+    .auth-logo strong{font-size:18px;font-weight:700;letter-spacing:-.02em}
+    .auth-logo span{font-size:12px;color:var(--text-muted);display:block}
+    .auth-card h2{font-size:20px;font-weight:700;margin-bottom:6px}
+    .auth-card p{font-size:13px;color:var(--text-secondary);margin-bottom:20px}
+    .auth-field{position:relative;margin-bottom:14px}
+    .auth-field input{width:100%;margin:0;padding-right:44px}
+    .auth-field .show-pw{
+      position:absolute;right:12px;top:50%;transform:translateY(-50%);
+      background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;font-size:16px;
+    }
+    .auth-error{color:var(--danger);font-size:13px;margin-top:10px}
+
+    /* Layout */
+    .app{display:flex;min-height:100vh}
+    .sidebar{
+      width:var(--sidebar-w);background:var(--bg-elevated);
+      border-right:1px solid var(--border);padding:20px 12px;
+      display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:100;
+      overflow-y:auto;
+    }
+    .sidebar-brand{padding:4px 12px 20px;border-bottom:1px solid var(--border);margin-bottom:14px}
+    .sidebar-brand .brand-row{display:flex;align-items:center;gap:10px}
+    .brand-icon{
+      width:36px;height:36px;border-radius:9px;
+      background:linear-gradient(135deg,#045acd,#06b6d4);
+      display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+    }
+    .brand-text strong{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
+    .brand-text span{font-size:11px;color:var(--text-muted);display:block;margin-top:1px}
+    .nav-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:8px 12px 6px}
+    .nav-item{
+      display:flex;align-items:center;gap:10px;padding:10px 12px;
+      border-radius:var(--radius-sm);color:var(--text-secondary);font-size:13px;font-weight:500;
+      cursor:pointer;border:none;background:none;width:100%;text-align:left;
+      margin-bottom:2px;transition:background .15s,color .15s;
+    }
+    .nav-item:hover{background:var(--surface);color:var(--text)}
+    .nav-item.active{background:var(--accent-soft);color:#93c5fd;box-shadow:inset 3px 0 0 var(--accent)}
+    .nav-item .icon{
+      width:28px;height:28px;border-radius:7px;display:flex;align-items:center;
+      justify-content:center;font-size:15px;background:var(--surface);flex-shrink:0;
+    }
+    .nav-item.active .icon{background:rgba(4,90,205,.3);color:var(--accent)}
+    .nav-badge{
+      margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;
+      border-radius:999px;background:var(--brand-soft);color:var(--brand);
+    }
+    .nav-item.site-nav-item .site-dot{
+      width:8px;height:8px;border-radius:50%;background:var(--text-muted);flex-shrink:0;
+    }
+    .nav-item.site-nav-item.online .site-dot{background:var(--success);box-shadow:0 0 6px rgba(34,197,94,.5)}
+    .nav-item.site-nav-item.offline .site-dot{background:var(--danger)}
+    .sidebar-footer{margin-top:auto;padding-top:14px;border-top:1px solid var(--border)}
+    .sidebar-add-btn{
+      display:flex;align-items:center;gap:8px;padding:10px 12px;
+      border-radius:var(--radius-sm);color:var(--accent);font-size:13px;font-weight:600;
+      cursor:pointer;border:1px dashed rgba(4,90,205,.35);background:none;width:100%;
+      margin-bottom:8px;transition:background .15s,border-color .15s;
+    }
+    .sidebar-add-btn:hover{background:var(--accent-soft);border-color:var(--accent)}
+
+    /* Main */
+    .main{flex:1;margin-left:var(--sidebar-w);min-height:100vh}
+    .main-inner{max-width:1440px;padding:28px 32px 40px;margin:0 auto}
+    .loading-bar{
+      position:fixed;top:0;left:var(--sidebar-w);right:0;height:3px;z-index:500;
+      background:var(--border);overflow:hidden;opacity:0;transition:opacity .2s;
+    }
+    .loading-bar.active{opacity:1}
+    .loading-bar::after{
+      content:'';display:block;height:100%;width:40%;
+      background:linear-gradient(90deg,var(--accent),#06b6d4);
+      animation:loadbar 1s ease-in-out infinite;
+    }
+    @keyframes loadbar{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+    .section{display:none;animation:fadeIn .25s ease}
+    .section.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* Topbar */
+    .topbar{
+      display:flex;flex-wrap:wrap;align-items:flex-start;
+      justify-content:space-between;gap:12px;margin-bottom:24px;
+    }
+    .topbar h2{font-size:24px;font-weight:700;letter-spacing:-.02em}
+    .topbar p{font-size:13px;color:var(--text-secondary);margin-top:3px}
+    .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .last-sync{font-size:12px;color:var(--text-muted);white-space:nowrap}
+
+    /* Site cards (hub overview) */
+    .sites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-bottom:28px}
+    .site-card{
+      background:linear-gradient(145deg,rgba(18,26,46,.98),rgba(13,19,33,.95));
+      border:1px solid var(--border);border-radius:var(--radius);padding:20px;
+      position:relative;overflow:hidden;cursor:pointer;
+      transition:border-color .2s,box-shadow .2s,transform .15s;
+    }
+    .site-card:hover{border-color:rgba(4,90,205,.35);box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(-2px)}
+    .site-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--card-color,var(--accent));opacity:.9;
+    }
+    .site-card-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .site-card-icon{
+      width:40px;height:40px;border-radius:10px;
+      background:var(--card-color,var(--accent));opacity:.15;
+      display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+      position:relative;
+    }
+    .site-card-icon span{position:relative;z-index:1}
+    .site-card-icon::after{content:'';position:absolute;inset:0;background:var(--card-color,var(--accent));opacity:.15;border-radius:10px}
+    .site-card-info{flex:1;min-width:0}
+    .site-card-info strong{display:block;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .site-card-info small{font-size:11px;color:var(--text-muted);display:block;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .status-dot{
+      width:8px;height:8px;border-radius:50%;background:var(--text-muted);flex-shrink:0;
+      transition:background .3s;
+    }
+    .status-dot.online{background:var(--success);box-shadow:0 0 6px rgba(34,197,94,.5)}
+    .status-dot.offline{background:var(--danger)}
+    .status-dot.checking{background:var(--warning);animation:pulse .8s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    .site-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .site-kpi{text-align:center;padding:10px 6px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)}
+    .site-kpi .val{font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:block}
+    .site-kpi .lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px;display:block}
+    .site-kpi-wide{grid-column:span 3;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .site-stat{font-size:12px;color:var(--text-secondary)}
+    .site-stat strong{color:var(--text);margin-left:4px}
+    .site-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+    .site-alert{
+      font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;
+    }
+    .site-alert.ok{background:var(--success-soft);color:#86efac}
+    .site-alert.warn{background:var(--warning-soft);color:#fde68a}
+    .site-alert.bad{background:var(--danger-soft);color:#fca5a5}
+    .site-last-sale{font-size:11px;color:var(--text-muted)}
+
+    /* Hub combined table */
+    .hub-events-section{margin-top:28px}
+    .hub-ranking-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+
+    /* KPI cards */
+    .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+    .kpi{
+      background:linear-gradient(145deg,rgba(18,26,46,.96),rgba(13,19,33,.92));
+      border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;
+      position:relative;overflow:hidden;
+    }
+    .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-accent,var(--accent));opacity:.85}
+    .kpi-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+    .kpi-value{font-size:28px;font-weight:700;margin-top:6px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+    .kpi-sub{font-size:12px;color:var(--text-secondary);margin-top:4px}
+
+    /* Panels */
+    .panel{
+      background:linear-gradient(180deg,rgba(18,26,46,.98),rgba(13,19,33,.98));
+      border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;
+      box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s;
+    }
+    .panel:hover{border-color:rgba(4,90,205,.22);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+    .panel-full{margin-bottom:20px}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .panel-head h3{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .panel-head h3::before{
+      content:'';width:7px;height:7px;border-radius:50%;
+      background:var(--accent);box-shadow:0 0 8px var(--accent-glow);flex-shrink:0;
+    }
+    .panel-head span{font-size:12px;color:var(--text-muted)}
+    .panel-grid{display:grid;gap:20px}
+    .panel-grid.two{grid-template-columns:1fr}
+    .panel-grid.three{grid-template-columns:1fr}
+    @media(min-width:900px){
+      .panel-grid.two{grid-template-columns:1fr 1fr}
+      .panel-grid.three{grid-template-columns:1.2fr 1fr 1fr}
+    }
+
+    /* Site detail sub-tabs */
+    .site-detail-header{
+      display:flex;align-items:center;gap:12px;margin-bottom:0;flex-wrap:wrap;
+      position:sticky;top:0;z-index:90;
+      background:transparent;
+      backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      padding:16px 0 12px;
+      margin-left:-32px;margin-right:-32px;padding-left:32px;padding-right:32px;
+    }
+    .site-detail-icon{
+      width:44px;height:44px;border-radius:11px;
+      background:linear-gradient(135deg,var(--site-color,var(--accent)),rgba(6,182,212,.7));
+      display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+    }
+    .site-detail-info strong{font-size:20px;font-weight:700;display:block;letter-spacing:-.02em}
+    .site-detail-info small{font-size:12px;color:var(--text-muted);display:block}
+    .sub-tabs{
+      display:flex;gap:4px;margin-bottom:24px;
+      background:rgba(18,26,46,.55);
+      border-radius:var(--radius-sm);padding:4px;border:1px solid var(--border);
+      flex-wrap:wrap;
+      position:sticky;top:76px;z-index:89;
+      backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+      box-shadow:0 8px 24px rgba(0,0,0,.45);
+    }
+    .sub-tab{
+      padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;
+      cursor:pointer;border:none;background:none;color:var(--text-secondary);
+      transition:background .15s,color .15s;white-space:nowrap;
+    }
+    .sub-tab:hover{background:var(--surface-hover);color:var(--text)}
+    .sub-tab.active{background:var(--accent-soft);color:#93c5fd;font-weight:600}
+    .sub-section{display:none}
+    .sub-section.active{display:block;animation:fadeIn .2s ease}
+
+    /* Toolbar for site detail */
+    .detail-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:20px}
+    .detail-toolbar select{font-size:13px}
+
+    /* Tables */
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table.data-table{width:100%;border-collapse:collapse}
+    table.data-table th{
+      font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+      color:var(--text-muted);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;
+    }
+    table.data-table th.num{text-align:right}
+    table.data-table td{padding:10px 12px;border-bottom:1px solid rgba(148,163,184,.06);font-size:13px}
+    table.data-table td.num{font-variant-numeric:tabular-nums;text-align:right}
+    table.data-table tbody tr:hover td{background:rgba(4,90,205,.05)}
+    table.insight-table{width:100%;border-collapse:collapse}
+    table.insight-table th{font-size:11px;color:var(--text-muted);padding:6px 10px;border-bottom:1px solid var(--border);text-align:left}
+    table.insight-table th.num{text-align:right}
+    table.insight-table td{padding:8px 10px;border-bottom:1px solid rgba(148,163,184,.06);font-size:13px}
+    table.insight-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+
+    /* Chart empty */
+    .chart-empty{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:80px;text-align:center;gap:8px;color:var(--text-muted);padding:24px;
+    }
+    .chart-empty::before{font-size:28px;display:block;opacity:.5}
+    .chart-empty[data-empty-type="funnel"]::before{content:'⏳'}
+    .chart-empty[data-empty-type="geo"]::before{content:'🌍'}
+    .chart-empty[data-empty-type="upsell"]::before{content:'⬆'}
+    .chart-empty[data-empty-type="orders"]::before{content:'🛒'}
+    .chart-empty[data-empty-type="chart"]::before{content:'📈'}
+    .chart-empty strong{font-size:14px;color:var(--text-secondary)}
+    .chart-empty small{font-size:12px;max-width:260px}
+
+    /* Chart wrap */
+    .chart-wrap{min-height:180px;position:relative}
+    .chart-wrap svg{width:100%;height:auto;display:block}
+
+    /* Mini KPI row */
+    .mini-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:10px}
+    .mini-kpi{
+      background:rgba(255,255,255,.03);border:1px solid var(--border);
+      border-radius:8px;padding:12px 14px;
+    }
+    .mini-kpi span{font-size:11px;color:var(--text-muted);display:block;margin-bottom:4px}
+    .mini-kpi strong{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;display:block}
+    .mini-kpi small{font-size:11px;color:var(--text-secondary);display:block;margin-top:2px}
+
+    /* Country/bar */
+    .country-list{display:flex;flex-direction:column;gap:8px}
+    .country-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;font-size:12px}
+    .country-row .bar-track{height:5px;grid-column:1/-1;background:var(--bg-elevated);border-radius:999px;overflow:hidden}
+    .bar-track .bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#06b6d4);border-radius:999px}
+
+    /* Flow */
+    .flow-row{display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;align-items:center;margin-bottom:8px;font-size:12px}
+    .flow-bar-wrap{position:relative;background:var(--bg-elevated);border-radius:999px;height:20px;overflow:hidden}
+    .flow-bar{height:100%;background:linear-gradient(90deg,rgba(4,90,205,.5),rgba(6,182,212,.6));border-radius:999px}
+    .flow-bar-wrap span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+
+    /* UTM blocks */
+    .utm-block{margin-bottom:16px}
+    .utm-block h4{font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+
+    /* System status */
+    .system-status-bar{
+      display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;
+      background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+      font-size:12px;margin-bottom:20px;
+    }
+    .status-pill{padding:3px 8px;border-radius:999px;font-weight:600;font-size:10px;text-transform:uppercase}
+    .status-pill.ok{background:var(--success-soft);color:#86efac}
+    .status-pill.warn{background:var(--warning-soft);color:#fde68a}
+    .status-pill.bad{background:var(--danger-soft);color:#fca5a5}
+
+    /* Orders filters */
+    .orders-filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+    .orders-filters input,.orders-filters select{width:auto;min-width:180px;margin:0;flex:1}
+
+    /* Section divider */
+    .section-divider{
+      display:flex;align-items:center;gap:12px;margin:24px 0 14px;
+      font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);
+    }
+    .section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+    /* Trend badges */
+    .trend{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 6px;border-radius:5px}
+    .trend.up{background:var(--success-soft);color:#86efac}
+    .trend.down{background:var(--danger-soft);color:#fca5a5}
+    .trend.flat{color:var(--text-muted)}
+
+    /* Config form */
+    .config-form{display:flex;flex-direction:column;gap:16px;max-width:600px}
+    .config-form label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;font-weight:500}
+    .config-form input,.config-form select{width:100%;margin:0}
+    .config-form .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .config-section-title{font-size:14px;font-weight:700;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:20px}
+    .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.7)}
+    .modal-card{
+      position:relative;width:min(560px,100%);max-height:85vh;overflow:auto;
+      background:var(--surface);border:1px solid var(--border-strong);
+      border-radius:16px;padding:24px;box-shadow:var(--shadow);
+    }
+    .modal-card h3{font-size:18px;font-weight:700;margin-bottom:6px}
+    .modal-card p{font-size:13px;color:var(--text-secondary);margin-bottom:20px}
+    .modal-form{display:flex;flex-direction:column;gap:14px}
+    .modal-form label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;font-weight:500}
+    .modal-form input,.modal-form select{width:100%;margin:0}
+    .modal-form .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .modal-form .row-3{display:grid;grid-template-columns:1fr 1fr 60px;gap:10px;align-items:end}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+    .test-result{font-size:12px;padding:8px 12px;border-radius:8px;margin-top:8px}
+    .test-result.ok{background:var(--success-soft);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+    .test-result.bad{background:var(--danger-soft);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+    .test-result.checking{background:var(--accent-soft);color:#93c5fd;border:1px solid rgba(4,90,205,.3)}
+
+    /* Sale toast */
+    .sale-toast{
+      position:fixed;bottom:24px;right:24px;z-index:500;
+      background:linear-gradient(135deg,#166534,#22c55e);color:#fff;
+      padding:14px 20px;border-radius:12px;font-weight:600;
+      box-shadow:0 8px 30px rgba(34,197,94,.35);
+      transform:translateY(120%);transition:transform .3s ease;
+      display:flex;align-items:center;gap:10px;font-size:14px;
+    }
+    .sale-toast.show{transform:translateY(0)}
+
+    /* Hourly bars */
+    .hourly-grid{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:flex-end}
+    .hourly-col{display:flex;flex-direction:column;align-items:center;gap:0;cursor:default}
+    .hourly-bars{width:100%;height:80px;display:flex;align-items:flex-end;justify-content:center;gap:2px}
+    .hourly-bar{width:44%;border-radius:3px 3px 0 0;min-height:3px;flex:none}
+    .hourly-bar.pix-gen{background:linear-gradient(180deg,rgba(251,191,36,.95),rgba(245,158,11,.6))}
+    .hourly-bar.pix-pay{background:linear-gradient(180deg,rgba(74,222,128,.95),rgba(34,197,94,.6))}
+    .hourly-label{font-size:9px;color:var(--text-muted);margin-top:4px;font-variant-numeric:tabular-nums}
+    .hourly-legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:10px;font-size:11px;color:var(--text-muted)}
+    .hourly-legend .dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle}
+    .hourly-legend .dot.pix-gen{background:#fbbf24}
+    .hourly-legend .dot.pix-pay{background:#4ade80}
+
+    /* Empty state */
+    .empty-hub{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:64px 24px;text-align:center;gap:16px;
+    }
+    .empty-hub .empty-icon{font-size:56px;opacity:.3}
+    .empty-hub h3{font-size:20px;font-weight:700;color:var(--text-secondary)}
+    .empty-hub p{font-size:14px;color:var(--text-muted);max-width:340px}
+
+    /* Recent feed */
+    .recent-feed{display:flex;flex-direction:column;gap:6px}
+    .feed-row{
+      display:flex;align-items:center;gap:10px;padding:8px 10px;
+      border-radius:8px;font-size:12px;background:rgba(255,255,255,.02);
+      border:1px solid var(--border);
+    }
+    .feed-row .feed-type{
+      font-family:'JetBrains Mono',monospace;font-size:10px;
+      padding:2px 6px;border-radius:4px;white-space:nowrap;
+    }
+    .feed-row .feed-type.paid{background:var(--success-soft);color:#86efac}
+    .feed-row .feed-type.pix{background:var(--warning-soft);color:#fde68a}
+    .feed-row .feed-type.view{background:var(--accent-soft);color:#93c5fd}
+    .feed-site{color:var(--text-muted);font-size:11px}
+    .feed-val{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums}
+
+    /* Pixels section */
+    .pixels-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .pixel-row{
+      display:flex;align-items:center;gap:10px;padding:12px 14px;
+      background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;
+    }
+    .pixel-row .pixel-type{
+      font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+      background:var(--accent-soft);color:#93c5fd;white-space:nowrap;
+    }
+    .pixel-row input{flex:1;margin:0;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .pixel-row button{flex-shrink:0}
+
+    /* Ad spend */
+    .ad-spend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+    .ad-spend-grid label span{display:block;font-size:12px;margin-bottom:4px;color:var(--text-secondary)}
+    .ad-spend-grid input{width:100%;margin:0}
+
+    /* Funnel cascade */
+    .funnel-cascade{display:flex;flex-direction:column;gap:4px}
+    .funnel-cascade-step{position:relative}
+    .funnel-cascade-bar{
+      position:relative;margin:0 auto;padding:9px 14px;border-radius:8px;
+      background:linear-gradient(90deg,rgba(4,90,205,.25),rgba(4,90,205,.08));
+      border:1px solid rgba(4,90,205,.2);
+      clip-path:polygon(2% 0,98% 0,96% 100%,4% 100%);
+    }
+    .funnel-cascade-step:nth-child(n+3) .funnel-cascade-bar{
+      background:linear-gradient(90deg,rgba(245,158,11,.22),rgba(245,158,11,.06));
+      border-color:rgba(245,158,11,.25);
+    }
+    .funnel-cascade-step:nth-child(n+5) .funnel-cascade-bar{
+      background:linear-gradient(90deg,rgba(34,197,94,.28),rgba(34,197,94,.08));
+      border-color:rgba(34,197,94,.3);
+    }
+    .funnel-cascade-meta{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;color:var(--text-secondary)}
+    .funnel-cascade-meta strong{color:var(--text);font-variant-numeric:tabular-nums}
+    .funnel-cascade-drop{text-align:center;font-size:10px;color:var(--danger);opacity:.85;padding:2px 0}
+
+    /* Back to top */
+    .back-to-top{
+      position:fixed;bottom:24px;left:calc(var(--sidebar-w)+24px);z-index:200;
+      width:40px;height:40px;border-radius:50%;border:1px solid var(--border-strong);
+      background:var(--surface);color:var(--text);cursor:pointer;font-size:18px;
+      opacity:0;pointer-events:none;transition:opacity .2s;
+    }
+    .back-to-top.visible{opacity:1;pointer-events:auto}
+
+    /* Price comparison */
+    .price-compare-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:8px}
+    .price-compare-card{
+      border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;
+      background:linear-gradient(145deg,rgba(18,26,46,.9),rgba(13,19,33,.85));
+    }
+    .price-compare-card.is-winner{border-color:rgba(74,222,128,.45)}
+    .price-compare-card h4{margin:0 0 10px;font-size:14px}
+    .price-compare-insight{
+      margin-top:12px;padding:10px 12px;border-radius:var(--radius-sm);
+      background:rgba(4,90,205,.1);border:1px solid rgba(59,130,246,.2);
+      font-size:12px;line-height:1.5;color:var(--text-secondary);
+    }
+    .conv-rate-line{display:flex;align-items:flex-end;gap:4px;height:50px;margin-top:8px}
+    .conv-rate-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0}
+    .conv-rate-bar{
+      width:100%;max-width:26px;border-radius:4px 4px 0 0;
+      background:linear-gradient(180deg,rgba(56,189,248,.9),rgba(14,165,233,.5));min-height:4px;
+    }
+
+    /* UTM breakdown */
+    .utm-breakdown-wrap{display:flex;flex-direction:column;gap:16px}
+    .utm-section-title{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:700}
+
+    /* Utmify badges */
+    .badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px}
+    .badge.ok{background:rgba(34,197,94,.2);color:#86efac}
+    .badge.bad{background:rgba(239,68,68,.2);color:#fca5a5}
+    .badge.warn{background:rgba(245,158,11,.2);color:#fde68a}
+
+    /* Health check */
+    .health-summary-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-sm);font-size:12px;flex-wrap:wrap;margin-bottom:20px}
+    .health-summary-bar.all-ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)}
+    .health-summary-bar.has-err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+
+    /* ENV config form */
+    .env-groups{display:flex;flex-direction:column;gap:24px}
+    .env-group{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+    .env-group-head{
+      display:flex;align-items:center;gap:10px;padding:12px 16px;
+      background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);
+      font-size:13px;font-weight:600;
+    }
+    .env-group-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:16px}
+    .env-field label{display:block;font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+    .env-field input,.env-field select{width:100%;margin:0;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .env-field-pw{position:relative}
+    .env-field-pw input{padding-right:36px}
+    .env-field-pw .toggle-pw{
+      position:absolute;right:8px;top:50%;transform:translateY(-50%);
+      background:none;border:none;color:var(--text-muted);cursor:pointer;padding:2px;font-size:14px;
+    }
+
+    /* TX id */
+    .tx-id-wrap{display:inline-flex;align-items:center;gap:4px;max-width:120px}
+    .tx-id{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-family:'JetBrains Mono',monospace}
+    .tx-copy{flex-shrink:0;border:none;background:var(--surface-hover);color:var(--text-muted);border-radius:4px;padding:2px 5px;font-size:10px;cursor:pointer}
+    .tx-copy:hover{color:var(--accent)}
+    code{font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--bg-elevated);padding:2px 5px;border-radius:4px}
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon">🌐</div>
+      <div>
+        <strong>Hub Central</strong>
+        <span>Painel multi-site</span>
+      </div>
+    </div>
+    <h2>Acesso restrito</h2>
+    <p>Digite a senha configurada na variável <code>HUB_SECRET</code> do servidor.</p>
+    <div class="auth-field">
+      <input type="password" id="pwInput" placeholder="Senha de acesso" autocomplete="current-password">
+      <button type="button" class="show-pw" id="showPwBtn" title="Mostrar/ocultar">👁</button>
+    </div>
+    <button type="button" class="btn btn-primary btn-block" id="loginBtn">Entrar no hub</button>
+    <p class="auth-error hidden" id="loginError">Senha incorreta. Verifique a variável HUB_SECRET.</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-row">
+        <div class="brand-icon">🌐</div>
+        <div class="brand-text">
+          <strong>Hub Central</strong>
+          <span id="siteCountLabel">0 sites</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-label">Principal</div>
+    <nav>
+      <button type="button" class="nav-item active" data-nav="hub-overview">
+        <span class="icon">📊</span>
+        Visão geral
+      </button>
+      <button type="button" class="nav-item" data-nav="carteira">
+        <span class="icon">💳</span>
+        Carteira
+      </button>
+    </nav>
+
+    <div class="nav-label" style="margin-top:8px">Sites</div>
+    <nav id="sitesNav">
+      <!-- gerado dinamicamente -->
+    </nav>
+
+    <button type="button" class="sidebar-add-btn" id="addSiteBtn">
+      <span>＋</span> Adicionar site
+    </button>
+
+    <div class="sidebar-footer">
+      <button type="button" class="nav-item" id="logoutBtn">
+        <span class="icon">🚪</span>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="loadingBar" class="loading-bar"></div>
+    <div class="main-inner">
+
+      <!-- HUB OVERVIEW -->
+      <section id="sec-hub-overview" class="section active">
+        <div class="topbar">
+          <div>
+            <h2>Visão Geral</h2>
+            <p id="overviewDesc">Todos os sites monitorados</p>
+          </div>
+          <div class="toolbar">
+            <span id="lastRefreshLabel" class="last-sync">—</span>
+            <select id="overviewPeriod" title="Período" style="font-size:13px;padding:8px 12px">
+              <option value="1">Hoje</option>
+              <option value="7">7 dias</option>
+              <option value="14">14 dias</option>
+              <option value="30">30 dias</option>
+              <option value="60">60 dias</option>
+              <option value="90">90 dias</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="refreshOverviewBtn">↻ Atualizar</button>
+          </div>
+        </div>
+
+        <!-- KPIs totais -->
+        <div id="hubTotalKpis" class="hidden" style="margin-bottom:24px"></div>
+
+        <!-- Cards dos sites -->
+        <div id="hubSitesGrid" class="sites-grid"></div>
+
+        <div id="hubEmptyState" class="empty-hub hidden">
+          <div class="empty-icon">🌐</div>
+          <h3>Nenhum site cadastrado</h3>
+          <p>Clique em "Adicionar site" na barra lateral para começar a monitorar seus projetos.</p>
+          <button type="button" class="btn btn-primary" id="addSiteEmptyBtn">＋ Adicionar primeiro site</button>
+        </div>
+
+        <!-- Gráfico de acesso por hora -->
+        <div id="hubAccessChartWrap" class="hidden" style="margin-bottom:20px">
+          <div style="background:linear-gradient(135deg,#0F1B36 0%,#0a1228 100%);border:1px solid rgba(4,90,205,.25);border-radius:var(--radius);padding:20px 20px 12px;position:relative;overflow:hidden">
+            <!-- Glow decorativo canto superior direito -->
+            <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:#045acd;opacity:.06;pointer-events:none"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;position:relative">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em">Atividade · todos os sites</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px" id="hubChartSubtitle">PIX gerados por hora</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button type="button" id="chartBtnPix" onclick="hubChartMode('pix')" style="font-size:11px;padding:4px 14px;border-radius:999px;border:1px solid rgba(4,90,205,.6);background:rgba(4,90,205,.2);color:#60a5fa;cursor:pointer;font-weight:600;font-family:inherit">PIX</button>
+                <button type="button" id="chartBtnRev" onclick="hubChartMode('rev')" style="font-size:11px;padding:4px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.35);cursor:pointer;font-family:inherit">Receita</button>
+                <button type="button" id="chartBtnVis" onclick="hubChartMode('vis')" style="font-size:11px;padding:4px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:none;color:rgba(255,255,255,.35);cursor:pointer;font-family:inherit">Visitantes</button>
+              </div>
+            </div>
+            <div id="hubAccessChart" style="position:relative"></div>
+          </div>
+        </div>
+
+        <div id="hubRankingSection" class="hub-ranking-grid hidden">
+          <div class="panel">
+            <div class="panel-head"><h3>Ranking por lucro líquido</h3><span>após taxa AnubisPay</span></div>
+            <div id="hubRankingPanel"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Últimos eventos (todos os sites)</h3></div>
+            <div id="hubRecentEvents"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CARTEIRA -->
+      <section id="sec-carteira" class="section">
+        <div class="topbar">
+          <div>
+            <h2>Carteira</h2>
+            <p id="carteiraDesc">AnubisPay · saldo e saques</p>
+          </div>
+          <div class="toolbar">
+            <button type="button" class="btn btn-primary btn-sm" id="carteiraRefreshBtn">↻ Atualizar</button>
+          </div>
+        </div>
+
+        <div id="carteiraContent">
+          <div class="chart-empty" data-empty-type="chart"><strong>Selecione um site para ver a carteira.</strong></div>
+        </div>
+      </section>
+
+      <!-- SITE DETAIL -->
+      <section id="sec-site-detail" class="section">
+        <div class="site-detail-header">
+          <div id="siteDetailIcon" class="site-detail-icon">🌐</div>
+          <div class="site-detail-info">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <strong id="siteDetailName">—</strong>
+              <div id="liveCountBadge" class="hidden" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);font-size:12px;font-weight:600;color:#86efac">
+                <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse .8s ease-in-out infinite;display:inline-block"></span>
+                <span id="liveCountNum">0</span> ao vivo
+              </div>
+            </div>
+            <a id="siteDetailUrl" href="#" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:var(--text-muted);display:inline-flex;align-items:center;gap:4px;text-decoration:none;transition:color .15s" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='var(--text-muted)'">—</a>
+          </div>
+          <div class="toolbar" style="margin-left:auto">
+            <span id="siteDetailStatus" class="status-dot"></span>
+            <select id="siteDetailPeriod" title="Período">
+              <option value="1">Hoje</option>
+              <option value="7">7 dias</option>
+              <option value="30">30 dias</option>
+              <option value="60">60 dias</option>
+              <option value="90">90 dias</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="siteDetailRefreshBtn">↻ Atualizar</button>
+          </div>
+        </div>
+
+        <div class="sub-tabs" id="siteSubTabs">
+          <button class="sub-tab active" data-subtab="overview">📊 Visão geral</button>
+          <button class="sub-tab" data-subtab="campaigns">📣 Campanhas</button>
+          <button class="sub-tab" data-subtab="orders">🛒 Pedidos</button>
+          <button class="sub-tab" data-subtab="upsells">⬆ Upsells</button>
+          <button class="sub-tab" data-subtab="health">🩺 Saúde</button>
+          <button class="sub-tab" data-subtab="config">⚙ Config</button>
+        </div>
+
+        <div id="siteStatsError" class="hidden" style="padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#fca5a5;font-size:13px;margin-bottom:16px"></div>
+
+        <!-- Overview sub-section -->
+        <div id="subsec-overview" class="sub-section active">
+          <div id="siteOverviewKpis" class="kpi-grid"></div>
+
+          <h3 class="section-divider"><span>Atividade</span></h3>
+          <div class="panel panel-muted panel-full">
+            <div class="panel-head"><h3>Últimos eventos</h3><span id="siteLastEventLabel">—</span></div>
+            <div id="siteRecentFeed" class="recent-feed"></div>
+          </div>
+
+          <h3 class="section-divider"><span>Funil</span></h3>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Funil de conversão</h3><span>landing → pago</span></div>
+            <div id="overviewFunnel"></div>
+          </div>
+          <div class="panel-grid two" style="margin-bottom:20px">
+            <div class="panel">
+              <div class="panel-head"><h3>Queda entre etapas</h3><span>abandono no funil</span></div>
+              <div id="funnelDropoffPanel"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Tempo até conversão</h3><span>medianas por sessão</span></div>
+              <div id="conversionTimesPanel"></div>
+            </div>
+          </div>
+
+          <h3 class="section-divider"><span>Análise por hora</span></h3>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Atividade por hora</h3><span>views e pagamentos</span></div>
+            <div class="chart-wrap" id="hourlyActivityChart">
+              <div class="chart-empty" data-empty-type="chart"><strong>Sem dados</strong></div>
+            </div>
+          </div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Conversão PIX por horário</h3><span>PIX gerados vs confirmados</span></div>
+            <div class="chart-wrap" id="pixHourlyConversionChart">
+              <div class="chart-empty" data-empty-type="chart"><strong>Sem dados</strong></div>
+            </div>
+          </div>
+
+          <h3 class="section-divider"><span>Produtos</span></h3>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Comparativo de preços</h3><span>checkout principal</span></div>
+            <div id="mainPriceComparisonPanel">
+              <div class="chart-empty" data-empty-type="chart"><strong>Sem dados</strong></div>
+            </div>
+          </div>
+
+          <h3 class="section-divider"><span>Audiência</span></h3>
+          <div class="panel-grid two" style="margin-bottom:20px">
+            <div class="panel">
+              <div class="panel-head"><h3>Perfil demográfico</h3><span>via CPF</span></div>
+              <div id="demographicsPanel"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Faixa etária — pagos</h3></div>
+              <div id="demographicsPaidChart" class="chart-wrap"></div>
+            </div>
+          </div>
+
+          <h3 class="section-divider"><span>Geo &amp; tráfego</span></h3>
+          <div class="panel-grid two" style="margin-bottom:20px">
+            <div class="panel">
+              <div class="panel-head"><h3>Receita por estado</h3><span>Cloudflare geo</span></div>
+              <div id="revenueByStatePanel" class="country-list"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Top cidades</h3></div>
+              <div id="topCitiesPanel" class="country-list"></div>
+            </div>
+          </div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Performance por landing</h3></div>
+            <div id="landingBaseTable"></div>
+          </div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Fluxo entre páginas</h3></div>
+            <div id="pageFlowPanel"></div>
+          </div>
+
+          <h3 class="section-divider"><span>Ao vivo</span></h3>
+          <div class="panel panel-full">
+            <div class="panel-head"><h3>Visitantes ao vivo</h3></div>
+            <div id="liveVisitorsPanel"></div>
+          </div>
+        </div>
+
+        <!-- Campaigns sub-section -->
+        <div id="subsec-campaigns" class="sub-section">
+          <div id="campaignsKpis" class="kpi-grid"></div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Investimento por campanha (ROAS/CPA)</h3></div>
+            <div id="adSpendPanel"></div>
+          </div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Detalhamento UTM</h3></div>
+            <div id="utmBreakdownPanel"></div>
+          </div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Campanhas</h3><span>clique para filtrar pedidos</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>src</th><th class="num">Sessões</th><th class="num">Landing</th><th class="num">Pedidos</th><th class="num">Receita</th><th class="num">Conv.</th><th class="num">Invest.</th><th class="num">ROAS</th><th class="num">CPA</th></tr></thead>
+                <tbody id="campaignsTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel panel-full">
+            <div class="panel-head"><h3>Webhooks recentes</h3></div>
+            <div id="webhooksPanel"></div>
+          </div>
+        </div>
+
+        <!-- Orders sub-section -->
+        <div id="subsec-orders" class="sub-section">
+          <div id="ordersKpis" class="kpi-grid"></div>
+          <div id="pixPendingAlert" style="margin-bottom:20px"></div>
+          <div class="panel panel-full" style="margin-bottom:20px">
+            <div class="panel-head"><h3>Pedidos pagos</h3><span id="ordersCount">0 pedidos</span></div>
+            <div class="orders-filters">
+              <input type="search" id="ordersSearch" placeholder="Buscar produto, src, transação…">
+              <select id="ordersUtmifyFilter">
+                <option value="all">Utmify: todos</option>
+                <option value="ok">Utmify OK</option>
+                <option value="failed">Utmify com falha</option>
+              </select>
+              <button type="button" class="btn btn-ghost btn-sm" id="exportOrdersBtn">⬇ CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th class="num">#</th><th>Data</th><th>Produto</th><th class="num">Valor</th><th class="num">Idade</th><th>Sexo</th><th>src</th><th>Campanha</th><th>Utmify</th><th>Transação</th></tr></thead>
+                <tbody id="ordersTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel panel-full">
+            <div class="panel-head"><h3>PIX pendentes</h3><span>gerados sem confirmação</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Data</th><th>Produto</th><th class="num">Valor</th><th class="num">Idade</th><th>Sexo</th><th class="num">Tempo PIX</th><th>src</th><th>Utmify</th><th>Transação</th></tr></thead>
+                <tbody id="pixPendingTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upsells sub-section -->
+        <div id="subsec-upsells" class="sub-section">
+          <div id="upsellsKpis" class="kpi-grid"></div>
+          <div class="panel-grid two" style="margin-top:20px;margin-bottom:20px">
+            <div class="panel">
+              <div class="panel-head"><h3>Receita front vs upsell</h3></div>
+              <div id="upsellMixChart" class="chart-wrap"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Top upsells (receita)</h3></div>
+              <div id="upsellTopChart" class="chart-wrap"></div>
+            </div>
+          </div>
+          <div class="panel panel-full">
+            <div class="panel-head"><h3>Funil upsells</h3><span>views · cliques · pagamentos</span></div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th>#</th><th class="num">Views</th><th class="num">Cliques</th><th class="num">Pagos</th><th class="num">Take rate</th><th class="num">Receita</th></tr></thead>
+                <tbody id="upsellsDetailTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Check sub-section -->
+        <div id="subsec-health" class="sub-section">
+          <div class="panel panel-full">
+            <div class="panel-head">
+              <h3>Health check das rotas</h3>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span id="healthLastCheck" style="font-size:11px;color:var(--text-muted)">—</span>
+                <button type="button" class="btn btn-primary btn-sm" id="runHealthCheckBtn">▶ Verificar agora</button>
+              </div>
+            </div>
+            <div id="healthSummaryBar" style="display:none;margin-bottom:16px"></div>
+            <div id="healthCheckResults">
+              <div class="chart-empty" data-empty-type="chart"><strong>Clique em "Verificar agora" para checar as rotas.</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Config sub-section -->
+        <div id="subsec-config" class="sub-section">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;flex-wrap:wrap">
+            <div>
+              <p class="config-section-title">Configurações do site</p>
+              <div class="config-form" id="siteConfigForm">
+                <div>
+                  <label>Nome do site</label>
+                  <input type="text" id="configName" placeholder="Ex: CredPix Empréstimo">
+                </div>
+                <div>
+                  <label>URL da API (base)</label>
+                  <input type="url" id="configApiUrl" placeholder="https://seusite.com">
+                </div>
+                <div>
+                  <label>Token Analytics (<code>ANALYTICS_SECRET</code>)</label>
+                  <input type="password" id="configToken" placeholder="••••••••">
+                </div>
+                <div class="field-row">
+                  <div>
+                    <label>Cor do site</label>
+                    <input type="color" id="configColor" value="#045acd" style="height:42px;padding:4px 6px;cursor:pointer">
+                  </div>
+                  <div>
+                    <label>Ícone (emoji)</label>
+                    <input type="text" id="configIcon" placeholder="💳" maxlength="4">
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary" id="saveConfigBtn">Salvar configurações</button>
+                <button type="button" class="btn btn-danger btn-sm" id="removeSiteBtn">🗑 Remover este site</button>
+                <p id="configSaveMsg" class="hidden" style="font-size:12px;color:#86efac;margin-top:4px"></p>
+              </div>
+            </div>
+            <div>
+              <p class="config-section-title">Pixels Google</p>
+
+              <div style="margin-bottom:14px">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:10px">Conversões Google Ads</div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">
+                  <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:3px">ID da conversão</label><input type="text" id="awId" placeholder="AW-18028205675 ou só o número" autocomplete="off" style="width:100%;margin:0"></div>
+                  <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:3px">Rótulo da conversão</label><input type="text" id="awLabel" placeholder="Bm9ECLyb-lscEOuswpRD" autocomplete="off" style="width:100%;margin:0"></div>
+                  <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:3px">Descrição <span style="color:var(--text-muted)">(opcional)</span></label><input type="text" id="awDesc" placeholder="minha-conta" autocomplete="off" maxlength="80" style="width:100%;margin:0"></div>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm" id="addGadsPixelBtn">＋ Adicionar Google Ads</button>
+              </div>
+
+              <div id="adsPixelList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px"></div>
+
+              <div style="margin-bottom:14px">
+                <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:10px">Google Analytics 4 (opcional)</div>
+                <div><label style="font-size:11px;color:var(--text-secondary);display:block;margin-bottom:3px">Measurement ID</label><input type="text" id="ga4Id" placeholder="G-XXXXXXXXXX" autocomplete="off" style="width:100%;margin:0"></div>
+                <button type="button" class="btn btn-ghost btn-sm" id="addGa4PixelBtn" style="margin-top:8px">＋ Adicionar GA4</button>
+              </div>
+
+              <div id="ga4PixelList" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px"></div>
+
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button type="button" class="btn btn-primary btn-sm" id="savePixelsBtn">💾 Salvar pixels</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="verifyPixelsBtn">🔍 Verificar no site</button>
+              </div>
+              <p id="pixelsSaveMsg" class="hidden" style="font-size:12px;color:#86efac;margin-top:8px"></p>
+              <div id="pixelsVerifyResult" class="hidden" style="margin-top:12px;padding:12px 14px;border-radius:8px;background:rgba(4,90,205,.08);border:1px solid rgba(4,90,205,.2);font-size:11px;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;word-break:break-all"></div>
+              <div style="margin-top:14px;padding:12px 14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;font-size:11px;color:#fde68a;line-height:1.5">
+                ⚠ <strong>Importante:</strong> os pixels só disparam no <code>/pay/checkout.php</code> quando o PIX é confirmado como pago. Não disparam na landing, wizard ou /analise.
+              </div>
+            </div>
+          </div>
+
+          <!-- Chaves & ENV -->
+          <div style="margin-top:28px">
+            <div class="panel panel-full">
+              <div class="panel-head">
+                <h3>Chaves &amp; configuração do servidor</h3>
+                <span id="envFileLabel" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted)"></span>
+              </div>
+              <div id="envConfigForm">
+                <div class="chart-empty" data-empty-type="chart"><strong>Carregando chaves…</strong></div>
+              </div>
+              <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <button type="button" class="btn btn-primary btn-sm" id="saveEnvBtn">💾 Salvar alterações</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="reloadEnvBtn">↻ Recarregar</button>
+                <p id="envSaveMsg" class="hidden" style="font-size:12px;color:#86efac;margin:0"></p>
+                <p id="envErrMsg" class="hidden" style="font-size:12px;color:#fca5a5;margin:0"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+
+    <button type="button" class="back-to-top" id="backToTop">↑</button>
+  </main>
+</div>
+
+<!-- ADD/EDIT SITE MODAL -->
+<div id="addSiteModal" class="modal hidden">
+  <div class="modal-backdrop" id="addSiteBackdrop"></div>
+  <div class="modal-card">
+    <h3>Adicionar site</h3>
+    <p>Preencha os dados do site que deseja monitorar no hub.</p>
+    <div class="modal-form">
+      <div>
+        <label>Nome do site *</label>
+        <input type="text" id="modalName" placeholder="Ex: CredPix Empréstimo">
+      </div>
+      <div>
+        <label>URL base da API *</label>
+        <input type="url" id="modalApiUrl" placeholder="https://seusite.com">
+      </div>
+      <div>
+        <label>Token Analytics (<code>ANALYTICS_SECRET</code>) *</label>
+        <input type="password" id="modalToken" placeholder="••••••••">
+      </div>
+      <div>
+      </div>
+      <div class="row-3">
+        <div>
+          <label>Cor</label>
+          <input type="color" id="modalColor" value="#045acd" style="height:42px;padding:4px 6px;cursor:pointer;width:100%">
+        </div>
+        <div>
+          <label>Ícone (emoji)</label>
+          <input type="text" id="modalIcon" placeholder="💳" maxlength="4">
+        </div>
+        <div>
+          <button type="button" class="btn btn-ghost" id="testConnectionBtn" style="height:42px;width:100%">Testar</button>
+        </div>
+      </div>
+      <div id="testResult" class="hidden"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="cancelAddSiteBtn">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="confirmAddSiteBtn">Adicionar site</button>
+    </div>
+  </div>
+</div>
+
+<!-- Session modal (analytics-panel.js uses this) -->
+<div id="sessionModal" class="modal hidden">
+  <div class="modal-backdrop" id="sessionModalBackdrop"></div>
+  <div class="modal-card" id="sessionModalCard">
+    <button type="button" class="btn btn-ghost btn-sm" id="sessionModalClose" style="float:right">✕ Fechar</button>
+    <h3 id="sessionModalTitle">Sessão</h3>
+    <div id="sessionModalContent"></div>
+  </div>
+</div>
+
+<div id="saleToast" class="sale-toast">
+  <span>💰</span>
+  <span id="saleToastMsg">Nova venda confirmada</span>
+</div>
+
+<script src="analytics-panel.js"></script>
+<script src="hub.js"></script>
+</body>
+</html>

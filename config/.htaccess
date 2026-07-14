@@ -1,5 +1,5 @@
 <IfModule mod_authz_core.c>
-  <FilesMatch "^(site-base\.(js|php)|google-pixels\.json|domains\.json)$">
+  <FilesMatch "^(site-base\.(js|php)|google-pixels\.json|domains\.json|amung-counter\.php)$">
     Require all granted
   </FilesMatch>
   Require all denied

@@ -76,49 +76,8 @@
     d && (d.innerText = d.innerText.replace(/R\$\s?[\d\.,]+/, u));
   });
 
-  (function () {
-    var e =
-      typeof window.credpixStorageKey === "function"
-        ? window.credpixStorageKey("qs_entry")
-        : "__qs_entry__";
-    try {
-      !sessionStorage.getItem(e) &&
-        window.location.search &&
-        sessionStorage.setItem(e, window.location.search);
-    } catch (t) {}
-    var t = location.pathname + (location.search || "") + location.hash;
-    history.replaceState({ backtrap: "root" }, "", t);
-    history.pushState({ backtrap: "guard" }, "");
-    window.addEventListener("popstate", function (t) {
-      var n = t.state || history.state;
-      if (!n || "root" !== n.backtrap) return;
-      var o = "";
-      try {
-        o = sessionStorage.getItem(e) || window.location.search || "";
-      } catch (r) {}
-      var a = "/up/upsell/backredirect.html";
-      if (typeof window.credpixPath === "function") a = window.credpixPath(a);
-      else {
-        var base = "";
-        if (typeof window.credpixGetBasePath === "function") {
-          base = window.credpixGetBasePath();
-        } else {
-          base = (window.CREDPIX_BASE_PATH || "").replace(/\/$/, "");
-        }
-        if (!base && window.CREDPIX_UPSELL_DETECTED_BASE) {
-          base = String(window.CREDPIX_UPSELL_DETECTED_BASE).replace(/\/$/, "");
-        }
-        if (!base) {
-          var m = location.pathname.match(/^(.*)\/up\//);
-          if (m && m[1]) base = m[1];
-        }
-        if (base) a = base + a;
-      }
-      if (window.credpixAppendUtms) a = window.credpixAppendUtms(a);
-      else if (o) a += a.indexOf("?") >= 0 ? "&" + o.replace(/^\?/, "") : o;
-      location.replace(a);
-    });
-  })();
+  /* Backtrap removido — botão voltar do navegador funciona normalmente,
+     redirecionando o usuário para a página anterior real. */
 
   document.addEventListener(
     "contextmenu",

@@ -208,12 +208,13 @@ function credpix_insights_funnel_dropoff(array $funnelCounts, array $wizardSteps
 
     if ($wizardSteps !== []) {
         foreach ($wizardSteps as $ws) {
-            $addRow(
-                'wizard:' . ($ws['step'] ?? 'step'),
-                'Wizard · ' . ($ws['step_label'] ?? $ws['step'] ?? 'Etapa'),
-                (int) ($ws['sessions'] ?? 0),
-                true
-            );
+            $stepLabel = $ws['step_label'] ?? $ws['step'] ?? 'Etapa';
+            $step      = $ws['step'] ?? 'step';
+            /* Evita "Wizard · Wizard" — quando o passo é o próprio wizard genérico */
+            $label = (strtolower($step) === 'wizard' || $stepLabel === 'Wizard')
+                ? 'Wizard'
+                : 'Wizard · ' . $stepLabel;
+            $addRow('wizard:' . $step, $label, (int) ($ws['sessions'] ?? 0), true);
         }
     } else {
         $addRow('wizard', 'Wizard', (int) ($funnelCounts['wizard'] ?? 0));
@@ -664,6 +665,55 @@ function credpix_insights_session_journey_for_days(string $sessionId, int $days)
     $profileMaps = credpix_insights_lead_profile_maps($events);
     $lead = credpix_insights_resolve_lead_profile($first, $profileMaps);
 
+    /* Extrai meta enriquecida dos eventos pix_generated e payment_paid */
+    $mergedMeta = [];
+    $paidAmountFmt = null;
+    $txId = null;
+    foreach ($events as $ev) {
+        $type = $ev['type'] ?? '';
+        if ($type === 'pix_generated' || $type === 'payment_paid') {
+            $evMeta = is_array($ev['meta'] ?? null) ? $ev['meta'] : [];
+            foreach ($evMeta as $k => $v) {
+                if ($v !== null && $v !== '' && !isset($mergedMeta[$k])) {
+                    $mergedMeta[$k] = $v;
+                }
+            }
+            if (!$txId && !empty($evMeta['transaction_id'])) {
+                $txId = (string) $evMeta['transaction_id'];
+            }
+        }
+        if ($type === 'payment_paid' && isset($ev['amount_cents'])) {
+            $paidAmountFmt = 'R$ ' . credpix_format_brl((int) $ev['amount_cents']);
+        }
+    }
+
+    /* Busca dados do cliente no arquivo da transação (nome, CPF, email) */
+    $customerName  = null;
+    $customerDoc   = null;
+    $customerEmail = null;
+    if ($txId) {
+        $tx = credpix_load_tx($txId);
+        if (is_array($tx)) {
+            $payer = is_array($tx['payer'] ?? null) ? $tx['payer'] : $tx;
+            $customerName  = $payer['name']  ?? $tx['name']  ?? null;
+            $customerDoc   = $payer['document'] ?? $payer['taxId'] ?? $tx['document'] ?? null;
+            $customerEmail = $payer['email'] ?? $tx['email'] ?? null;
+            /* Fallback de telefone via tx se meta não trouxe */
+            if (empty($mergedMeta['phone']) && !empty($payer['phone'] ?? $tx['phone'] ?? null)) {
+                $mergedMeta['phone'] = $payer['phone'] ?? $tx['phone'];
+            }
+        }
+    }
+    /* Formata CPF/CNPJ */
+    if ($customerDoc) {
+        $docDigits = preg_replace('/\D/', '', (string) $customerDoc);
+        if (strlen($docDigits) === 11) {
+            $customerDoc = substr($docDigits, 0, 3) . '.' . substr($docDigits, 3, 3) . '.' . substr($docDigits, 6, 3) . '-' . substr($docDigits, 9, 2);
+        } elseif (strlen($docDigits) === 14) {
+            $customerDoc = substr($docDigits, 0, 2) . '.' . substr($docDigits, 2, 3) . '.' . substr($docDigits, 5, 3) . '/' . substr($docDigits, 8, 4) . '-' . substr($docDigits, 12, 2);
+        }
+    }
+
     return [
         'session_id' => $sid,
         'event_count' => count($events),
@@ -673,15 +723,27 @@ function credpix_insights_session_journey_for_days(string $sessionId, int $days)
         'duration_label' => credpix_insights_format_duration($duration),
         'traffic_src' => $first['traffic_src'] ?? null,
         'utm_campaign' => $first['utm_campaign'] ?? null,
+        'utm_medium' => $first['utm_medium'] ?? null,
+        'utm_content' => $first['utm_content'] ?? null,
         'country' => $first['country'] ?? null,
         'city' => $first['city'] ?? null,
         'converted' => $paid !== null,
         'pix_generated' => $pix !== null,
+        'amount_formatted' => $paidAmountFmt,
         'lead_age' => $lead['lead_age'] ?? null,
         'lead_age_band' => $lead['lead_age_band'] ?? null,
         'lead_age_label' => $lead['lead_age_label'] ?? '—',
         'lead_gender' => $lead['lead_gender'] ?? null,
         'lead_gender_label' => $lead['lead_gender_label'] ?? '—',
+        /* Dados do cliente extraídos do meta enriquecido (via pix.php credpix_build_pix_meta) */
+        'customer_name' => $customerName,
+        'customer_document' => $customerDoc,
+        'customer_email' => $customerEmail,
+        'phone' => $mergedMeta['phone'] ?? null,
+        'pix_key' => $mergedMeta['pix_key'] ?? null,
+        'pix_key_type' => $mergedMeta['pix_key_type'] ?? $mergedMeta['tipo_pix'] ?? null,
+        'transaction_id' => $txId,
+        'meta' => $mergedMeta,
         'steps' => $steps,
     ];
 }

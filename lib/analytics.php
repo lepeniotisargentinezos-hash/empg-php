@@ -466,6 +466,10 @@ function credpix_analytics_sanitize_meta(array $meta): array
 {
     $allowed = [
         'transaction_id', 'payment_id', 'source', 'upsell_key', 'upsell', 'field', 'step',
+        /* Dados do cliente/wizard */
+        'value', 'phone', 'pix_key', 'pix_key_type',
+        'valor_emprestimo', 'num_parcelas', 'renda_mensal', 'tipo_renda',
+        'dia_pagamento', 'metodo_pagamento', 'tipo_pix',
     ];
     $out = [];
     $n = 0;
@@ -490,7 +494,7 @@ function credpix_analytics_wizard_step_from_page(string $page): ?string
     if (preg_match('/[?&]step=([^&#]+)/', $page, $m)) {
         return strtolower(urldecode($m[1]));
     }
-    if (preg_match('#/type/wizard/([^/?#]+)#i', $page, $m)) {
+    if (preg_match('!/type/wizard/([^/?#]+)!i', $page, $m)) {
         return strtolower($m[1]);
     }
     return null;
@@ -618,14 +622,31 @@ function credpix_analytics_hourly_merged(array $scanHourly, array $events): arra
     for ($h = 0; $h < 24; $h++) {
         $scanRow = $scanHourly[$h] ?? [];
         $hours[$h] = [
-            'hour' => $h,
-            'label' => str_pad((string) $h, 2, '0', STR_PAD_LEFT) . 'h',
-            'page_views' => (int) ($scanRow['page_views'] ?? 0),
-            'payments' => 0,
+            'hour'         => $h,
+            'label'        => str_pad((string) $h, 2, '0', STR_PAD_LEFT) . 'h',
+            'page_views'   => (int) ($scanRow['page_views'] ?? 0),
+            'pix_generated' => 0,
+            'payments'     => 0,
             'revenue_cents' => 0,
         ];
     }
     $tz = credpix_analytics_tz();
+    $seenPix = [];
+    foreach ($events as $ev) {
+        $type = $ev['type'] ?? '';
+        if ($type === 'pix_generated') {
+            $txId = credpix_analytics_event_tx_id($ev);
+            if ($txId !== '' && isset($seenPix[$txId])) {
+                continue;
+            }
+            if ($txId !== '') {
+                $seenPix[$txId] = true;
+            }
+            $ts = credpix_analytics_ts_to_seconds(isset($ev['ts']) ? (int) $ev['ts'] : null) ?? time();
+            $hi = (int) (new DateTime('@' . $ts))->setTimezone($tz)->format('G');
+            $hours[$hi]['pix_generated']++;
+        }
+    }
     foreach (credpix_analytics_dedupe_payments(array_values(array_filter($events, static fn ($e) => ($e['type'] ?? '') === 'payment_paid'))) as $ev) {
         $ts = credpix_analytics_ts_to_seconds(isset($ev['ts']) ? (int) $ev['ts'] : null) ?? time();
         $hi = (int) (new DateTime('@' . $ts))->setTimezone($tz)->format('G');
@@ -736,7 +757,7 @@ function credpix_analytics_live_enabled(): bool
 /** Eventos que não gravamos nem lemos (ruído / volume alto). */
 function credpix_analytics_noise_event_types(): array
 {
-    return ['heartbeat', 'wizard_step', 'funnel_step'];
+    return ['heartbeat', 'funnel_step'];
 }
 
 function credpix_analytics_is_noise_event_type(?string $type): bool
@@ -1347,7 +1368,7 @@ function credpix_analytics_build_orders(array $events, array $profileMaps = []):
 function credpix_analytics_event_tx_id(array $ev): ?string
 {
     $meta = is_array($ev['meta'] ?? null) ? $ev['meta'] : [];
-    foreach (['transaction_id', 'payment_id', 'masterfy_id'] as $key) {
+    foreach (['transaction_id', 'payment_id', 'masterfy_id', 'anubis_id'] as $key) {
         if (!empty($meta[$key])) {
             return strtolower(trim((string) $meta[$key]));
         }
@@ -2292,14 +2313,19 @@ function credpix_analytics_campaigns(array $events): array
 
 function credpix_analytics_security_status(): array
 {
+    require_once __DIR__ . '/anubis.php';
+    require_once __DIR__ . '/gateway.php';
     $mf = getenv('MASTERFY_API_KEY') ?: '';
     return [
-        'analytics_secret' => credpix_admin_secret() !== '',
-        'webhook_secret' => (getenv('WEBHOOK_SECRET') ?: '') !== '',
-        'open_admin' => credpix_allow_open_admin(),
-        'payment_mock' => getenv('PAYMENT_MOCK') === '1',
-        'cpf_client_direct' => getenv('CPF_CLIENT_DIRECT') === '1',
+        'analytics_secret'   => credpix_admin_secret() !== '',
+        'webhook_secret'     => (getenv('WEBHOOK_SECRET') ?: '') !== '',
+        'open_admin'         => credpix_allow_open_admin(),
+        'payment_mock'       => getenv('PAYMENT_MOCK') === '1',
+        'cpf_client_direct'  => getenv('CPF_CLIENT_DIRECT') === '1',
         'masterfy_configured' => $mf !== '' && $mf !== 'SUA_CHAVE_DE_API',
+        'anubis_configured'  => credpix_anubis_configured(),
+        'active_gateway'     => credpix_active_gateway(),
+        'gateway_configured' => credpix_gateway_configured(),
     ];
 }
 
@@ -2486,6 +2512,8 @@ function credpix_analytics_stats(
             'events' => count($events) + $pageViewCount,
             'page_views' => $pageViewCount,
             'unique_sessions' => $uniqueJourneyCount,
+            'landing_sessions' => $funnelCounts['landing'],
+            'wizard_sessions' => $funnelCounts['wizard'],
             'pix_generated' => $pixGenCount,
             'pix_pending' => count($pixPending),
             'pix_pending_value_cents' => array_sum(array_map(static fn ($p) => (int) ($p['amount_cents'] ?? 0), $pixPending)),
@@ -3017,14 +3045,17 @@ function credpix_analytics_payment_event_exists(string $txId, int $days = 14): b
     return false;
 }
 
-/** Consulta MasterFy e grava payment_paid faltante (sem depender de webhook). */
+/** Consulta gateway ativo e grava payment_paid faltante (sem depender de webhook). */
 function credpix_analytics_reconcile_missing_payments(int $days = 7, int $limit = 40): array
 {
     require_once __DIR__ . '/masterfy.php';
+    require_once __DIR__ . '/anubis.php';
+    require_once __DIR__ . '/gateway.php';
     require_once __DIR__ . '/utmify.php';
 
-    if (!credpix_masterfy_configured()) {
-        return ['ok' => false, 'error' => 'MasterFy não configurado', 'checked' => 0, 'logged' => 0];
+    if (!credpix_gateway_configured()) {
+        $gw = ucfirst(credpix_active_gateway());
+        return ['ok' => false, 'error' => $gw . ' não configurado', 'checked' => 0, 'logged' => 0];
     }
 
     $days = max(1, min(30, $days));
@@ -3078,14 +3109,17 @@ function credpix_analytics_reconcile_missing_payments(int $days = 7, int $limit 
             continue;
         }
 
-        $masterfyId = (string) ($tx['masterfy_id'] ?? $txId);
+        $gwId = credpix_gateway_payment_id_from_tx($tx) ?: $txId;
         try {
-            $payment = credpix_get_payment($masterfyId);
-            $status = credpix_map_status($payment['status'] ?? 'PENDING');
+            $payment = credpix_gateway_get_payment($gwId, $tx);
+            $rawStatus = $payment['status'] ?? $payment['Status'] ?? 'PENDING';
+            $status = credpix_gateway_map_status($rawStatus, $tx);
             if ($status !== 'paid') {
                 continue;
             }
-            $paidAt = credpix_utmify_parse_paid_at($payment['paidAt'] ?? $payment['data']['paidAt'] ?? null);
+            $paidAt = credpix_utmify_parse_paid_at(
+                $payment['paidAt'] ?? $payment['PaidAt'] ?? $payment['data']['paidAt'] ?? null
+            );
             $tx['status'] = 'paid';
             credpix_utmify_on_status_paid($txId, $tx, $paidAt);
             credpix_analytics_log_checkout_paid($txId, $tx);
@@ -3270,6 +3304,16 @@ function credpix_analytics_payment_payload_from_tx(string $txId, array $tx, arra
         return null;
     };
 
+    /* Herda meta do pix_generated (phone, pix_key, dados do wizard) */
+    $inheritedMeta = ['transaction_id' => $txId, 'source' => 'checkout'];
+    if (is_array($pixCtx['meta'] ?? null)) {
+        foreach ($pixCtx['meta'] as $mk => $mv) {
+            if ($mv !== null && $mv !== '' && !isset($inheritedMeta[$mk])) {
+                $inheritedMeta[$mk] = $mv;
+            }
+        }
+    }
+
     return array_merge([
         'type' => 'payment_paid',
         'session_id' => 'pix_' . $txId,
@@ -3289,7 +3333,7 @@ function credpix_analytics_payment_payload_from_tx(string $txId, array $tx, arra
         'region' => $pick('region'),
         'nascimento' => $pick('nascimento'),
         'sexo' => $pick('sexo'),
-        'meta' => ['transaction_id' => $txId, 'source' => 'checkout'],
+        'meta' => $inheritedMeta,
     ], credpix_analytics_first_touch_fields($utms), credpix_lead_sanitize_event_fields(
         credpix_insights_event_lead_fields([
             'lead_age' => $pick('lead_age'),

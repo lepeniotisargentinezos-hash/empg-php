@@ -1,6 +1,12 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Remove /empg prefix — redireciona permanentemente para rota sem prefixo
+  RewriteCond %{REQUEST_URI} ^/empg(/.*)?$
+  RewriteRule ^empg(/.*)?$ $1 [R=301,L]
+
   RewriteRule ^type/api/?(.*)$ type/api/index.php [L,QSA]
+
 </IfModule>
 
 <FilesMatch "^\.env">

@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 try {
     require_once dirname(__DIR__, 2) . '/lib/masterfy.php';
+    require_once dirname(__DIR__, 2) . '/lib/anubis.php';
+    require_once dirname(__DIR__, 2) . '/lib/gateway.php';
     require_once dirname(__DIR__, 2) . '/lib/lead-profile.php';
+    require_once dirname(__DIR__, 2) . '/lib/wizard-api.php';
+    credpix_load_env();
 } catch (Throwable $e) {
     http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
@@ -17,6 +21,38 @@ $raw = file_get_contents('php://input') ?: '';
 $body = json_decode($raw, true);
 if (!is_array($body)) {
     $body = [];
+}
+
+/** Extrai meta enriquecida do wizard_session + payer para o evento pix_generated */
+function credpix_build_pix_meta(string $txId, array $body, array $payer): array
+{
+    $wz    = is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : [];
+    $phone = $payer['phone'] ?? $wz['telefone'] ?? $wz['phone'] ?? null;
+    $phone = $phone ? preg_replace('/\D/', '', (string) $phone) : null;
+
+    $meta = ['transaction_id' => $txId];
+
+    /* Telefone */
+    if ($phone) $meta['phone'] = $phone;
+
+    /* Dados do wizard */
+    $wizardFields = [
+        'valor_emprestimo', 'num_parcelas', 'renda_mensal',
+        'tipo_renda', 'dia_pagamento', 'metodo_pagamento',
+        'tipo_pix', 'pix',
+    ];
+    foreach ($wizardFields as $f) {
+        if (isset($wz[$f]) && $wz[$f] !== '' && $wz[$f] !== null) {
+            $meta[$f === 'pix' ? 'pix_key' : $f] = substr((string) $wz[$f], 0, 256);
+        }
+    }
+
+    /* Mapeia tipo_pix → pix_key_type se não vier explícito */
+    if (isset($meta['tipo_pix'])) {
+        $meta['pix_key_type'] = $meta['tipo_pix'];
+    }
+
+    return $meta;
 }
 
 function credpix_payer_from_request(array $body): ?array
@@ -110,6 +146,47 @@ if ($action === 'generate') {
     }
     credpix_set_payer_cookies($payer);
 
+    /* Merge wizard_session: body (localStorage) + $_SESSION (backend) */
+    $bodyWz = is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : [];
+    $serverWzData = [];
+    $sessionError = null;
+    try {
+        $serverWz = credpix_wizard_session();
+        if (!empty($serverWz['data']) && is_array($serverWz['data'])) {
+            $serverWzData = $serverWz['data'];
+            $bodyWz = array_merge($serverWzData, $bodyWz);
+        }
+    } catch (Throwable $e) {
+        $sessionError = $e->getMessage();
+    }
+    $body['wizard_session'] = $bodyWz;
+
+    /* Debug log — remova depois de testar */
+    try {
+        $logDir = credpix_root() . '/data/analytics';
+        if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
+        @file_put_contents(
+            $logDir . '/pix-generate-debug.log',
+            date('Y-m-d H:i:s') . ' [PIX] ' . json_encode([
+                'body_wizard_keys'   => array_keys(is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : []),
+                'body_wizard_incoming' => is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : null,
+                'server_session_data' => $serverWzData,
+                'server_session_error' => $sessionError,
+                'merged_wizard' => $bodyWz,
+                'session_id' => session_id() ?: null,
+                'cookies' => array_keys($_COOKIE),
+                'payer_phone_after' => $payer['phone'] ?? null,
+            ], JSON_UNESCAPED_UNICODE) . "\n",
+            FILE_APPEND | LOCK_EX
+        );
+    } catch (Throwable $e) { /* ignora */ }
+
+    /* Se payer não trouxe phone, pega do wizard mergeado */
+    if (empty($payer['phone']) || $payer['phone'] === '11999999999') {
+        $wzPhoneNow = $bodyWz['telefone'] ?? $bodyWz['phone'] ?? null;
+        if ($wzPhoneNow) $payer['phone'] = $wzPhoneNow;
+    }
+
     $leadInput = is_array($body['lead'] ?? null) ? $body['lead'] : $body;
     $leadMeta = credpix_lead_meta_fields($leadInput);
     $leadFields = credpix_lead_sanitize_event_fields(credpix_lead_profile_from_event($leadInput));
@@ -125,11 +202,12 @@ if ($action === 'generate') {
 
     require_once dirname(__DIR__, 2) . '/lib/security.php';
     $useMock = getenv('PAYMENT_MOCK') === '1';
-    if (!$useMock && !credpix_masterfy_configured()) {
+    if (!$useMock && !credpix_gateway_configured()) {
         if (credpix_is_production()) {
+            $gwName = ucfirst(credpix_active_gateway());
             credpix_json(200, [
                 'success' => false,
-                'error' => 'Pagamentos indisponíveis (MasterFy não configurado).',
+                'error' => 'Pagamentos indisponíveis (' . $gwName . ' não configurado).',
             ]);
         }
         $useMock = true;
@@ -175,7 +253,7 @@ if ($action === 'generate') {
                 'utm_source' => is_array($body['utms'] ?? null) ? ($body['utms']['utm_source'] ?? null) : null,
                 'utm_medium' => is_array($body['utms'] ?? null) ? ($body['utms']['utm_medium'] ?? null) : null,
                 'utm_campaign' => is_array($body['utms'] ?? null) ? ($body['utms']['utm_campaign'] ?? null) : null,
-                'meta' => ['transaction_id' => $txId, 'mock' => true],
+                'meta' => array_merge(credpix_build_pix_meta($txId, $body, $payer), ['mock' => true]),
             ], credpix_analytics_first_touch_fields(is_array($body['utms'] ?? null) ? $body['utms'] : null), $leadCtx, $clientGeo));
             credpix_json(200, [
                 'success' => true,
@@ -189,15 +267,23 @@ if ($action === 'generate') {
             ]);
         }
 
-        $created = credpix_create_pix_payment(
+        $created = credpix_gateway_create_pix(
             $productId,
             $payer,
-            $body['device_hash'] ?? null
+            $body['device_hash'] ?? null,
+            [
+                'wizard_session' => $body['wizard_session'] ?? [],
+                'utms'           => is_array($body['utms'] ?? null) ? $body['utms'] : [],
+                'lead'           => is_array($body['lead'] ?? null) ? $body['lead'] : $leadCtx,
+            ]
         );
-        $paymentId = (string) $created['payment_id'];
+        $paymentId     = (string) $created['payment_id'];
+        $activeGateway = $created['gateway'] ?? credpix_active_gateway();
         require_once dirname(__DIR__, 2) . '/lib/utmify.php';
         $txData = credpix_utmify_tx_context($payer, $body, $productId, (int) $created['amount_cents'], array_merge([
-            'masterfy_id' => $paymentId,
+            'gateway'     => $activeGateway,
+            'masterfy_id' => $activeGateway === 'masterfy' ? $paymentId : null,
+            'anubis_id'   => $activeGateway === 'anubis'   ? $paymentId : null,
             'status' => 'pending',
             'pix_code' => $created['qr_code'],
             'production' => true,
@@ -223,7 +309,7 @@ if ($action === 'generate') {
             'utm_source' => is_array($body['utms'] ?? null) ? ($body['utms']['utm_source'] ?? null) : null,
             'utm_medium' => is_array($body['utms'] ?? null) ? ($body['utms']['utm_medium'] ?? null) : null,
             'utm_campaign' => is_array($body['utms'] ?? null) ? ($body['utms']['utm_campaign'] ?? null) : null,
-            'meta' => ['transaction_id' => $paymentId],
+            'meta' => credpix_build_pix_meta($paymentId, $body, $payer),
         ], credpix_analytics_first_touch_fields(is_array($body['utms'] ?? null) ? $body['utms'] : null), $leadCtx, $clientGeo));
         credpix_json(200, [
             'success' => true,
@@ -281,13 +367,17 @@ if ($action === 'status') {
         }
         credpix_json(200, ['success' => true, 'status' => 'pending']);
     }
-    if (!empty($tx['masterfy_id']) && credpix_masterfy_configured()) {
+    $txGatewayId = credpix_gateway_payment_id_from_tx($tx);
+    if ($txGatewayId !== '' && credpix_gateway_configured()) {
         try {
-            $payment = credpix_get_payment($tx['masterfy_id']);
-            $status = credpix_map_status($payment['status'] ?? 'PENDING');
+            $payment   = credpix_gateway_get_payment($txGatewayId, $tx);
+            $rawStatus = (string) ($payment['status'] ?? $payment['Status'] ?? 'PENDING');
+            $status    = credpix_gateway_map_status($rawStatus, $tx);
             $tx['status'] = $status;
             if ($status === 'paid') {
-                $paidAt = credpix_utmify_parse_paid_at($payment['paidAt'] ?? $payment['data']['paidAt'] ?? null);
+                $paidAt = credpix_utmify_parse_paid_at(
+                    $payment['paidAt'] ?? $payment['PaidAt'] ?? $payment['data']['paidAt'] ?? null
+                );
                 credpix_utmify_on_status_paid($txId, $tx, $paidAt);
                 credpix_analytics_log_checkout_paid($txId, $tx);
             }

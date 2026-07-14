@@ -4,11 +4,8 @@ declare(strict_types=1);
 function credpix_google_pixels_defaults(): array
 {
     return [
-        'googleAds' => [
-            ['id' => 'AW-18039024616', 'label' => 'hKx2CIeUgI8cEOjX1plD', 'description' => '1315'],
-            ['id' => 'AW-830291866', 'label' => 'FlGnCIW26bUcEJr_9IsD', 'description' => 'Gustavo'],
-        ],
-        'ga4' => [],
+        'googleAds' => [],
+        'ga4'       => [],
     ];
 }
 

@@ -124,7 +124,7 @@ function credpix_masterfy_public_name(string $productId, array $product): string
     return 'ID: ' . (string) random_int(10000000, 99999999);
 }
 
-function credpix_create_pix_payment(string $productId, array $payer, ?string $deviceHash = null): array
+function credpix_create_pix_payment(string $productId, array $payer, ?string $deviceHash = null, array $context = []): array
 {
     $products = credpix_products();
     if (!isset($products[$productId])) {
@@ -139,13 +139,75 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
     $externalRef = $productId . '_' . ($deviceHash ?: 'web') . '_' . time();
     $publicName = credpix_masterfy_public_name($productId, $product);
 
+    /* Extrai contexto enriquecido */
+    $wizardSession = is_array($context['wizard_session'] ?? null) ? $context['wizard_session'] : [];
+    $utms          = is_array($context['utms'] ?? null) ? $context['utms'] : [];
+    $lead          = is_array($context['lead'] ?? null) ? $context['lead'] : [];
+
+    /* Metadata TUDO em português */
     $innerMeta = [
-        'provider_name'      => 'CredPix',
-        'external_code'      => $externalRef,
-        'step'               => (string) ($product['step'] ?? (credpix_product_is_upsell($productId) ? 'upsell' : 'main')),
+        'prestador'          => 'CredPix',
+        'codigo_externo'     => $externalRef,
+        'etapa'              => (string) ($product['step'] ?? (credpix_product_is_upsell($productId) ? 'upsell' : 'principal')),
         'nome_produto'       => (string) ($product['name'] ?? $publicName),
         'referencia_produto' => (string) ($product['ref']  ?? $productId),
     ];
+
+    /* Enriquece com wizard */
+    $valorEmp = null;
+    if (isset($wizardSession['valor_emprestimo']) && $wizardSession['valor_emprestimo'] !== '') {
+        $vRaw = str_replace(',', '.', preg_replace('/[^\d,.]/', '', (string) $wizardSession['valor_emprestimo']));
+        $valorEmp = is_numeric($vRaw) ? (float) $vRaw : null;
+    }
+    $numParc = null;
+    if (isset($wizardSession['num_parcelas']) && $wizardSession['num_parcelas'] !== '') {
+        $numParc = (int) preg_replace('/\D/', '', (string) $wizardSession['num_parcelas']);
+        if ($numParc <= 0) $numParc = null;
+    }
+    if ($valorEmp !== null) $innerMeta['valor_emprestimo'] = 'R$ ' . number_format($valorEmp, 2, ',', '.');
+    if ($numParc !== null)  $innerMeta['num_parcelas']     = (string) $numParc . 'x';
+    if ($valorEmp !== null && $numParc !== null) {
+        $innerMeta['valor_parcela'] = 'R$ ' . number_format($valorEmp / $numParc, 2, ',', '.');
+        $innerMeta['valor_total']   = 'R$ ' . number_format($valorEmp, 2, ',', '.');
+    }
+    if (isset($wizardSession['dia_pagamento']) && $wizardSession['dia_pagamento'] !== '') {
+        $innerMeta['dia_vencimento'] = (string) $wizardSession['dia_pagamento'];
+        try {
+            $dia = (int) preg_replace('/\D/', '', (string) $wizardSession['dia_pagamento']);
+            if ($dia >= 1 && $dia <= 31) {
+                $nm = new DateTime('now');
+                $nm->modify('+1 month')->setDate((int) $nm->format('Y'), (int) $nm->format('n'), $dia);
+                $innerMeta['primeira_parcela'] = $nm->format('d/m/Y');
+            }
+        } catch (Throwable $e) {}
+    }
+    if (isset($wizardSession['pix']) && $wizardSession['pix'] !== '') {
+        $innerMeta['chave_pix'] = substr((string) $wizardSession['pix'], 0, 255);
+    }
+    if (isset($wizardSession['tipo_pix']) && $wizardSession['tipo_pix'] !== '') {
+        $innerMeta['tipo_pix'] = (string) $wizardSession['tipo_pix'];
+    }
+    if (isset($wizardSession['metodo_pagamento']) && $wizardSession['metodo_pagamento'] !== '') {
+        $innerMeta['metodo_pagamento'] = (string) $wizardSession['metodo_pagamento'];
+    }
+    if (isset($wizardSession['renda_mensal']) && $wizardSession['renda_mensal'] !== '') {
+        $rRaw = str_replace(',', '.', preg_replace('/[^\d,.]/', '', (string) $wizardSession['renda_mensal']));
+        if (is_numeric($rRaw)) $innerMeta['renda_mensal'] = 'R$ ' . number_format((float) $rRaw, 2, ',', '.');
+    }
+    if (isset($wizardSession['tipo_renda']) && $wizardSession['tipo_renda'] !== '') {
+        $innerMeta['tipo_renda'] = (string) $wizardSession['tipo_renda'];
+    }
+    if (isset($wizardSession['telefone']) && $wizardSession['telefone'] !== '') {
+        $innerMeta['telefone'] = preg_replace('/\D/', '', (string) $wizardSession['telefone']);
+    }
+    /* Rastreio (UTMs em português) */
+    if (isset($utms['src']) && $utms['src'] !== '')          $innerMeta['origem']   = substr((string) $utms['src'], 0, 255);
+    if (isset($utms['utm_source']) && $utms['utm_source'] !== '')     $innerMeta['fonte']    = substr((string) $utms['utm_source'], 0, 255);
+    if (isset($utms['utm_medium']) && $utms['utm_medium'] !== '')     $innerMeta['meio']     = substr((string) $utms['utm_medium'], 0, 255);
+    if (isset($utms['utm_campaign']) && $utms['utm_campaign'] !== '') $innerMeta['campanha'] = substr((string) $utms['utm_campaign'], 0, 255);
+    if (isset($utms['utm_content']) && $utms['utm_content'] !== '')   $innerMeta['conteudo'] = substr((string) $utms['utm_content'], 0, 255);
+    if (isset($utms['utm_term']) && $utms['utm_term'] !== '')         $innerMeta['termo']    = substr((string) $utms['utm_term'], 0, 255);
+
     $masterfyMetadata = [
         'provider' => 'CredPix',
         'orderId'  => $externalRef,
@@ -170,7 +232,7 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
             'name'  => $payer['name'] ?? 'Cliente',
             'taxId' => $taxId,
             'email' => $payer['email'] ?? 'cliente@email.com',
-            'phone' => '+55' . preg_replace('/\D/', '', (string) ($payer['phone'] ?? '11999999999')),
+            'phone' => '+55' . preg_replace('/\D/', '', (string) ($payer['phone'] ?? $wizardSession['telefone'] ?? $wizardSession['phone'] ?? '11999999999')),
         ],
         'items'    => [[
             'quantity' => 1,

@@ -14,10 +14,10 @@ function credpix_amung_code(string $slot): string
         default => '',
     };
     $fallback = match ($slot) {
-        'funil', 'funnel' => 'emnads233310',
-        'checkout' => 'emnads233311',
-        'upsell' => 'emnads233312',
-        default => 'emnads233311',
+        'funil', 'funnel' => '',
+        'checkout' => '',
+        'upsell' => '',
+        default => '',
     };
     if ($envKey === '') {
         return $fallback;

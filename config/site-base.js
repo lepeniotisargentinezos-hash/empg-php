@@ -231,11 +231,24 @@
     );
   }
 
+  function clearAllLocks() {
+    try {
+      var toRemove = [];
+      for (var k = 0; k < win.sessionStorage.length; k++) {
+        var sk = win.sessionStorage.key(k);
+        if (sk && sk.indexOf(LOCK_PREFIX) === 0) toRemove.push(sk);
+      }
+      for (var r = 0; r < toRemove.length; r++) win.sessionStorage.removeItem(toRemove[r]);
+    } catch (e) {}
+  }
+
   function resolveBasePath() {
     var pathname = win.location && win.location.pathname ? win.location.pathname : '';
     var preset = win.CREDPIX_BASE_PATH;
-    if (preset !== undefined && preset !== null && preset !== '' && preset !== 'auto') {
+    /* preset definido explicitamente (inclusive '' para root) */
+    if (preset !== undefined && preset !== null && preset !== 'auto') {
       var forced = normalizeBase(preset);
+      clearAllLocks();   /* limpa locks antigos de /empg ou outros */
       writeLock(forced);
       return forced;
     }

@@ -17,4 +17,9 @@ if (!in_array($slot, ['funil', 'funnel', 'checkout', 'upsell'], true)) {
 }
 
 $code = credpix_amung_code($slot);
+// Retorna JS vazio se não configurado (evita erros no browser)
+if ($code === '') {
+    echo "window.CREDPIX_VIEW_COUNTER_CODE='';\n";
+    exit;
+}
 echo 'window.CREDPIX_VIEW_COUNTER_CODE=' . json_encode($code, JSON_UNESCAPED_SLASHES) . ";\n";

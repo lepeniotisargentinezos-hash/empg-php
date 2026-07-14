@@ -222,9 +222,38 @@ $amungCheckout = credpix_amung_code('checkout');
         // O preco e buscado do banco pelo backend, nao pode ser alterado pelo cliente
         // SEGURANCA: Usar json_encode com flags anti-XSS para injetar dados no JS
         const _produtoParam = new URLSearchParams(window.location.search).get('produto');
+
+        // Mapa: produto pago → próximo upsell (ou obrigado no fim)
+        // Cada upX vai pro upX+1. Só o último (up20) vai pro obrigado.
+        const UPSELL_FLOW = {
+            'prod_698630abcbdde': '/up/upsell/up1.html',   // Principal → Up1
+            'prod_698630b497231': '/up/upsell/up2.html',   // Up1  → Up2
+            'prod_698630bd7f9da': '/up/upsell/up3.html',   // Up2  → Up3
+            'prod_698630c55ec79': '/up/upsell/up4.html',   // Up3  → Up4
+            'prod_698630ccf2e75': '/up/upsell/up5.html',   // Up4  → Up5
+            'prod_698630d77a0fa': '/up/upsell/up6.html',   // Up5  → Up6
+            'prod_698630dfecd3d': '/up/upsell/up7.html',   // Up6  → Up7
+            'prod_698630e72dede': '/up/upsell/up8.html',   // Up7  → Up8
+            'prod_698630eebfb78': '/up/upsell/up9.html',   // Up8  → Up9
+            'prod_698630f633cec': '/up/upsell/up10.html',  // Up9  → Up10
+            'prod_698630ff20897': '/up/upsell/up11.html',  // Up10 → Up11
+            'prod_69863107b709d': '/up/upsell/up12.html',  // Up11 → Up12
+            'prod_698631105cc74': '/up/upsell/up13.html',  // Up12 → Up13
+            'prod_6986311823cf5': '/up/upsell/up14.html',  // Up13 → Up14
+            'prod_698631218da01': '/up/upsell/up15.html',  // Up14 → Up15
+            'prod_69863128c6fb7': '/up/upsell/up16.html',  // Up15 → Up16
+            'prod_6986313159696': '/up/upsell/up17.html',  // Up16 → Up17
+            'prod_6986313997fb8': '/up/upsell/up18.html',  // Up17 → Up18
+            'prod_69863146b1a52': '/up/upsell/up19.html',  // Up18 → Up19
+            'prod_6986313fbc20c': '/up/upsell/up20.html',  // Up19 → Up20
+            'prod_6986314e1cdab': '/up/obrigado.html',     // Up20 → Obrigado (fim)
+        };
+        const _prodId = _produtoParam || 'prod_698630abcbdde';
+        const _nextUrl = UPSELL_FLOW[_prodId] || '/up/obrigado.html';
+        /* URL relativa (sem base) — o base_path é aplicado no paymentConfirmed */
         const product = {
-            id: _produtoParam || 'prod_698630abcbdde',
-            upsell_url: (window.credpixPath ? window.credpixPath('/up/obrigado.html') : '/up/obrigado.html')
+            id: _prodId,
+            upsell_url: _nextUrl
         };
         const testMode = false;
         const linkSlug = null;
@@ -684,17 +713,30 @@ $amungCheckout = credpix_amung_code('checkout');
             }
 
             setTimeout(() => {
-                const utms = getUTMs();
-                let url = upsellUrl;
-                if (window.credpixPath) url = window.credpixPath(url);
-                if (window.credpixAppendUtms) url = window.credpixAppendUtms(url);
-                else if (Object.keys(utms).length) {
-                    url += (url.includes('?') ? '&' : '?') + new URLSearchParams(utms).toString();
-                }
-                if (window.top !== window) {
-                    window.top.location.href = url;
-                } else {
+                try {
+                    const utms = getUTMs();
+                    let url = upsellUrl || '/up/obrigado.html';
+                    if (window.credpixPath) url = window.credpixPath(url);
+                    if (window.credpixAppendUtms) url = window.credpixAppendUtms(url);
+                    else if (Object.keys(utms).length) {
+                        url += (url.includes('?') ? '&' : '?') + new URLSearchParams(utms).toString();
+                    }
+                    console.log('[CredPix] Redirecionando para upsell:', url);
+
+                    /* Se estiver em iframe cross-origin, window.top pode lançar exceção */
+                    try {
+                        if (window.top && window.top !== window) {
+                            window.top.location.href = url;
+                            return;
+                        }
+                    } catch (e) {
+                        /* fallback abaixo */
+                    }
                     window.location.href = url;
+                } catch (err) {
+                    console.error('[CredPix] Erro no redirect:', err);
+                    /* último fallback — força redirect mesmo sem UTMs */
+                    window.location.href = upsellUrl || '/up/obrigado.html';
                 }
             }, 2000);
         }
