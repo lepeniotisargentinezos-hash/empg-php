@@ -5,16 +5,18 @@
 *.env.backup
 config/cpf-token.js
 
-# ─── Runtime (mantém data/ no repo, mas ignora locks/rate-limit) ──
-data/rate-limit/
-data/.cache-*
+# ─── Runtime (persistido via volume Docker no EasyPanel) ────
+data/
+!data/.gitkeep
+hub-server/data/
+!hub-server/data/.gitkeep
 hub-server/.env
 
-# ─── Logs (só error logs, não os JSONL de analytics) ────
+# ─── Logs ────────────────────────────────────────────────
 api/error_log
 *.error_log
 error_log
-data/analytics/*.log
+*.log
 
 # ─── Node ─────────────────────────────────────────────────
 node_modules/

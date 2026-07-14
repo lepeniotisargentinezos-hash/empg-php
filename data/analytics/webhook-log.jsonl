@@ -1,5 +1,0 @@
-{"ts":1783893422627,"payment_id":"8093592e362d41d6b8d7eb26c290cb10","status":"paid","signature_valid":true,"verify_method":"local_tx","ok":true,"gateway":"anubis"}
-{"ts":1783893454065,"payment_id":"f345f4adf0fa41e2b4e67f8aa7681470","status":"paid","signature_valid":true,"verify_method":"local_tx","ok":true,"gateway":"anubis"}
-{"ts":1783893730554,"payment_id":"f345f4adf0fa41e2b4e67f8aa7681470","status":"paid","signature_valid":true,"verify_method":"local_tx","ok":true,"gateway":"anubis"}
-{"ts":1783893733509,"payment_id":"8093592e362d41d6b8d7eb26c290cb10","status":"paid","signature_valid":true,"verify_method":"local_tx","ok":true,"gateway":"anubis"}
-{"ts":1783894099687,"payment_id":"c0fd3a3360154d4184c3c37f009ba0cf","status":"paid","signature_valid":true,"ok":true}
