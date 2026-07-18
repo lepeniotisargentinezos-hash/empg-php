@@ -49,10 +49,38 @@ function resolvePublicOrigin(req) {
   return `${proto}://${host}`.replace(/\/$/, '');
 }
 
+function normalizeHost(raw) {
+  let host = String(raw || '').split(',')[0].trim().toLowerCase();
+  if (host.includes(':')) host = host.split(':')[0];
+  if (host.startsWith('www.')) host = host.slice(4);
+  return host.replace(/[^a-z0-9.-]/g, '');
+}
+
+function siteContext(req) {
+  const headers = (req && req.headers) || {};
+  const host = normalizeHost(headers['x-forwarded-host'] || headers.host || '');
+  const origin = resolvePublicOrigin(req);
+  const configured = String(process.env.SITE_ID || '').trim().toLowerCase();
+  const siteId = (configured || host || 'unknown').replace(/[^a-z0-9._-]/g, '-').slice(0, 96);
+  return {
+    site_id: siteId,
+    site_host: host.slice(0, 128),
+    site_origin: origin.slice(0, 255),
+  };
+}
+
 /** Subpasta do funil (ex. /funil) quando não está na raiz do domínio. */
 function detectBasePath(pathname) {
   const env = normalizeBasePath(process.env.BASE_PATH || '');
   if (env) return env;
+
+  if (pathname === '/analise' || pathname.startsWith('/analise/')) {
+    return '';
+  }
+  const analiseRoute = pathname.match(/^(.*)\/analise(?:\/|\/index\.html)?$/);
+  if (analiseRoute) {
+    return normalizeBasePath(analiseRoute[1] || '');
+  }
 
   for (const marker of ROUTE_MARKERS) {
     const idx = pathname.indexOf(marker);
@@ -67,7 +95,7 @@ function detectBasePath(pathname) {
     return fromIndex[1];
   }
 
-  const INTERNAL_PREFIXES = ['/type/', '/pay/', '/up/', '/admin/', '/api/', '/js/', '/css/', '/config/', '/images/', '/a/'];
+  const INTERNAL_PREFIXES = ['/type/', '/pay/', '/up/', '/admin/', '/api/', '/js/', '/css/', '/config/', '/images/', '/a/', '/analise/'];
   const isInternal = (p) => INTERNAL_PREFIXES.some((prefix) => p.startsWith(prefix));
 
   const rel = pathname.replace(/^\//, '').replace(/\/$/, '');
@@ -114,4 +142,5 @@ module.exports = {
   detectBasePath,
   stripBasePath,
   withBasePath,
+  siteContext,
 };

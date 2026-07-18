@@ -74,6 +74,51 @@ function credpix_public_base_url(): string
     return $proto . '://' . trim($host);
 }
 
+function credpix_request_host_normalized(): string
+{
+    $host = (string) ($_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? '');
+    $host = explode(',', $host)[0];
+    $host = strtolower(trim($host));
+    if (strpos($host, ':') !== false) {
+        $host = explode(':', $host)[0];
+    }
+    if (strpos($host, 'www.') === 0) {
+        $host = substr($host, 4);
+    }
+    return preg_replace('/[^a-z0-9.-]/', '', $host) ?: '';
+}
+
+/** Identidade estável do site para separar vendas entre domínios com o mesmo gateway. */
+function credpix_site_context(): array
+{
+    credpix_load_env();
+    $host = credpix_request_host_normalized();
+    $origin = credpix_public_base_url();
+    $siteId = trim((string) (getenv('SITE_ID') ?: ''));
+    if ($siteId === '') {
+        $siteId = $host !== '' ? $host : parse_url($origin, PHP_URL_HOST);
+    }
+    $siteId = strtolower((string) $siteId);
+    $siteId = preg_replace('/[^a-z0-9._-]/', '-', $siteId) ?: 'unknown';
+    return [
+        'site_id' => substr($siteId, 0, 96),
+        'site_host' => substr($host, 0, 128),
+        'site_origin' => substr(rtrim($origin, '/'), 0, 255),
+    ];
+}
+
+function credpix_origin_matches_site_context(array $local, array $remote): bool
+{
+    foreach (['site_id', 'site_host'] as $key) {
+        $expected = strtolower(trim((string) ($local[$key] ?? '')));
+        $actual = strtolower(trim((string) ($remote[$key] ?? '')));
+        if ($expected !== '' && $actual !== '' && $expected !== $actual) {
+            return false;
+        }
+    }
+    return true;
+}
+
 /** Subpasta do funil (/empa, /empa2) — .env BASE_PATH ou inferido do SCRIPT_NAME. */
 function credpix_app_base_path(): string
 {

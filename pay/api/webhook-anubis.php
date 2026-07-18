@@ -50,6 +50,43 @@ if ($paymentId === '') {
 
 $existing = credpix_load_tx($paymentId);
 
+if (!$existing) {
+    credpix_webhook_log_append([
+        'payment_id'      => $paymentId,
+        'status'          => 'ignored_unknown_transaction',
+        'signature_valid' => false,
+        'verify_method'   => 'local_tx',
+        'ok'              => true,
+        'gateway'         => 'anubis',
+    ]);
+    credpix_json(200, ['received' => true, 'gateway' => 'anubis', 'ignored' => true]);
+}
+
+$remoteMeta = [];
+foreach ([
+    $body['metadata'] ?? null,
+    $body['Metadata'] ?? null,
+    $body['data']['metadata'] ?? null,
+    $body['Data']['Metadata'] ?? null,
+] as $candidate) {
+    if (is_array($candidate)) {
+        $remoteMeta = $candidate;
+        break;
+    }
+}
+
+if ($remoteMeta !== [] && !credpix_origin_matches_site_context($existing, $remoteMeta)) {
+    credpix_webhook_log_append([
+        'payment_id'      => $paymentId,
+        'status'          => 'ignored_site_mismatch',
+        'signature_valid' => false,
+        'verify_method'   => 'site_metadata',
+        'ok'              => true,
+        'gateway'         => 'anubis',
+    ]);
+    credpix_json(200, ['received' => true, 'gateway' => 'anubis', 'ignored' => true]);
+}
+
 credpix_webhook_log_append([
     'payment_id'      => $paymentId,
     'status'          => $status,
@@ -60,7 +97,7 @@ credpix_webhook_log_append([
 ]);
 
 if ($paymentId !== '') {
-    $tx = array_merge($existing ?? [], [
+    $tx = array_merge($existing, [
         'anubis_id' => $paymentId,
         'gateway'   => 'anubis',
         'status'    => $status,

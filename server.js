@@ -410,6 +410,7 @@ async function generatePixMock(productId, body, req) {
     email: body.email || 'cliente@email.com',
     phone: body.phone || '11999999999',
   };
+  const siteCtx = requestContext.siteContext(req);
   const txData = utmify.txContext(payer, body, productId, amountCents, {
     status: 'pending',
     pix_code: pixCode,
@@ -417,6 +418,10 @@ async function generatePixMock(productId, body, req) {
     production: false,
     client_ip: utmify.clientIp(req),
     created: Math.floor(Date.now() / 1000),
+    device_hash: body.device_hash ? String(body.device_hash).slice(0, 64) : null,
+    base_path: body.base_path ? String(body.base_path).slice(0, 32) : null,
+    browser_session_id: body.analytics_session_id ? String(body.analytics_session_id).slice(0, 64) : null,
+    ...siteCtx,
   });
 
   savePixTransaction(txId, txData);
@@ -465,10 +470,12 @@ async function generatePixAnubis(req, body, sessionData) {
     return PLACEHOLDER_PHONE;
   };
 
+  const siteCtx = requestContext.siteContext(req);
   const created = await anubis.createPixPayment({
     req,
     productId,
     deviceHash: body.device_hash,
+    site: siteCtx,
     payer: {
       name: body.name,
       document: body.document,
@@ -493,6 +500,10 @@ async function generatePixAnubis(req, body, sessionData) {
     production: true,
     client_ip: utmify.clientIp(req),
     created: Math.floor(Date.now() / 1000),
+    device_hash: body.device_hash ? String(body.device_hash).slice(0, 64) : null,
+    base_path: body.base_path ? String(body.base_path).slice(0, 32) : null,
+    browser_session_id: body.analytics_session_id ? String(body.analytics_session_id).slice(0, 64) : null,
+    ...siteCtx,
   });
 
   savePixTransaction(paymentId, txData);
@@ -518,6 +529,7 @@ async function generatePixMasterfy(req, body, sessionData) {
     ? Object.assign({}, sessionData, body.wizard_session)
     : sessionData;
   const wizardMeta = buildLoanMetadata(effectiveSession, loanAmount);
+  const siteCtx = requestContext.siteContext(req);
   const created = await masterfy.createPixPayment({
     req,
     productId,
@@ -547,6 +559,10 @@ async function generatePixMasterfy(req, body, sessionData) {
     production: true,
     client_ip: utmify.clientIp(req),
     created: Math.floor(Date.now() / 1000),
+    device_hash: body.device_hash ? String(body.device_hash).slice(0, 64) : null,
+    base_path: body.base_path ? String(body.base_path).slice(0, 32) : null,
+    browser_session_id: body.analytics_session_id ? String(body.analytics_session_id).slice(0, 64) : null,
+    ...siteCtx,
   });
 
   savePixTransaction(paymentId, txData);
@@ -574,6 +590,11 @@ function logCheckoutPaid(transactionId, tx) {
     product_id: tx.product_id,
     amount_cents: tx.amount_cents,
     funnel_step: 'payment_paid',
+    site_id: tx.site_id || null,
+    site_host: tx.site_host || null,
+    site_origin: tx.site_origin || null,
+    base_path: tx.base_path || null,
+    browser_session_id: tx.browser_session_id || null,
     traffic_src: utms.src || null,
     utm_source: utms.utm_source || null,
     utm_medium: utms.utm_medium || null,
@@ -930,15 +951,54 @@ async function handleAnubisWebhook(req, res) {
   const rawStatus = String(body.Status || body.status || 'PENDING');
   const status = anubis.mapStatus(rawStatus);
   const amountCents = Math.round(parseFloat(body.Amount || body.amount || 0) * 100);
+  if (!paymentId) {
+    analytics.appendWebhookLog({
+      payment_id: null,
+      status: 'invalid_payload',
+      signature_valid: false,
+      ok: false,
+      gateway: 'anubis',
+    });
+    return json(res, 400, { error: 'Id de transação ausente' });
+  }
 
   // Acha a transação na memória (busca pelo anubis_id ou diretamente pela chave)
   let txId = paymentId;
-  let txData = pixTransactions.get(paymentId) || {};
+  let txData = pixTransactions.get(paymentId) || null;
   for (const [id, tx] of pixTransactions.entries()) {
     if (tx.anubis_id === paymentId) {
       txId = id;
       txData = tx;
       break;
+    }
+  }
+
+  if (!txData) {
+    analytics.appendWebhookLog({
+      payment_id: paymentId,
+      status: 'ignored_unknown_transaction',
+      signature_valid: false,
+      ok: true,
+      gateway: 'anubis',
+    });
+    return json(res, 200, { received: true, gateway: 'anubis', ignored: true });
+  }
+
+  const remoteMeta = body.metadata || body.Metadata || body.data?.metadata || body.Data?.Metadata || null;
+  if (remoteMeta && typeof remoteMeta === 'object') {
+    const localSiteId = String(txData.site_id || '').toLowerCase();
+    const remoteSiteId = String(remoteMeta.site_id || '').toLowerCase();
+    const localHost = String(txData.site_host || '').toLowerCase();
+    const remoteHost = String(remoteMeta.site_host || '').toLowerCase();
+    if ((localSiteId && remoteSiteId && localSiteId !== remoteSiteId) || (localHost && remoteHost && localHost !== remoteHost)) {
+      analytics.appendWebhookLog({
+        payment_id: paymentId,
+        status: 'ignored_site_mismatch',
+        signature_valid: false,
+        ok: true,
+        gateway: 'anubis',
+      });
+      return json(res, 200, { received: true, gateway: 'anubis', ignored: true });
     }
   }
 
@@ -1074,10 +1134,17 @@ async function handlePixApi(req, res, url) {
       const utms = body.utms && typeof body.utms === 'object' ? body.utms : (session.data && session.data.utms) || {};
       const geo  = analytics.clientGeoFromRequest(req);
       const sd   = session.data || {};
+      const siteCtx = requestContext.siteContext(req);
       analytics.appendEvent({
         type: 'pix_generated',
         ts: Date.now(),
         session_id: 'pix_' + (result.pix && result.pix.transaction_id),
+        browser_session_id: body.analytics_session_id ? String(body.analytics_session_id).slice(0, 64) : null,
+        device_hash: body.device_hash ? String(body.device_hash).slice(0, 64) : null,
+        base_path: body.base_path ? String(body.base_path).slice(0, 32) : null,
+        site_id: siteCtx.site_id,
+        site_host: siteCtx.site_host,
+        site_origin: siteCtx.site_origin,
         product_id: productId,
         amount_cents: result.pix ? products[productId]?.amountCents : undefined,
         funnel_step: 'checkout',

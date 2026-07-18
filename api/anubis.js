@@ -117,6 +117,11 @@ async function createPixPayment(opts) {
 
   const externalRef = `${opts.productId}_${opts.deviceHash || 'web'}_${Date.now()}`;
   const baseUrl = getPublicBaseUrl(opts.req);
+  let site = opts.site || {};
+  try {
+    const { siteContext } = require('./request-context');
+    site = { ...siteContext(opts.req), ...site };
+  } catch {}
   const webhookUrl = `${baseUrl}/pay/api/webhook-anubis.php`;
   const mainProdId = (process.env.ANUBIS_MAIN_PRODUCT_ID || process.env.MASTERFY_MAIN_PRODUCT_ID || 'prod_698630abcbdde').trim();
   const isUpsell = opts.productId !== mainProdId;
@@ -147,12 +152,13 @@ async function createPixPayment(opts) {
       provider_name: 'CredPix',
       external_code: externalRef,
       step: product.step || 'main',
+      site_id: site.site_id || '',
+      site_host: site.site_host || '',
+      site_origin: site.site_origin || '',
     },
   };
 
-  console.log('[anubis] payload enviado:', JSON.stringify(payload));
   const response = await apiRequest('POST', '/payment-transaction/create', payload);
-  console.log('[anubis] resposta:', JSON.stringify(response));
   const pixCode = extractPixCode(response);
   if (!pixCode) throw new Error('Anubis: PIX sem código copypaste na resposta');
 

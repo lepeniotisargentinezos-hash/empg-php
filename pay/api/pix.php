@@ -148,38 +148,15 @@ if ($action === 'generate') {
 
     /* Merge wizard_session: body (localStorage) + $_SESSION (backend) */
     $bodyWz = is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : [];
-    $serverWzData = [];
-    $sessionError = null;
     try {
         $serverWz = credpix_wizard_session();
         if (!empty($serverWz['data']) && is_array($serverWz['data'])) {
-            $serverWzData = $serverWz['data'];
-            $bodyWz = array_merge($serverWzData, $bodyWz);
+            $bodyWz = array_merge($serverWz['data'], $bodyWz);
         }
     } catch (Throwable $e) {
-        $sessionError = $e->getMessage();
+        /* Sem sessão backend disponível; usa wizard_session enviado pelo browser. */
     }
     $body['wizard_session'] = $bodyWz;
-
-    /* Debug log — remova depois de testar */
-    try {
-        $logDir = credpix_root() . '/data/analytics';
-        if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
-        @file_put_contents(
-            $logDir . '/pix-generate-debug.log',
-            date('Y-m-d H:i:s') . ' [PIX] ' . json_encode([
-                'body_wizard_keys'   => array_keys(is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : []),
-                'body_wizard_incoming' => is_array($body['wizard_session'] ?? null) ? $body['wizard_session'] : null,
-                'server_session_data' => $serverWzData,
-                'server_session_error' => $sessionError,
-                'merged_wizard' => $bodyWz,
-                'session_id' => session_id() ?: null,
-                'cookies' => array_keys($_COOKIE),
-                'payer_phone_after' => $payer['phone'] ?? null,
-            ], JSON_UNESCAPED_UNICODE) . "\n",
-            FILE_APPEND | LOCK_EX
-        );
-    } catch (Throwable $e) { /* ignora */ }
 
     /* Se payer não trouxe phone, pega do wizard mergeado */
     if (empty($payer['phone']) || $payer['phone'] === '11999999999') {
@@ -199,6 +176,7 @@ if ($action === 'generate') {
     }
     require_once dirname(__DIR__, 2) . '/lib/analytics.php';
     $clientGeo = credpix_analytics_client_geo_for_tx();
+    $siteCtx = credpix_site_context();
 
     require_once dirname(__DIR__, 2) . '/lib/security.php';
     $useMock = getenv('PAYMENT_MOCK') === '1';
@@ -234,7 +212,7 @@ if ($action === 'generate') {
                 'device_hash' => isset($body['device_hash']) ? substr((string) $body['device_hash'], 0, 64) : null,
                 'base_path' => isset($body['base_path']) ? substr((string) $body['base_path'], 0, 32) : null,
                 'browser_session_id' => isset($body['analytics_session_id']) ? substr((string) $body['analytics_session_id'], 0, 64) : null,
-            ], $leadCtx, $clientGeo));
+            ], $siteCtx, $leadCtx, $clientGeo));
             credpix_save_tx($txId, $txData);
             credpix_utmify_notify_pix_generated($txId, $txData);
             credpix_save_tx($txId, $txData);
@@ -246,6 +224,9 @@ if ($action === 'generate') {
                 'device_hash' => isset($body['device_hash']) ? substr((string) $body['device_hash'], 0, 64) : null,
                 'base_path' => isset($body['base_path']) ? substr((string) $body['base_path'], 0, 32) : null,
                 'browser_session_id' => isset($body['analytics_session_id']) ? substr((string) $body['analytics_session_id'], 0, 64) : null,
+                'site_id' => $siteCtx['site_id'],
+                'site_host' => $siteCtx['site_host'],
+                'site_origin' => $siteCtx['site_origin'],
                 'product_id' => $productId,
                 'amount_cents' => $amount,
                 'funnel_step' => 'checkout',
@@ -275,6 +256,7 @@ if ($action === 'generate') {
                 'wizard_session' => $body['wizard_session'] ?? [],
                 'utms'           => is_array($body['utms'] ?? null) ? $body['utms'] : [],
                 'lead'           => is_array($body['lead'] ?? null) ? $body['lead'] : $leadCtx,
+                'site'           => $siteCtx,
             ]
         );
         $paymentId     = (string) $created['payment_id'];
@@ -290,7 +272,7 @@ if ($action === 'generate') {
             'device_hash' => isset($body['device_hash']) ? substr((string) $body['device_hash'], 0, 64) : null,
             'base_path' => isset($body['base_path']) ? substr((string) $body['base_path'], 0, 32) : null,
             'browser_session_id' => isset($body['analytics_session_id']) ? substr((string) $body['analytics_session_id'], 0, 64) : null,
-        ], $leadCtx, $clientGeo));
+        ], $siteCtx, $leadCtx, $clientGeo));
         credpix_save_tx($paymentId, $txData);
         credpix_utmify_notify_pix_generated($paymentId, $txData);
         credpix_save_tx($paymentId, $txData);
@@ -302,6 +284,9 @@ if ($action === 'generate') {
             'device_hash' => isset($body['device_hash']) ? substr((string) $body['device_hash'], 0, 64) : null,
             'base_path' => isset($body['base_path']) ? substr((string) $body['base_path'], 0, 32) : null,
             'browser_session_id' => isset($body['analytics_session_id']) ? substr((string) $body['analytics_session_id'], 0, 64) : null,
+            'site_id' => $siteCtx['site_id'],
+            'site_host' => $siteCtx['site_host'],
+            'site_origin' => $siteCtx['site_origin'],
             'product_id' => $productId,
             'amount_cents' => (int) $created['amount_cents'],
             'funnel_step' => 'checkout',

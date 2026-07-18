@@ -116,21 +116,7 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
     $wizardSession = is_array($context['wizard_session'] ?? null) ? $context['wizard_session'] : [];
     $utms          = is_array($context['utms'] ?? null) ? $context['utms'] : [];
     $lead          = is_array($context['lead'] ?? null) ? $context['lead'] : [];
-
-    /* Debug: loga o context recebido */
-    try {
-        @file_put_contents(
-            credpix_root() . '/data/analytics/anubis-payload.log',
-            date('Y-m-d H:i:s') . ' [CONTEXT] ' . json_encode([
-                'has_wizard_session' => !empty($wizardSession),
-                'wizard_keys' => array_keys($wizardSession),
-                'wizard_session' => $wizardSession,
-                'payer_phone' => $payer['phone'] ?? null,
-                'lead_keys' => array_keys($lead),
-            ], JSON_UNESCAPED_UNICODE) . "\n",
-            FILE_APPEND | LOCK_EX
-        );
-    } catch (Throwable $e) { /* ignora */ }
+    $siteCtx       = is_array($context['site'] ?? null) ? array_merge(credpix_site_context(), $context['site']) : credpix_site_context();
 
     /* Prioridade do telefone: payer > wizard_session.telefone > wizard_session.phone > default */
     $phoneRaw = $payer['phone']
@@ -189,6 +175,9 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         'etapa'              => (string) ($product['step'] ?? (credpix_product_is_upsell($productId) ? 'upsell' : 'principal')),
         'nome_produto'       => (string) ($product['name'] ?? $publicName),
         'referencia_produto' => (string) ($product['ref']  ?? $productId),
+        'site_id'            => (string) ($siteCtx['site_id'] ?? ''),
+        'site_host'          => (string) ($siteCtx['site_host'] ?? ''),
+        'site_origin'        => (string) ($siteCtx['site_origin'] ?? ''),
     ];
 
     /* Campos do wizard */
@@ -272,17 +261,6 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
     if ($webhookUrl !== '' && str_starts_with($webhookUrl, 'https://')) {
         $payload['postback_url'] = $webhookUrl;
     }
-
-    /* Debug: loga payload enviado à AnubisPay (últimos 100) */
-    try {
-        $logFile = credpix_root() . '/data/analytics/anubis-payload.log';
-        @file_put_contents(
-            $logFile,
-            date('Y-m-d H:i:s') . ' ' . json_encode(['payload' => $payload], JSON_UNESCAPED_UNICODE) . "\n",
-            FILE_APPEND | LOCK_EX
-        );
-    } catch (Throwable $e) { /* ignora */ }
-
     $response = credpix_anubis_request('POST', '/payment-transaction/create', $payload);
 
     // Anubis retorna dados dentro de data{}
