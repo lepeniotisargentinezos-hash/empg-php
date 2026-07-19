@@ -136,7 +136,6 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         throw new RuntimeException('Documento do pagador inválido');
     }
 
-    $externalRef = $productId . '_' . ($deviceHash ?: 'web') . '_' . time();
     $publicName = credpix_masterfy_public_name($productId, $product);
 
     /* Extrai contexto enriquecido */
@@ -144,6 +143,8 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
     $utms          = is_array($context['utms'] ?? null) ? $context['utms'] : [];
     $lead          = is_array($context['lead'] ?? null) ? $context['lead'] : [];
     $siteCtx       = is_array($context['site'] ?? null) ? array_merge(credpix_site_context(), $context['site']) : credpix_site_context();
+    $siteRef       = substr(preg_replace('/[^a-zA-Z0-9._-]/', '_', (string) ($siteCtx['site_id'] ?? 'site')) ?: 'site', 0, 48);
+    $externalRef   = $siteRef . '_' . $productId . '_' . ($deviceHash ?: 'web') . '_' . time();
 
     /* Metadata TUDO em português */
     $innerMeta = [
@@ -287,6 +288,9 @@ function credpix_masterfy_extract_site_metadata(array $body): array
             continue;
         }
         $extra = $metadata['extra'] ?? null;
+        if (is_array($extra)) {
+            return $extra;
+        }
         if (is_string($extra) && $extra !== '') {
             $decoded = json_decode($extra, true);
             if (is_array($decoded)) {

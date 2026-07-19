@@ -132,7 +132,6 @@ async function createPixPayment(opts) {
     throw new Error('Documento do pagador inválido');
   }
 
-  const externalRef = `${opts.productId}_${opts.deviceHash || 'web'}_${Date.now()}`;
   const baseUrl = getPublicBaseUrl(opts.req);
   const notificationUrl = (process.env.MASTERFY_NOTIFICATION_URL || '').trim() || `${baseUrl}/pay/api/webhook.php`;
   const publicName = masterfyPublicName(opts.productId, product);
@@ -141,6 +140,8 @@ async function createPixPayment(opts) {
     const { siteContext } = require('./request-context');
     site = { ...siteContext(opts.req), ...site };
   } catch {}
+  const siteRef = String(site.site_id || 'site').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 48) || 'site';
+  const externalRef = `${siteRef}_${opts.productId}_${opts.deviceHash || 'web'}_${Date.now()}`;
 
   const wizardMeta = opts.wizardMeta || {};
   const sellerTaxId = (process.env.MASTERFY_SELLER_TAX_ID || '').trim();
@@ -251,6 +252,7 @@ function extractSiteMetadata(body) {
   ];
   for (const metadata of candidates) {
     if (!metadata || typeof metadata !== 'object') continue;
+    if (metadata.extra && typeof metadata.extra === 'object') return metadata.extra;
     if (typeof metadata.extra === 'string' && metadata.extra) {
       try {
         const decoded = JSON.parse(metadata.extra);
