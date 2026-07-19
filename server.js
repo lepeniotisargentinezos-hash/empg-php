@@ -830,9 +830,10 @@ async function handleAnalyticsApi(req, res, url) {
 
     if (url.searchParams.get('action') === 'session') {
       const sessionId = url.searchParams.get('session_id') || '';
+      const transactionId = url.searchParams.get('transaction_id') || '';
       return json(res, 200, {
         success: true,
-        journey: analytics.getSessionJourney(sessionId, days),
+        journey: analytics.getSessionJourney(sessionId, days, siteFilter, transactionId),
       });
     }
 

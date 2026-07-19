@@ -1450,6 +1450,7 @@ function credpix_analytics_build_orders(array $events, array $profileMaps = []):
             'utm_medium' => $ev['utm_medium'] ?? null,
             'utm_content' => $ev['utm_content'] ?? null,
             'session_id' => $ev['session_id'] ?? null,
+            'browser_session_id' => $ev['browser_session_id'] ?? null,
             'country' => $ev['country'] ?? null,
             'site_id' => $ev['site_id'] ?? null,
             'site_host' => $ev['site_host'] ?? null,
@@ -3142,9 +3143,9 @@ function credpix_analytics_purge_noise_events(): array
     return ['files' => $files, 'removed' => $removed, 'kept' => $kept];
 }
 
-function credpix_analytics_session_journey(string $sessionId, int $days = 7): ?array
+function credpix_analytics_session_journey(string $sessionId, int $days = 7, ?array $siteFilter = null, string $transactionId = ''): ?array
 {
-    return credpix_insights_session_journey($sessionId, $days);
+    return credpix_insights_session_journey($sessionId, $days, $siteFilter, $transactionId);
 }
 
 function credpix_analytics_payment_event_exists(string $txId, int $days = 14): bool

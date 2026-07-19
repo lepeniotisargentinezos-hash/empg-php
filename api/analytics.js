@@ -1072,6 +1072,7 @@ function buildOrdersList(events, profileMaps) {
       utm_medium: ev.utm_medium || null,
       utm_content: ev.utm_content || null,
       session_id: ev.session_id || null,
+      browser_session_id: ev.browser_session_id || null,
       country: ev.country || null,
       site_id: ev.site_id || null,
       site_host: ev.site_host || null,
@@ -1407,8 +1408,8 @@ function aggregateStats(days, options) {
   };
 }
 
-function getSessionJourney(sessionId, days) {
-  return insights.getSessionJourney(sessionId, readEvents, days || 7);
+function getSessionJourney(sessionId, days, siteFilter, transactionId) {
+  return insights.getSessionJourney(sessionId, readEvents, days || 7, siteFilter, transactionId);
 }
 
 function logPaymentFromWebhook(paymentId, status, txData, signatureValid) {
@@ -1431,7 +1432,7 @@ function logPaymentFromWebhook(paymentId, status, txData, signatureValid) {
     site_origin: txData && txData.site_origin,
     product_id: txData && txData.product_id,
     amount_cents: txData && txData.amount_cents,
-    meta: { payment_id: paymentId, source: 'webhook' },
+    meta: { payment_id: paymentId, transaction_id: paymentId, source: 'webhook' },
   });
 }
 

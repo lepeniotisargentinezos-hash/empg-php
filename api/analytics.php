@@ -153,9 +153,10 @@ if ($method === 'GET') {
 
     if (isset($_GET['action']) && $_GET['action'] === 'session') {
         $sessionId = trim((string) ($_GET['session_id'] ?? ''));
+        $transactionId = trim((string) ($_GET['transaction_id'] ?? ''));
         credpix_json(200, [
             'success' => true,
-            'journey' => credpix_analytics_session_journey($sessionId, $days),
+            'journey' => credpix_analytics_session_journey($sessionId, $days, $siteFilter, $transactionId),
         ]);
     }
 

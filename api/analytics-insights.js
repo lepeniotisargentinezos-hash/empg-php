@@ -412,11 +412,85 @@ function enrichPixPending(pending, staleMinutes) {
   });
 }
 
-function getSessionJourney(sessionId, readEventsFn, days) {
+function sessionCandidateIds(sessionId, transactionId) {
+  const out = new Set();
+  const add = (value) => {
+    const v = String(value || '').trim();
+    if (v) out.add(v);
+  };
+  add(sessionId);
+  add(transactionId);
+  for (const value of [sessionId, transactionId]) {
+    const v = String(value || '').trim();
+    for (const prefix of ['pix_', 'webhook_', 'srv_']) {
+      if (v.startsWith(prefix)) {
+        const raw = v.slice(prefix.length);
+        add(raw);
+        add('pix_' + raw);
+        add('webhook_' + raw);
+      }
+    }
+  }
+  return Array.from(out);
+}
+
+function eventTransactionId(ev) {
+  const meta = ev && ev.meta && typeof ev.meta === 'object' ? ev.meta : {};
+  for (const key of ['transaction_id', 'payment_id', 'masterfy_id', 'anubis_id']) {
+    if (meta[key]) return String(meta[key]).trim();
+  }
+  return '';
+}
+
+function eventMatchesSessionCandidates(ev, candidateIds) {
+  const set = new Set(candidateIds);
+  for (const key of ['session_id', 'browser_session_id']) {
+    const value = String((ev && ev[key]) || '').trim();
+    if (value && set.has(value)) return true;
+  }
+  const txId = eventTransactionId(ev);
+  return Boolean(txId && set.has(txId));
+}
+
+function expandSessionCandidates(events, candidateIds) {
+  const set = new Set(candidateIds);
+  for (const ev of events) {
+    for (const key of ['session_id', 'browser_session_id']) {
+      const value = String((ev && ev[key]) || '').trim();
+      if (value) set.add(value);
+    }
+    const txId = eventTransactionId(ev);
+    if (txId) {
+      set.add(txId);
+      set.add('pix_' + txId);
+      set.add('webhook_' + txId);
+    }
+  }
+  return Array.from(set);
+}
+
+function getSessionJourney(sessionId, readEventsFn, days, siteFilter, transactionId) {
   const sid = String(sessionId || '').trim();
-  if (!sid) return null;
-  const events = readEventsFn(days || 7)
-    .filter((ev) => ev.session_id === sid)
+  const txId = String(transactionId || '').trim();
+  if (!sid && !txId) return null;
+  let allEvents = readEventsFn(days || 7);
+  if (siteFilter && (siteFilter.site_id || siteFilter.site_host)) {
+    const siteId = String(siteFilter.site_id || '').trim().toLowerCase();
+    const siteHost = String(siteFilter.site_host || '').trim().toLowerCase();
+    allEvents = allEvents.filter((ev) => {
+      const actualId = String((ev && ev.site_id) || '').trim().toLowerCase();
+      const actualHost = String((ev && ev.site_host) || '').trim().toLowerCase();
+      if (siteId && actualId && siteId === actualId) return true;
+      if (siteHost && actualHost && siteHost === actualHost) return true;
+      return false;
+    });
+  }
+  let candidates = sessionCandidateIds(sid, txId);
+  const matches = allEvents.filter((ev) => eventMatchesSessionCandidates(ev, candidates));
+  if (!matches.length) return null;
+  candidates = expandSessionCandidates(matches, candidates);
+  const events = allEvents
+    .filter((ev) => eventMatchesSessionCandidates(ev, candidates))
     .sort((a, b) => (Number(a.ts) || 0) - (Number(b.ts) || 0));
 
   if (!events.length) return null;

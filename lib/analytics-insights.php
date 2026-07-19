@@ -601,16 +601,85 @@ function credpix_insights_cloudflare_geo_health(array $events): array
     ];
 }
 
-function credpix_insights_session_journey(string $sessionId, int $days): ?array
+function credpix_insights_session_candidate_ids(string $sessionId, string $transactionId = ''): array
+{
+    $ids = [];
+    $add = static function (string $value) use (&$ids): void {
+        $value = trim($value);
+        if ($value !== '') {
+            $ids[$value] = true;
+        }
+    };
+    $add($sessionId);
+    $add($transactionId);
+    foreach ([$sessionId, $transactionId] as $value) {
+        foreach (['pix_', 'webhook_', 'srv_'] as $prefix) {
+            if (str_starts_with($value, $prefix)) {
+                $raw = substr($value, strlen($prefix));
+                $add($raw);
+                $add('pix_' . $raw);
+                $add('webhook_' . $raw);
+            }
+        }
+    }
+    return array_keys($ids);
+}
+
+function credpix_insights_event_transaction_id(array $ev): string
+{
+    $meta = is_array($ev['meta'] ?? null) ? $ev['meta'] : [];
+    foreach (['transaction_id', 'payment_id', 'masterfy_id', 'anubis_id'] as $key) {
+        if (!empty($meta[$key])) {
+            return trim((string) $meta[$key]);
+        }
+    }
+    return '';
+}
+
+function credpix_insights_event_matches_session_candidates(array $ev, array $candidateIds): bool
+{
+    $set = array_fill_keys($candidateIds, true);
+    foreach (['session_id', 'browser_session_id'] as $key) {
+        $value = trim((string) ($ev[$key] ?? ''));
+        if ($value !== '' && isset($set[$value])) {
+            return true;
+        }
+    }
+    $txId = credpix_insights_event_transaction_id($ev);
+    return $txId !== '' && isset($set[$txId]);
+}
+
+function credpix_insights_expand_session_candidates(array $events, array $candidateIds): array
+{
+    $set = array_fill_keys($candidateIds, true);
+    foreach ($events as $ev) {
+        foreach (['session_id', 'browser_session_id'] as $key) {
+            $value = trim((string) ($ev[$key] ?? ''));
+            if ($value !== '') {
+                $set[$value] = true;
+            }
+        }
+        $txId = credpix_insights_event_transaction_id($ev);
+        if ($txId !== '') {
+            $set[$txId] = true;
+            $set['pix_' . $txId] = true;
+            $set['webhook_' . $txId] = true;
+        }
+    }
+    return array_keys($set);
+}
+
+function credpix_insights_session_journey(string $sessionId, int $days, ?array $siteFilter = null, string $transactionId = ''): ?array
 {
     $sid = trim($sessionId);
-    if ($sid === '') {
+    $txId = trim($transactionId);
+    if ($sid === '' && $txId === '') {
         return null;
     }
     $searchDays = max(1, min(90, $days));
-    $journey = credpix_insights_session_journey_for_days($sid, $searchDays);
+    $journey = credpix_insights_session_journey_for_days($sid, $searchDays, $siteFilter, $txId);
     if ($journey === null && $searchDays < 90) {
-        $journey = credpix_insights_session_journey_for_days($sid, 90);
+        $journey = credpix_insights_session_journey_for_days($sid, 90, $siteFilter, $txId);
         if ($journey !== null) {
             $journey['extended_search'] = true;
         }
@@ -618,14 +687,24 @@ function credpix_insights_session_journey(string $sessionId, int $days): ?array
     return $journey;
 }
 
-function credpix_insights_session_journey_for_days(string $sessionId, int $days): ?array
+function credpix_insights_session_journey_for_days(string $sessionId, int $days, ?array $siteFilter = null, string $transactionId = ''): ?array
 {
     $sid = trim($sessionId);
-    if ($sid === '') {
+    $txId = trim($transactionId);
+    if ($sid === '' && $txId === '') {
         return null;
     }
-    $events = credpix_analytics_read_events($days);
-    $events = array_values(array_filter($events, static fn ($ev) => ($ev['session_id'] ?? '') === $sid));
+    $allEvents = credpix_analytics_read_events($days);
+    if ($siteFilter !== null) {
+        $allEvents = array_values(array_filter($allEvents, static fn ($ev) => credpix_analytics_event_matches_site($ev, $siteFilter)));
+    }
+    $candidateIds = credpix_insights_session_candidate_ids($sid, $txId);
+    $matches = array_values(array_filter($allEvents, static fn ($ev) => credpix_insights_event_matches_session_candidates($ev, $candidateIds)));
+    if (!$matches) {
+        return null;
+    }
+    $candidateIds = credpix_insights_expand_session_candidates($matches, $candidateIds);
+    $events = array_values(array_filter($allEvents, static fn ($ev) => credpix_insights_event_matches_session_candidates($ev, $candidateIds)));
     usort($events, static fn ($a, $b) => ((int) ($a['ts'] ?? 0)) <=> ((int) ($b['ts'] ?? 0)));
     if (!$events) {
         return null;
