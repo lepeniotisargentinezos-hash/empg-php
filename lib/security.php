@@ -43,12 +43,6 @@ function credpix_analytics_event_allowed_public(array $ev): bool
     if (in_array($type, credpix_analytics_public_event_types(), true)) {
         return true;
     }
-    if ($type === 'payment_paid') {
-        $txId = function_exists('credpix_analytics_event_tx_id')
-            ? (credpix_analytics_event_tx_id($ev) ?? '')
-            : trim((string) ($ev['transaction_id'] ?? ($ev['meta']['transaction_id'] ?? '')));
-        return $txId !== '' && credpix_load_tx($txId) !== null;
-    }
     return false;
 }
 

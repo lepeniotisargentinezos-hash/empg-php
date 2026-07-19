@@ -20,7 +20,7 @@ function credpix_gateway_create_pix(string $productId, array $payer, ?string $de
     if (credpix_active_gateway() === 'anubis') {
         return credpix_create_anubis_pix_payment($productId, $payer, $deviceHash, $context);
     }
-    return credpix_create_pix_payment($productId, $payer, $deviceHash);
+    return credpix_create_pix_payment($productId, $payer, $deviceHash, $context);
 }
 
 function credpix_gateway_get_payment(string $paymentId, array $tx = []): array

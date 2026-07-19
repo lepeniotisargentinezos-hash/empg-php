@@ -12,7 +12,8 @@ function credpix_analytics_scan_events(
     ?string $utmCampaign = null,
     ?string $utmMedium = null,
     ?string $utmContent = null,
-    ?string $productFilter = null
+    ?string $productFilter = null,
+    ?array $siteFilter = null
 ): array {
     $compact = [];
     $pageViewCountAll = 0;
@@ -385,6 +386,9 @@ function credpix_analytics_scan_events(
             }
             $row = json_decode($line, true);
             if (!is_array($row) || credpix_analytics_is_noise_event_type($row['type'] ?? null)) {
+                continue;
+            }
+            if (!credpix_analytics_event_matches_site($row, $siteFilter)) {
                 continue;
             }
 

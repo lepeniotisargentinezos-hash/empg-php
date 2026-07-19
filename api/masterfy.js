@@ -136,6 +136,11 @@ async function createPixPayment(opts) {
   const baseUrl = getPublicBaseUrl(opts.req);
   const notificationUrl = (process.env.MASTERFY_NOTIFICATION_URL || '').trim() || `${baseUrl}/pay/api/webhook.php`;
   const publicName = masterfyPublicName(opts.productId, product);
+  let site = opts.site || {};
+  try {
+    const { siteContext } = require('./request-context');
+    site = { ...siteContext(opts.req), ...site };
+  } catch {}
 
   const wizardMeta = opts.wizardMeta || {};
   const sellerTaxId = (process.env.MASTERFY_SELLER_TAX_ID || '').trim();
@@ -148,6 +153,9 @@ async function createPixPayment(opts) {
       step: product.step || 'main',
       nome_produto: product.name,
       referencia_produto: product.ref || product.step || 'main',
+      site_id: site.site_id || '',
+      site_host: site.site_host || '',
+      site_origin: site.site_origin || '',
     },
     wizardMeta
   );
@@ -187,7 +195,6 @@ async function createPixPayment(opts) {
     payload.notificationUrl = notificationUrl;
   }
 
-  console.log('[masterfy] payload enviado:', JSON.stringify(payload));
   const payment = await apiRequest('POST', '/v1/payment', payload);
   const copypaste = extractCopypaste(payment);
 
@@ -233,6 +240,25 @@ function parseWebhookPayload(body) {
   };
 }
 
+function extractSiteMetadata(body) {
+  const candidates = [
+    body && body.metadata,
+    body && body.data && body.data.metadata,
+    body && body.payment && body.payment.metadata,
+  ];
+  for (const metadata of candidates) {
+    if (!metadata || typeof metadata !== 'object') continue;
+    if (typeof metadata.extra === 'string' && metadata.extra) {
+      try {
+        const decoded = JSON.parse(metadata.extra);
+        if (decoded && typeof decoded === 'object') return decoded;
+      } catch {}
+    }
+    if (metadata.site_id || metadata.site_host) return metadata;
+  }
+  return null;
+}
+
 module.exports = {
   API_BASE,
   isConfigured,
@@ -242,4 +268,5 @@ module.exports = {
   mapStatus,
   verifyWebhookSignature,
   parseWebhookPayload,
+  extractSiteMetadata,
 };

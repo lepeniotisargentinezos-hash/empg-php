@@ -143,6 +143,7 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
     $wizardSession = is_array($context['wizard_session'] ?? null) ? $context['wizard_session'] : [];
     $utms          = is_array($context['utms'] ?? null) ? $context['utms'] : [];
     $lead          = is_array($context['lead'] ?? null) ? $context['lead'] : [];
+    $siteCtx       = is_array($context['site'] ?? null) ? array_merge(credpix_site_context(), $context['site']) : credpix_site_context();
 
     /* Metadata TUDO em português */
     $innerMeta = [
@@ -151,6 +152,9 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         'etapa'              => (string) ($product['step'] ?? (credpix_product_is_upsell($productId) ? 'upsell' : 'principal')),
         'nome_produto'       => (string) ($product['name'] ?? $publicName),
         'referencia_produto' => (string) ($product['ref']  ?? $productId),
+        'site_id'            => (string) ($siteCtx['site_id'] ?? ''),
+        'site_host'          => (string) ($siteCtx['site_host'] ?? ''),
+        'site_origin'        => (string) ($siteCtx['site_origin'] ?? ''),
     ];
 
     /* Enriquece com wizard */
@@ -266,6 +270,31 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
 function credpix_get_payment(string $paymentId): array
 {
     return credpix_masterfy_request('GET', '/v1/payment/' . rawurlencode($paymentId));
+}
+
+function credpix_masterfy_extract_site_metadata(array $body): array
+{
+    $candidates = [
+        $body['metadata'] ?? null,
+        $body['data']['metadata'] ?? null,
+        $body['payment']['metadata'] ?? null,
+    ];
+    foreach ($candidates as $metadata) {
+        if (!is_array($metadata)) {
+            continue;
+        }
+        $extra = $metadata['extra'] ?? null;
+        if (is_string($extra) && $extra !== '') {
+            $decoded = json_decode($extra, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+        if (isset($metadata['site_id']) || isset($metadata['site_host'])) {
+            return $metadata;
+        }
+    }
+    return [];
 }
 
 /** Valor em centavos a partir do webhook, transação local ou API MasterFy. */

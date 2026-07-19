@@ -58,6 +58,25 @@ function filterBySrc(events, srcFilter) {
   return events.filter((ev) => eventSrc(ev).toLowerCase() === needle);
 }
 
+function normalizeSiteFilter(siteFilter) {
+  if (!siteFilter || typeof siteFilter !== 'object') return null;
+  const siteId = String(siteFilter.site_id || '').trim().toLowerCase();
+  const siteHost = String(siteFilter.site_host || '').trim().toLowerCase();
+  if (!siteId && !siteHost) return null;
+  return { site_id: siteId, site_host: siteHost };
+}
+
+function matchesSite(ev, siteFilter) {
+  const filter = normalizeSiteFilter(siteFilter);
+  if (!filter) return true;
+  const actualId = String((ev && ev.site_id) || '').trim().toLowerCase();
+  const actualHost = String((ev && ev.site_host) || '').trim().toLowerCase();
+  if (!actualId && !actualHost) return process.env.ANALYTICS_INCLUDE_LEGACY_NO_SITE === '1';
+  if (filter.site_id && actualId && filter.site_id === actualId) return true;
+  if (filter.site_host && actualHost && filter.site_host === actualHost) return true;
+  return false;
+}
+
 function listAvailableSrcs(events) {
   const map = {};
   for (const ev of events) {
@@ -635,7 +654,15 @@ function enrichLivePresence(active) {
 
 function appendEvent(rawEvent, ingestContext) {
   ensureDir();
-  let event = sanitizeEvent(rawEvent);
+  let raw = rawEvent && typeof rawEvent === 'object' ? { ...rawEvent } : {};
+  const site = ingestContext && ingestContext.site;
+  if (site && typeof site === 'object' && !raw.site_id && !raw.site_host) {
+    raw = { ...raw, ...site };
+  }
+  let event = sanitizeEvent(raw);
+  if (event.type === 'page_view' && pageViewExistsNear(event, 5000)) {
+    return { type: event.type, skipped: true, reason: 'duplicate_page_view' };
+  }
   event = insights.attachGeoToEvent(event, ingestContext);
   const line = JSON.stringify(event) + '\n';
   fs.appendFileSync(eventsFile(todayKey(new Date(event.ts))), line, 'utf8');
@@ -761,6 +788,25 @@ function readEventsFromFile(filePath) {
     }
   }
   return events;
+}
+
+function pageViewExistsNear(event, windowMs) {
+  if (!event || event.type !== 'page_view') return false;
+  const file = eventsFile(todayKey(new Date(Number(event.ts) || Date.now())));
+  if (!fs.existsSync(file)) return false;
+  const ts = Number(event.ts) || Date.now();
+  const sessionId = String(event.session_id || 'anon');
+  const page = normalizePage(event.page || '/');
+  const siteFilter = normalizeSiteFilter({ site_id: event.site_id || '', site_host: event.site_host || '' });
+  for (const row of readEventsFromFile(file)) {
+    if (!row || row.type !== 'page_view') continue;
+    if (String(row.session_id || '') !== sessionId) continue;
+    if (normalizePage(row.page || '/') !== page) continue;
+    if (!matchesSite(row, siteFilter)) continue;
+    const prevTs = Number(row.ts) || 0;
+    if (Math.abs(ts - prevTs) <= (windowMs || 5000)) return true;
+  }
+  return false;
 }
 
 function readEventsForDateKey(dateKey) {
@@ -937,7 +983,7 @@ function computeAlerts(events, days) {
 function exportOrdersCsv(days, options) {
   options = options || {};
   const stats = aggregateStats(days, options);
-  const cols = ['datetime', 'product', 'amount', 'src', 'campaign', 'transaction_id'];
+  const cols = ['datetime', 'site_id', 'site_host', 'product', 'amount', 'src', 'campaign', 'transaction_id'];
   const esc = (val) => {
     const s = val == null ? '' : String(val);
     if (s.includes('"') || s.includes(',') || s.includes('\n')) {
@@ -950,6 +996,8 @@ function exportOrdersCsv(days, options) {
     lines.push(
       [
         esc(new Date(Number(o.ts) || 0).toLocaleString('pt-BR')),
+        esc(o.site_id || ''),
+        esc(o.site_host || ''),
         esc(o.product_name),
         esc(o.amount_formatted),
         esc(o.traffic_src),
@@ -961,11 +1009,16 @@ function exportOrdersCsv(days, options) {
   return lines.join('\n');
 }
 
-function exportEventsCsv(days) {
-  const events = readEvents(days);
+function exportEventsCsv(days, options) {
+  options = options || {};
+  const siteFilter = normalizeSiteFilter(options.siteFilter || null);
+  const events = readEvents(days).filter((ev) => matchesSite(ev, siteFilter));
   const cols = [
     'ts',
     'type',
+    'site_id',
+    'site_host',
+    'site_origin',
     'session_id',
     'page',
     'page_label',
@@ -1020,6 +1073,9 @@ function buildOrdersList(events, profileMaps) {
       utm_content: ev.utm_content || null,
       session_id: ev.session_id || null,
       country: ev.country || null,
+      site_id: ev.site_id || null,
+      site_host: ev.site_host || null,
+      site_origin: ev.site_origin || null,
       transaction_id: ev.meta?.transaction_id || ev.meta?.payment_id || null,
       utmify: utmify.orderStatus(ev.meta?.transaction_id || ev.meta?.payment_id || null),
       ...insights.resolveLeadProfile(ev, profileMaps),
@@ -1042,7 +1098,7 @@ function eventTxId(ev) {
   return null;
 }
 
-function pendingFromTxStore(days, paidTxIds, srcFilter, productFilter) {
+function pendingFromTxStore(days, paidTxIds, srcFilter, productFilter, siteFilter) {
   if (!fs.existsSync(PIX_TX_DIR)) return [];
   const cutoffSec = Math.floor(Date.now() / 1000) - days * 86400;
   const rows = [];
@@ -1059,6 +1115,7 @@ function pendingFromTxStore(days, paidTxIds, srcFilter, productFilter) {
       continue;
     }
     if (!tx || typeof tx !== 'object') continue;
+    if (!matchesSite(tx, siteFilter)) continue;
     if (String(tx.status || 'pending') !== 'pending') continue;
     let created = Number(tx.created) || 0;
     if (created > 9999999999) created = Math.floor(created / 1000);
@@ -1080,6 +1137,9 @@ function pendingFromTxStore(days, paidTxIds, srcFilter, productFilter) {
       amount_cents: amount,
       amount_formatted: formatBrl(amount),
       transaction_id: fname,
+      site_id: tx.site_id || null,
+      site_host: tx.site_host || null,
+      site_origin: tx.site_origin || null,
       traffic_src: src || '(direto)',
       session_id: 'pix_' + fname,
       utmify: utmify.orderStatus(fname),
@@ -1088,7 +1148,7 @@ function pendingFromTxStore(days, paidTxIds, srcFilter, productFilter) {
   return rows;
 }
 
-function buildPixPending(events, allEvents, days, srcFilter, productFilter, profileMaps) {
+function buildPixPending(events, allEvents, days, srcFilter, productFilter, profileMaps, siteFilter) {
   const config = insights.readAlertsConfig();
   const paidSource = allEvents && allEvents.length ? allEvents : events;
   profileMaps = profileMaps || insights.leadProfileMaps(allEvents || events);
@@ -1102,6 +1162,7 @@ function buildPixPending(events, allEvents, days, srcFilter, productFilter, prof
   const byId = new Map();
   for (const ev of events) {
     if (ev.type !== 'pix_generated') continue;
+    if (!matchesSite(ev, siteFilter)) continue;
     const id = eventTxId(ev);
     if (!id || paidTxIds.has(id)) continue;
     const row = {
@@ -1111,6 +1172,9 @@ function buildPixPending(events, allEvents, days, srcFilter, productFilter, prof
       amount_cents: Number(ev.amount_cents) || 0,
       amount_formatted: formatBrl(Number(ev.amount_cents) || 0),
       transaction_id: id,
+      site_id: ev.site_id || null,
+      site_host: ev.site_host || null,
+      site_origin: ev.site_origin || null,
       traffic_src: eventSrc(ev) || '(direto)',
       session_id: ev.session_id || 'pix_' + id,
       utmify: utmify.orderStatus(id),
@@ -1119,15 +1183,14 @@ function buildPixPending(events, allEvents, days, srcFilter, productFilter, prof
     const existing = byId.get(id);
     if (!existing || row.ts >= existing.ts) byId.set(id, row);
   }
-  for (const row of pendingFromTxStore(days, paidTxIds, srcFilter || null, productFilter || null)) {
+  for (const row of pendingFromTxStore(days, paidTxIds, srcFilter || null, productFilter || null, siteFilter)) {
     const id = String(row.transaction_id || '').toLowerCase();
     if (!id || paidTxIds.has(id)) continue;
     const existing = byId.get(id);
     if (!existing || row.ts >= existing.ts) byId.set(id, row);
   }
   const rows = Array.from(byId.values())
-    .sort((a, b) => (Number(b.ts) || 0) - (Number(a.ts) || 0))
-    .slice(0, 40);
+    .sort((a, b) => (Number(b.ts) || 0) - (Number(a.ts) || 0));
   return insights.enrichPixPending(rows, config.stale_pix_minutes);
 }
 
@@ -1151,7 +1214,8 @@ function filterOrdersByProduct(orders, productFilter) {
 function aggregateStats(days, options) {
   options = options || {};
   maybeAutoBackup();
-  let allEvents = readEvents(days);
+  const siteFilter = normalizeSiteFilter(options.siteFilter || null);
+  let allEvents = readEvents(days).filter((ev) => matchesSite(ev, siteFilter));
   const availableSrcs = listAvailableSrcs(allEvents);
   let events = dedupePayments(allEvents);
   if (options.src) events = filterBySrc(events, options.src);
@@ -1208,7 +1272,7 @@ function aggregateStats(days, options) {
   const profileMaps = insights.leadProfileMaps(allEvents);
   const ordersAll = buildOrdersList(events, profileMaps);
   const ordersFiltered = filterOrdersByProduct(ordersAll, options.product || null);
-  const pixPending = buildPixPending(events, allEvents, days, options.src || null, options.product || null, profileMaps);
+  const pixPending = buildPixPending(events, allEvents, days, options.src || null, options.product || null, profileMaps, siteFilter);
   const landingCount = funnel.landing.size || uniqueSessions(events, (e) => e.type === 'page_view' && e.page_label === 'Landing');
   const paidCount = ordersAll.length;
   const pixGenCount = funnel.pix_generated.size || events.filter((e) => e.type === 'pix_generated').length;
@@ -1298,6 +1362,8 @@ function aggregateStats(days, options) {
       pix_to_paid_rate: pixGenCount > 0 ? Math.round((paidCount / pixGenCount) * 1000) / 10 : 0,
       conversion_rate: landingCount > 0 ? Math.round((paidCount / landingCount) * 1000) / 10 : 0,
     },
+    filter_site_id: siteFilter && siteFilter.site_id,
+    filter_site_host: siteFilter && siteFilter.site_host,
     orders: ordersFiltered,
     pix_pending: pixPending,
     funnel: {

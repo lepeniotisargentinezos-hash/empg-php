@@ -88,6 +88,24 @@
     return { traffic_src: null };
   }
 
+  function getSiteContext() {
+    var host = '';
+    var origin = '';
+    try {
+      host = (global.location && global.location.hostname ? global.location.hostname : '').toLowerCase();
+      if (host.indexOf('www.') === 0) host = host.slice(4);
+      host = host.replace(/[^a-z0-9.-]/g, '');
+      origin = global.location && global.location.origin ? global.location.origin : '';
+    } catch (e) {}
+    var configured = global.CREDPIX_SITE_ID || '';
+    var siteId = String(configured || host || 'unknown').toLowerCase().replace(/[^a-z0-9._-]/g, '-').slice(0, 96);
+    return {
+      site_id: siteId,
+      site_host: host.slice(0, 128),
+      site_origin: String(origin || '').replace(/\/$/, '').slice(0, 255),
+    };
+  }
+
   function currentPage() {
     return (global.location && global.location.pathname) || '/';
   }
@@ -105,12 +123,16 @@
 
   function buildPayload(type, extra) {
     var utms = getUtms();
+    var site = getSiteContext();
     var payload = {
       ts: Date.now(),
       type: type,
       session_id: getSessionId(),
       browser_session_id: getSessionId(),
       device_hash: getDeviceHash(),
+      site_id: site.site_id,
+      site_host: site.site_host,
+      site_origin: site.site_origin,
       page: currentPage(),
       base_path: getBase() || null,
       referrer: referrerPage(),

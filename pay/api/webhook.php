@@ -51,6 +51,42 @@ if (!is_array($body)) {
 $paymentId = (string) ($body['id'] ?? '');
 $status = credpix_map_status((string) ($body['status'] ?? 'PENDING'));
 
+if ($paymentId === '') {
+    credpix_webhook_log_append([
+        'payment_id' => null,
+        'status' => 'invalid_payload',
+        'signature_valid' => $verifyMethod === 'hmac',
+        'verify_method' => $verifyMethod,
+        'ok' => false,
+        'reason' => 'missing_payment_id',
+    ]);
+    credpix_json(400, ['error' => 'Id de transação ausente']);
+}
+
+$existing = credpix_load_tx($paymentId);
+if (!$existing) {
+    credpix_webhook_log_append([
+        'payment_id' => $paymentId,
+        'status' => 'ignored_unknown_transaction',
+        'signature_valid' => $verifyMethod === 'hmac',
+        'verify_method' => 'local_tx',
+        'ok' => true,
+    ]);
+    credpix_json(200, ['received' => true, 'verify_method' => $verifyMethod, 'ignored' => true]);
+}
+
+$remoteMeta = credpix_masterfy_extract_site_metadata($body);
+if ($remoteMeta !== [] && !credpix_origin_matches_site_context($existing, $remoteMeta)) {
+    credpix_webhook_log_append([
+        'payment_id' => $paymentId,
+        'status' => 'ignored_site_mismatch',
+        'signature_valid' => $verifyMethod === 'hmac',
+        'verify_method' => 'site_metadata',
+        'ok' => true,
+    ]);
+    credpix_json(200, ['received' => true, 'verify_method' => $verifyMethod, 'ignored' => true]);
+}
+
 credpix_webhook_log_append([
     'payment_id' => $paymentId,
     'status' => $status,
@@ -61,7 +97,6 @@ credpix_webhook_log_append([
 ]);
 
 if ($paymentId !== '') {
-    $existing = credpix_load_tx($paymentId) ?? [];
     $tx = array_merge($existing, [
         'masterfy_id' => $paymentId,
         'status' => $status,

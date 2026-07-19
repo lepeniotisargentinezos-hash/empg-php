@@ -290,6 +290,7 @@ async function handleTypeApi(req, res, pathname, basePath) {
       analytics.appendEvent({
         type: 'wizard_step',
         session_id: 'srv_' + sessionId,
+        ...requestContext.siteContext(req),
         funnel_step: 'wizard',
         meta: { field: String(body.name), step: String(body.name) },
       });
@@ -535,6 +536,7 @@ async function generatePixMasterfy(req, body, sessionData) {
     productId,
     deviceHash: body.device_hash,
     utms: body.utms,
+    site: siteCtx,
     payer: {
       name: body.name,
       document: body.document,
@@ -796,7 +798,7 @@ async function handleAnalyticsApi(req, res, url) {
     const events = Array.isArray(body.events) ? body.events : [body];
     const saved = analytics.appendEvents(
       events.filter((ev) => ev && typeof ev === 'object'),
-      { geo: analytics.clientGeoFromRequest(req) }
+      { geo: analytics.clientGeoFromRequest(req), site: requestContext.siteContext(req) }
     );
     return json(res, 200, { success: true, count: saved.length });
   }
@@ -809,7 +811,12 @@ async function handleAnalyticsApi(req, res, url) {
     const days = Math.max(1, Math.min(90, Number(url.searchParams.get('days')) || 1));
     const src = url.searchParams.get('src') || null;
     const product = url.searchParams.get('product') || null;
-    const opts = { src, product };
+    const siteCtx = requestContext.siteContext(req);
+    const siteFilter = {
+      site_id: url.searchParams.get('site_id') || siteCtx.site_id,
+      site_host: url.searchParams.get('site_host') || siteCtx.site_host,
+    };
+    const opts = { src, product, siteFilter };
 
     if (url.searchParams.get('action') === 'backup') {
       return json(res, 200, { success: true, backup: analytics.runBackup() });
@@ -834,7 +841,7 @@ async function handleAnalyticsApi(req, res, url) {
     }
 
     if (url.searchParams.get('export') === 'csv') {
-      const csv = analytics.exportEventsCsv(days);
+      const csv = analytics.exportEventsCsv(days, opts);
       res.writeHead(200, {
         'Content-Type': 'text/csv; charset=utf-8',
         'Content-Disposition': `attachment; filename="credpix-analytics-${days}d.csv"`,
@@ -905,37 +912,71 @@ async function handleMasterfyWebhook(req, res) {
   const body = parseJsonBody(raw);
   const parsed = masterfy.parseWebhookPayload(body);
 
+  if (!parsed.payment_id) {
+    analytics.appendWebhookLog({
+      payment_id: null,
+      status: 'invalid_payload',
+      signature_valid: true,
+      ok: false,
+      reason: 'missing_payment_id',
+      gateway: 'masterfy',
+    });
+    return json(res, 400, { error: 'Id de transação ausente' });
+  }
+
+  let txId = parsed.payment_id;
+  let txData = pixTransactions.get(parsed.payment_id) || null;
+  for (const [id, tx] of pixTransactions.entries()) {
+    if (tx.masterfy_id === parsed.payment_id) {
+      txId = id;
+      txData = tx;
+      break;
+    }
+  }
+
+  if (!txData) {
+    analytics.appendWebhookLog({
+      payment_id: parsed.payment_id,
+      status: 'ignored_unknown_transaction',
+      signature_valid: true,
+      ok: true,
+      gateway: 'masterfy',
+    });
+    return json(res, 200, { received: true, ignored: true });
+  }
+
+  const remoteMeta = masterfy.extractSiteMetadata(body);
+  if (remoteMeta && typeof remoteMeta === 'object') {
+    const localSiteId = String(txData.site_id || '').toLowerCase();
+    const remoteSiteId = String(remoteMeta.site_id || '').toLowerCase();
+    const localHost = String(txData.site_host || '').toLowerCase();
+    const remoteHost = String(remoteMeta.site_host || '').toLowerCase();
+    if ((localSiteId && remoteSiteId && localSiteId !== remoteSiteId) || (localHost && remoteHost && localHost !== remoteHost)) {
+      analytics.appendWebhookLog({
+        payment_id: parsed.payment_id,
+        status: 'ignored_site_mismatch',
+        signature_valid: true,
+        ok: true,
+        gateway: 'masterfy',
+      });
+      return json(res, 200, { received: true, ignored: true });
+    }
+  }
+
   analytics.appendWebhookLog({
     payment_id: parsed.payment_id,
     status: parsed.status,
     signature_valid: true,
     ok: true,
+    gateway: 'masterfy',
   });
 
-  for (const [txId, tx] of pixTransactions.entries()) {
-    if (tx.masterfy_id === parsed.payment_id) {
-      tx.status = parsed.status;
-      savePixTransaction(txId, tx);
-    }
-  }
-
-  const mfTx = pixTransactions.get('mf_' + parsed.payment_id) || {};
-  savePixTransaction('mf_' + parsed.payment_id, {
-    masterfy_id: parsed.payment_id,
-    status: parsed.status,
-    product_id: mfTx.product_id,
-    amount_cents: mfTx.amount_cents,
-    updated: Date.now(),
-  });
+  txData.status = parsed.status;
+  txData.masterfy_id = txData.masterfy_id || parsed.payment_id;
+  txData.gateway = 'masterfy';
+  savePixTransaction(txId, txData);
 
   if (parsed.status === 'paid') {
-    let txData = mfTx;
-    for (const [, tx] of pixTransactions.entries()) {
-      if (tx.masterfy_id === parsed.payment_id && tx.product_id) {
-        txData = tx;
-        break;
-      }
-    }
     analytics.logPaymentFromWebhook(parsed.payment_id, parsed.status, txData, true);
   }
 

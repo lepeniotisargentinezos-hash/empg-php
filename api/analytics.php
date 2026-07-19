@@ -137,6 +137,15 @@ if ($method === 'GET') {
     if ($utmContent === '') {
         $utmContent = null;
     }
+    $siteId = isset($_GET['site_id']) ? trim((string) $_GET['site_id']) : null;
+    if ($siteId === '') {
+        $siteId = null;
+    }
+    $siteHost = isset($_GET['site_host']) ? trim((string) $_GET['site_host']) : null;
+    if ($siteHost === '') {
+        $siteHost = null;
+    }
+    $siteFilter = credpix_analytics_site_filter($siteId, $siteHost);
 
     if (isset($_GET['action']) && $_GET['action'] === 'backup') {
         credpix_json(200, ['success' => true, 'backup' => credpix_analytics_run_backup()]);
@@ -161,14 +170,14 @@ if ($method === 'GET') {
     if (isset($_GET['export']) && $_GET['export'] === 'orders') {
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="credpix-pedidos-' . $days . 'd.csv"');
-        echo credpix_analytics_export_orders_csv($days, $src, $product, $utmCampaign, $utmMedium, $utmContent);
+        echo credpix_analytics_export_orders_csv($days, $src, $product, $utmCampaign, $utmMedium, $utmContent, $siteFilter);
         exit;
     }
 
     if (isset($_GET['export']) && $_GET['export'] === 'csv') {
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="credpix-analytics-' . $days . 'd.csv"');
-        echo credpix_analytics_export_csv($days, $src, $product, $utmCampaign, $utmMedium, $utmContent);
+        echo credpix_analytics_export_csv($days, $src, $product, $utmCampaign, $utmMedium, $utmContent, $siteFilter);
         exit;
     }
 
@@ -226,7 +235,7 @@ if ($method === 'GET') {
     }
 
     try {
-        $stats = credpix_analytics_stats_for_dashboard($days, $src, $product, $utmCampaign, $utmMedium, $utmContent);
+        $stats = credpix_analytics_stats_for_dashboard($days, $src, $product, $utmCampaign, $utmMedium, $utmContent, $siteFilter);
         credpix_json(200, ['success' => true, 'stats' => $stats]);
     } catch (Throwable $e) {
         credpix_json(500, ['success' => false, 'error' => 'Erro ao gerar estatísticas: ' . $e->getMessage()]);

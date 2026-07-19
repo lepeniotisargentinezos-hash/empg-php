@@ -191,6 +191,47 @@ function credpix_analytics_apply_event_filters(
     return array_values($events);
 }
 
+function credpix_analytics_site_filter(?string $siteId = null, ?string $siteHost = null): array
+{
+    $ctx = credpix_site_context();
+    $siteId = trim((string) ($siteId ?? ''));
+    $siteHost = trim((string) ($siteHost ?? ''));
+    if ($siteId === '' && $siteHost === '') {
+        return [
+            'site_id' => strtolower((string) ($ctx['site_id'] ?? '')),
+            'site_host' => strtolower((string) ($ctx['site_host'] ?? '')),
+        ];
+    }
+    return [
+        'site_id' => strtolower(preg_replace('/[^a-z0-9._-]/', '-', $siteId) ?: ''),
+        'site_host' => strtolower(preg_replace('/[^a-z0-9.-]/', '', $siteHost) ?: ''),
+    ];
+}
+
+function credpix_analytics_event_matches_site(array $ev, ?array $siteFilter): bool
+{
+    if (!$siteFilter) {
+        return true;
+    }
+    $expectedId = strtolower(trim((string) ($siteFilter['site_id'] ?? '')));
+    $expectedHost = strtolower(trim((string) ($siteFilter['site_host'] ?? '')));
+    if ($expectedId === '' && $expectedHost === '') {
+        return true;
+    }
+    $actualId = strtolower(trim((string) ($ev['site_id'] ?? '')));
+    $actualHost = strtolower(trim((string) ($ev['site_host'] ?? '')));
+    if ($actualId === '' && $actualHost === '') {
+        return getenv('ANALYTICS_INCLUDE_LEGACY_NO_SITE') === '1';
+    }
+    if ($expectedId !== '' && $actualId !== '' && $expectedId === $actualId) {
+        return true;
+    }
+    if ($expectedHost !== '' && $actualHost !== '' && $expectedHost === $actualHost) {
+        return true;
+    }
+    return false;
+}
+
 /** @return array<string, int> */
 function credpix_analytics_transitions_from_events(array $events): array
 {
@@ -459,6 +500,48 @@ function credpix_analytics_event_tx_exists_for_date(string $txId, string $type, 
 function credpix_analytics_event_tx_exists_today(string $txId, string $type): bool
 {
     return credpix_analytics_event_tx_exists_for_date($txId, $type, credpix_analytics_today_key());
+}
+
+function credpix_analytics_page_view_exists_near(array $rawEvent, int $windowMs = 5000): bool
+{
+    $sessionId = substr((string) ($rawEvent['session_id'] ?? 'anon'), 0, 64);
+    $page = credpix_analytics_normalize_page((string) ($rawEvent['page'] ?? $rawEvent['path'] ?? '/'));
+    $ts = credpix_analytics_normalize_ts(isset($rawEvent['ts']) ? (int) $rawEvent['ts'] : null);
+    $dateKey = credpix_analytics_today_key($ts);
+    $file = credpix_analytics_events_file($dateKey);
+    if (!is_file($file)) {
+        return false;
+    }
+    $siteFilter = [
+        'site_id' => strtolower(trim((string) ($rawEvent['site_id'] ?? ''))),
+        'site_host' => strtolower(trim((string) ($rawEvent['site_host'] ?? ''))),
+    ];
+    $handle = @fopen($file, 'rb');
+    if (!$handle) {
+        return false;
+    }
+    while (($line = fgets($handle)) !== false) {
+        $row = json_decode(trim($line), true);
+        if (!is_array($row) || ($row['type'] ?? '') !== 'page_view') {
+            continue;
+        }
+        if ((string) ($row['session_id'] ?? '') !== $sessionId) {
+            continue;
+        }
+        if (credpix_analytics_normalize_page((string) ($row['page'] ?? '/')) !== $page) {
+            continue;
+        }
+        if (!credpix_analytics_event_matches_site($row, $siteFilter)) {
+            continue;
+        }
+        $prevTs = credpix_analytics_normalize_ts(isset($row['ts']) ? (int) $row['ts'] : null);
+        if (abs($ts - $prevTs) <= $windowMs) {
+            fclose($handle);
+            return true;
+        }
+    }
+    fclose($handle);
+    return false;
 }
 
 /** @param array<string, mixed> $meta */
@@ -790,6 +873,13 @@ function credpix_analytics_append(array $rawEvent): array
     $rawType = substr((string) ($rawEvent['type'] ?? 'page_view'), 0, 64);
     if (credpix_analytics_is_noise_event_type($rawType)) {
         return ['type' => $rawType, 'skipped' => true];
+    }
+    if (empty($rawEvent['site_id']) && empty($rawEvent['site_host'])) {
+        $rawEvent = array_merge($rawEvent, credpix_site_context());
+    }
+
+    if ($rawType === 'page_view' && credpix_analytics_page_view_exists_near($rawEvent)) {
+        return ['type' => $rawType, 'skipped' => true, 'reason' => 'duplicate_page_view'];
     }
 
     if ($rawType === 'pix_generated') {
@@ -1361,6 +1451,9 @@ function credpix_analytics_build_orders(array $events, array $profileMaps = []):
             'utm_content' => $ev['utm_content'] ?? null,
             'session_id' => $ev['session_id'] ?? null,
             'country' => $ev['country'] ?? null,
+            'site_id' => $ev['site_id'] ?? null,
+            'site_host' => $ev['site_host'] ?? null,
+            'site_origin' => $ev['site_origin'] ?? null,
             'transaction_id' => $txId,
             'utmify' => credpix_utmify_order_status($txId),
         ], $profile);
@@ -1392,7 +1485,8 @@ function credpix_analytics_pending_from_tx_store(
     int $days,
     array $paidTxIds,
     ?string $srcFilter = null,
-    ?string $productFilter = null
+    ?string $productFilter = null,
+    ?array $siteFilter = null
 ): array {
     $products = credpix_products();
     $dir = credpix_data_dir();
@@ -1412,6 +1506,9 @@ function credpix_analytics_pending_from_tx_store(
         }
         $tx = json_decode((string) file_get_contents($path), true);
         if (!is_array($tx)) {
+            continue;
+        }
+        if (!credpix_analytics_event_matches_site($tx, $siteFilter)) {
             continue;
         }
         if ((string) ($tx['status'] ?? 'pending') !== 'pending') {
@@ -1446,6 +1543,9 @@ function credpix_analytics_pending_from_tx_store(
             'amount_cents' => $amount,
             'amount_formatted' => 'R$ ' . credpix_format_brl($amount),
             'transaction_id' => $fname,
+            'site_id' => $tx['site_id'] ?? null,
+            'site_host' => $tx['site_host'] ?? null,
+            'site_origin' => $tx['site_origin'] ?? null,
             'traffic_src' => $src !== '' ? $src : '(direto)',
             'session_id' => 'pix_' . $fname,
             'utmify' => credpix_utmify_order_status($fname),
@@ -1460,7 +1560,8 @@ function credpix_analytics_build_pix_pending(
     int $days = 7,
     ?string $srcFilter = null,
     ?string $productFilter = null,
-    array $profileMaps = []
+    array $profileMaps = [],
+    ?array $siteFilter = null
 ): array {
     $paidSource = $allEvents ?: $events;
     $paidTxIds = [];
@@ -1479,6 +1580,9 @@ function credpix_analytics_build_pix_pending(
         if (($ev['type'] ?? '') !== 'pix_generated') {
             continue;
         }
+        if (!credpix_analytics_event_matches_site($ev, $siteFilter)) {
+            continue;
+        }
         $id = credpix_analytics_event_tx_id($ev);
         if (!$id || isset($paidTxIds[$id])) {
             continue;
@@ -1491,6 +1595,9 @@ function credpix_analytics_build_pix_pending(
             'amount_cents' => $cents,
             'amount_formatted' => 'R$ ' . credpix_format_brl($cents),
             'transaction_id' => $id,
+            'site_id' => $ev['site_id'] ?? null,
+            'site_host' => $ev['site_host'] ?? null,
+            'site_origin' => $ev['site_origin'] ?? null,
             'traffic_src' => credpix_analytics_event_src($ev) ?: '(direto)',
             'session_id' => $ev['session_id'] ?? ('pix_' . $id),
             'utmify' => credpix_utmify_order_status($id),
@@ -1501,7 +1608,7 @@ function credpix_analytics_build_pix_pending(
         }
     }
 
-    foreach (credpix_analytics_pending_from_tx_store($days, $paidTxIds, $srcFilter, $productFilter) as $row) {
+    foreach (credpix_analytics_pending_from_tx_store($days, $paidTxIds, $srcFilter, $productFilter, $siteFilter) as $row) {
         $id = strtolower((string) ($row['transaction_id'] ?? ''));
         if ($id === '' || isset($paidTxIds[$id])) {
             continue;
@@ -1514,7 +1621,6 @@ function credpix_analytics_build_pix_pending(
 
     $pending = array_values($pendingById);
     usort($pending, static fn ($a, $b) => ((int) ($b['ts'] ?? 0)) <=> ((int) ($a['ts'] ?? 0)));
-    $pending = array_slice($pending, 0, 40);
     return credpix_insights_enrich_pix_pending($pending, (int) credpix_insights_read_alerts_config()['stale_pix_minutes']);
 }
 
@@ -1595,11 +1701,12 @@ function credpix_analytics_export_orders_csv(
     ?string $productFilter = null,
     ?string $utmCampaign = null,
     ?string $utmMedium = null,
-    ?string $utmContent = null
+    ?string $utmContent = null,
+    ?array $siteFilter = null
 ): string {
-    $stats = credpix_analytics_stats($days, $srcFilter, $productFilter, $utmCampaign, $utmMedium, $utmContent);
+    $stats = credpix_analytics_stats($days, $srcFilter, $productFilter, $utmCampaign, $utmMedium, $utmContent, $siteFilter);
     $tz = credpix_analytics_tz();
-    $cols = ['datetime', 'product', 'amount', 'src', 'campaign', 'transaction_id'];
+    $cols = ['datetime', 'site_id', 'site_host', 'product', 'amount', 'src', 'campaign', 'transaction_id'];
     $esc = static function ($val): string {
         $s = $val === null ? '' : (string) $val;
         if (str_contains($s, '"') || str_contains($s, ',') || str_contains($s, "\n")) {
@@ -1611,6 +1718,8 @@ function credpix_analytics_export_orders_csv(
     foreach ($stats['orders'] ?? [] as $o) {
         $lines[] = implode(',', [
             $esc((new DateTime('@' . (int) floor(((int) ($o['ts'] ?? 0)) / 1000)))->setTimezone($tz)->format('d/m/Y H:i:s')),
+            $esc($o['site_id'] ?? ''),
+            $esc($o['site_host'] ?? ''),
             $esc($o['product_name'] ?? ''),
             $esc($o['amount_formatted'] ?? ''),
             $esc($o['traffic_src'] ?? ''),
@@ -1627,12 +1736,14 @@ function credpix_analytics_export_csv(
     ?string $productFilter = null,
     ?string $utmCampaign = null,
     ?string $utmMedium = null,
-    ?string $utmContent = null
+    ?string $utmContent = null,
+    ?array $siteFilter = null
 ): string {
+    $siteFilter = $siteFilter ?? credpix_analytics_site_filter();
     $startKey = credpix_analytics_period_start_key($days);
     $endKey = credpix_analytics_period_end_key();
     $cols = [
-        'ts', 'type', 'session_id', 'page', 'page_label', 'base_path',
+        'ts', 'type', 'site_id', 'site_host', 'site_origin', 'session_id', 'page', 'page_label', 'base_path',
         'traffic_src', 'utm_source', 'utm_medium', 'utm_campaign', 'product_name', 'amount_cents',
     ];
     $esc = static function ($val): string {
@@ -1658,6 +1769,9 @@ function credpix_analytics_export_csv(
                 continue;
             }
             if (!credpix_analytics_event_in_period($ev, $days)) {
+                continue;
+            }
+            if (!credpix_analytics_event_matches_site($ev, $siteFilter)) {
                 continue;
             }
             $filtered = credpix_analytics_apply_event_filters(
@@ -2400,12 +2514,14 @@ function credpix_analytics_stats(
     ?string $productFilter = null,
     ?string $utmCampaign = null,
     ?string $utmMedium = null,
-    ?string $utmContent = null
+    ?string $utmContent = null,
+    ?array $siteFilter = null
 ): array {
     @ini_set('memory_limit', '512M');
     @set_time_limit(120);
 
-    $scan = credpix_analytics_scan_events($days, $srcFilter, $utmCampaign, $utmMedium, $utmContent, $productFilter);
+    $siteFilter = $siteFilter ?? credpix_analytics_site_filter();
+    $scan = credpix_analytics_scan_events($days, $srcFilter, $utmCampaign, $utmMedium, $utmContent, $productFilter, $siteFilter);
     $allEvents = $scan['compact'];
     $availableSrcs = $scan['available_srcs'];
     $scanMaps = [
@@ -2421,7 +2537,10 @@ function credpix_analytics_stats(
     $events = credpix_insights_enrich_payment_events($events, $allEvents, $scanMaps, $profileMaps);
 
     [$prevStartKey, $prevEndKey] = credpix_analytics_previous_period_range($days);
-    $previousRaw = credpix_analytics_read_events_for_date_range($prevStartKey, $prevEndKey);
+    $previousRaw = array_values(array_filter(
+        credpix_analytics_read_events_for_date_range($prevStartKey, $prevEndKey),
+        static fn ($ev) => is_array($ev) && credpix_analytics_event_matches_site($ev, $siteFilter)
+    ));
     $previousEvents = credpix_analytics_apply_event_filters($previousRaw, $srcFilter, $utmCampaign, $utmMedium, $utmContent, $productFilter);
     $previousProfileMaps = credpix_insights_lead_profile_maps($previousRaw);
     $previousEvents = credpix_insights_enrich_payment_events($previousEvents, $previousRaw, $scanMaps, $previousProfileMaps);
@@ -2438,7 +2557,7 @@ function credpix_analytics_stats(
     $revenue = credpix_analytics_sum_revenue($events);
     $ordersAll = credpix_analytics_build_orders($events, $profileMaps);
     $ordersFiltered = credpix_analytics_filter_orders_by_product($ordersAll, $productFilter);
-    $pixPending = credpix_analytics_build_pix_pending($events, $allEvents, $days, $srcFilter, $productFilter, $profileMaps);
+    $pixPending = credpix_analytics_build_pix_pending($events, $allEvents, $days, $srcFilter, $productFilter, $profileMaps, $siteFilter);
     $landingCount = count($funnel['landing']);
     $paidCount = count($ordersAll);
     $pixGenCount = credpix_analytics_count_pix_generated($events);
@@ -2508,6 +2627,8 @@ function credpix_analytics_stats(
         'filter_utm_campaign' => $utmCampaign,
         'filter_utm_medium' => $utmMedium,
         'filter_utm_content' => $utmContent,
+        'filter_site_id' => $siteFilter['site_id'] ?? null,
+        'filter_site_host' => $siteFilter['site_host'] ?? null,
         'available_srcs' => $availableSrcs,
         'available_products' => credpix_analytics_list_products($events),
         'available_utms' => $scan['available_utms'],
@@ -2591,7 +2712,8 @@ function credpix_analytics_stats_cache_key(
     ?string $productFilter,
     ?string $utmCampaign,
     ?string $utmMedium,
-    ?string $utmContent
+    ?string $utmContent,
+    ?array $siteFilter = null
 ): string {
     return hash('sha256', json_encode([
         $days,
@@ -2600,6 +2722,8 @@ function credpix_analytics_stats_cache_key(
         $utmCampaign ?? '',
         $utmMedium ?? '',
         $utmContent ?? '',
+        $siteFilter['site_id'] ?? '',
+        $siteFilter['site_host'] ?? '',
     ]));
 }
 
@@ -2616,12 +2740,14 @@ function credpix_analytics_stats_for_dashboard(
     ?string $productFilter = null,
     ?string $utmCampaign = null,
     ?string $utmMedium = null,
-    ?string $utmContent = null
+    ?string $utmContent = null,
+    ?array $siteFilter = null
 ): array {
     credpix_analytics_maybe_archive_old_events();
+    $siteFilter = $siteFilter ?? credpix_analytics_site_filter();
     $ttl = (int) (getenv('ANALYTICS_STATS_CACHE_SEC') ?: 300);
     if ($ttl <= 0) {
-        return credpix_analytics_stats($days, $srcFilter, $productFilter, $utmCampaign, $utmMedium, $utmContent);
+        return credpix_analytics_stats($days, $srcFilter, $productFilter, $utmCampaign, $utmMedium, $utmContent, $siteFilter);
     }
 
     $cacheFile = credpix_analytics_dir() . '/.cache-stats-' . credpix_analytics_stats_cache_key(
@@ -2630,7 +2756,8 @@ function credpix_analytics_stats_for_dashboard(
         $productFilter,
         $utmCampaign,
         $utmMedium,
-        $utmContent
+        $utmContent,
+        $siteFilter
     ) . '.json';
 
     if (is_file($cacheFile) && (time() - (int) filemtime($cacheFile)) < $ttl) {
@@ -2648,7 +2775,7 @@ function credpix_analytics_stats_for_dashboard(
         }
     }
 
-    $stats = credpix_analytics_stats($days, $srcFilter, $productFilter, $utmCampaign, $utmMedium, $utmContent);
+    $stats = credpix_analytics_stats($days, $srcFilter, $productFilter, $utmCampaign, $utmMedium, $utmContent, $siteFilter);
     $stats['_cache'] = ['hit' => false, 'age_sec' => 0, 'ttl_sec' => $ttl];
     $encoded = json_encode($stats, JSON_UNESCAPED_UNICODE);
     if ($encoded !== false) {
