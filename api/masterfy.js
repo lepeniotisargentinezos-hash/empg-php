@@ -140,7 +140,7 @@ async function createPixPayment(opts) {
     const { siteContext } = require('./request-context');
     site = { ...siteContext(opts.req), ...site };
   } catch {}
-  const siteRef = String(site.site_id || 'site').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 48) || 'site';
+  const siteRef = String(site.site_host || site.site_id || 'site').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 48) || 'site';
   const externalRef = `${siteRef}_${opts.productId}_${opts.deviceHash || 'web'}_${Date.now()}`;
 
   const wizardMeta = opts.wizardMeta || {};
@@ -157,6 +157,9 @@ async function createPixPayment(opts) {
       site_id: site.site_id || '',
       site_host: site.site_host || '',
       site_origin: site.site_origin || '',
+      site: site.site_id || '',
+      dominio: site.site_host || '',
+      dominio_origem: site.site_origin || '',
     },
     wizardMeta
   );
@@ -167,7 +170,10 @@ async function createPixPayment(opts) {
     site_id: site.site_id || '',
     site_host: site.site_host || '',
     site_origin: site.site_origin || '',
-    extra: JSON.stringify(innerMetadata),
+    site: site.site_id || '',
+    dominio: site.site_host || '',
+    extra: innerMetadata,
+    extra_json: JSON.stringify(innerMetadata),
   };
   if (sellerTaxId) masterfyMetadata.sellerTaxId = sellerTaxId;
   if (sellerEmail) masterfyMetadata.sellerEmail = sellerEmail;
@@ -252,16 +258,25 @@ function extractSiteMetadata(body) {
   ];
   for (const metadata of candidates) {
     if (!metadata || typeof metadata !== 'object') continue;
-    if (metadata.extra && typeof metadata.extra === 'object') return metadata.extra;
+    if (metadata.extra && typeof metadata.extra === 'object') return normalizeSiteMetadata(metadata.extra);
     if (typeof metadata.extra === 'string' && metadata.extra) {
       try {
         const decoded = JSON.parse(metadata.extra);
-        if (decoded && typeof decoded === 'object') return decoded;
+        if (decoded && typeof decoded === 'object') return normalizeSiteMetadata(decoded);
       } catch {}
     }
-    if (metadata.site_id || metadata.site_host) return metadata;
+    if (metadata.site_id || metadata.site_host || metadata.site || metadata.dominio) return normalizeSiteMetadata(metadata);
   }
   return null;
+}
+
+function normalizeSiteMetadata(metadata) {
+  return {
+    ...metadata,
+    site_id: metadata.site_id || metadata.site || '',
+    site_host: metadata.site_host || metadata.dominio || '',
+    site_origin: metadata.site_origin || metadata.dominio_origem || '',
+  };
 }
 
 module.exports = {

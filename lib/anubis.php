@@ -107,7 +107,6 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         throw new RuntimeException('Documento do pagador inválido');
     }
 
-    $externalRef = $productId . '_' . ($deviceHash ?: 'web') . '_' . time();
     $publicName  = credpix_product_is_upsell($productId)
         ? (string) ($product['label'] ?? $product['name'] ?? 'Produto')
         : 'Principal';
@@ -117,6 +116,9 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
     $utms          = is_array($context['utms'] ?? null) ? $context['utms'] : [];
     $lead          = is_array($context['lead'] ?? null) ? $context['lead'] : [];
     $siteCtx       = is_array($context['site'] ?? null) ? array_merge(credpix_site_context(), $context['site']) : credpix_site_context();
+    $siteRefRaw    = (string) (($siteCtx['site_host'] ?? '') ?: ($siteCtx['site_id'] ?? 'site'));
+    $siteRef       = substr(preg_replace('/[^a-zA-Z0-9._-]/', '_', $siteRefRaw) ?: 'site', 0, 48);
+    $externalRef   = $siteRef . '_' . $productId . '_' . ($deviceHash ?: 'web') . '_' . time();
 
     /* Prioridade do telefone: payer > wizard_session.telefone > wizard_session.phone > default */
     $phoneRaw = $payer['phone']
@@ -178,6 +180,9 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         'site_id'            => (string) ($siteCtx['site_id'] ?? ''),
         'site_host'          => (string) ($siteCtx['site_host'] ?? ''),
         'site_origin'        => (string) ($siteCtx['site_origin'] ?? ''),
+        'site'               => (string) ($siteCtx['site_id'] ?? ''),
+        'dominio'            => (string) ($siteCtx['site_host'] ?? ''),
+        'dominio_origem'     => (string) ($siteCtx['site_origin'] ?? ''),
     ];
 
     /* Campos do wizard */

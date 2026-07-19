@@ -115,13 +115,14 @@ async function createPixPayment(opts) {
     throw new Error('Documento do pagador inválido');
   }
 
-  const externalRef = `${opts.productId}_${opts.deviceHash || 'web'}_${Date.now()}`;
   const baseUrl = getPublicBaseUrl(opts.req);
   let site = opts.site || {};
   try {
     const { siteContext } = require('./request-context');
     site = { ...siteContext(opts.req), ...site };
   } catch {}
+  const siteRef = String(site.site_host || site.site_id || 'site').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 48) || 'site';
+  const externalRef = `${siteRef}_${opts.productId}_${opts.deviceHash || 'web'}_${Date.now()}`;
   const webhookUrl = `${baseUrl}/pay/api/webhook-anubis.php`;
   const mainProdId = (process.env.ANUBIS_MAIN_PRODUCT_ID || process.env.MASTERFY_MAIN_PRODUCT_ID || 'prod_698630abcbdde').trim();
   const isUpsell = opts.productId !== mainProdId;
@@ -155,6 +156,9 @@ async function createPixPayment(opts) {
       site_id: site.site_id || '',
       site_host: site.site_host || '',
       site_origin: site.site_origin || '',
+      site: site.site_id || '',
+      dominio: site.site_host || '',
+      dominio_origem: site.site_origin || '',
     },
   };
 

@@ -110,6 +110,8 @@ function credpix_site_context(): array
 
 function credpix_origin_matches_site_context(array $local, array $remote): bool
 {
+    $remote['site_id'] = $remote['site_id'] ?? ($remote['site'] ?? null);
+    $remote['site_host'] = $remote['site_host'] ?? ($remote['dominio'] ?? null);
     foreach (['site_id', 'site_host'] as $key) {
         $expected = strtolower(trim((string) ($local[$key] ?? '')));
         $actual = strtolower(trim((string) ($remote[$key] ?? '')));

@@ -143,7 +143,8 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
     $utms          = is_array($context['utms'] ?? null) ? $context['utms'] : [];
     $lead          = is_array($context['lead'] ?? null) ? $context['lead'] : [];
     $siteCtx       = is_array($context['site'] ?? null) ? array_merge(credpix_site_context(), $context['site']) : credpix_site_context();
-    $siteRef       = substr(preg_replace('/[^a-zA-Z0-9._-]/', '_', (string) ($siteCtx['site_id'] ?? 'site')) ?: 'site', 0, 48);
+    $siteRefRaw    = (string) (($siteCtx['site_host'] ?? '') ?: ($siteCtx['site_id'] ?? 'site'));
+    $siteRef       = substr(preg_replace('/[^a-zA-Z0-9._-]/', '_', $siteRefRaw) ?: 'site', 0, 48);
     $externalRef   = $siteRef . '_' . $productId . '_' . ($deviceHash ?: 'web') . '_' . time();
 
     /* Metadata TUDO em português */
@@ -156,6 +157,9 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         'site_id'            => (string) ($siteCtx['site_id'] ?? ''),
         'site_host'          => (string) ($siteCtx['site_host'] ?? ''),
         'site_origin'        => (string) ($siteCtx['site_origin'] ?? ''),
+        'site'               => (string) ($siteCtx['site_id'] ?? ''),
+        'dominio'            => (string) ($siteCtx['site_host'] ?? ''),
+        'dominio_origem'     => (string) ($siteCtx['site_origin'] ?? ''),
     ];
 
     /* Enriquece com wizard */
@@ -219,7 +223,10 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         'site_id'     => (string) ($siteCtx['site_id'] ?? ''),
         'site_host'   => (string) ($siteCtx['site_host'] ?? ''),
         'site_origin' => (string) ($siteCtx['site_origin'] ?? ''),
-        'extra'       => json_encode($innerMeta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        'site'        => (string) ($siteCtx['site_id'] ?? ''),
+        'dominio'     => (string) ($siteCtx['site_host'] ?? ''),
+        'extra'       => $innerMeta,
+        'extra_json'  => json_encode($innerMeta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     ];
     $sellerTaxId = trim((string) (getenv('MASTERFY_SELLER_TAX_ID') ?: ''));
     $sellerEmail = trim((string) (getenv('MASTERFY_SELLER_EMAIL') ?: ''));
@@ -289,15 +296,24 @@ function credpix_masterfy_extract_site_metadata(array $body): array
         }
         $extra = $metadata['extra'] ?? null;
         if (is_array($extra)) {
+            $extra['site_id'] = $extra['site_id'] ?? ($extra['site'] ?? null);
+            $extra['site_host'] = $extra['site_host'] ?? ($extra['dominio'] ?? null);
+            $extra['site_origin'] = $extra['site_origin'] ?? ($extra['dominio_origem'] ?? null);
             return $extra;
         }
         if (is_string($extra) && $extra !== '') {
             $decoded = json_decode($extra, true);
             if (is_array($decoded)) {
+                $decoded['site_id'] = $decoded['site_id'] ?? ($decoded['site'] ?? null);
+                $decoded['site_host'] = $decoded['site_host'] ?? ($decoded['dominio'] ?? null);
+                $decoded['site_origin'] = $decoded['site_origin'] ?? ($decoded['dominio_origem'] ?? null);
                 return $decoded;
             }
         }
-        if (isset($metadata['site_id']) || isset($metadata['site_host'])) {
+        if (isset($metadata['site_id']) || isset($metadata['site_host']) || isset($metadata['site']) || isset($metadata['dominio'])) {
+            $metadata['site_id'] = $metadata['site_id'] ?? ($metadata['site'] ?? null);
+            $metadata['site_host'] = $metadata['site_host'] ?? ($metadata['dominio'] ?? null);
+            $metadata['site_origin'] = $metadata['site_origin'] ?? ($metadata['dominio_origem'] ?? null);
             return $metadata;
         }
     }
