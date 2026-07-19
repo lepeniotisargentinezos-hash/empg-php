@@ -225,8 +225,7 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         'site_origin' => (string) ($siteCtx['site_origin'] ?? ''),
         'site'        => (string) ($siteCtx['site_id'] ?? ''),
         'dominio'     => (string) ($siteCtx['site_host'] ?? ''),
-        'extra'       => $innerMeta,
-        'extra_json'  => json_encode($innerMeta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        'extra'       => json_encode($innerMeta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     ];
     $sellerTaxId = trim((string) (getenv('MASTERFY_SELLER_TAX_ID') ?: ''));
     $sellerEmail = trim((string) (getenv('MASTERFY_SELLER_EMAIL') ?: ''));

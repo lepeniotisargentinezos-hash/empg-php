@@ -172,8 +172,7 @@ async function createPixPayment(opts) {
     site_origin: site.site_origin || '',
     site: site.site_id || '',
     dominio: site.site_host || '',
-    extra: innerMetadata,
-    extra_json: JSON.stringify(innerMetadata),
+    extra: JSON.stringify(innerMetadata),
   };
   if (sellerTaxId) masterfyMetadata.sellerTaxId = sellerTaxId;
   if (sellerEmail) masterfyMetadata.sellerEmail = sellerEmail;
