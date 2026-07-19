@@ -213,9 +213,12 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
     if (isset($utms['utm_term']) && $utms['utm_term'] !== '')         $innerMeta['termo']    = substr((string) $utms['utm_term'], 0, 255);
 
     $masterfyMetadata = [
-        'provider' => 'CredPix',
-        'orderId'  => $externalRef,
-        'extra'    => json_encode($innerMeta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        'provider'    => 'CredPix',
+        'orderId'     => $externalRef,
+        'site_id'     => (string) ($siteCtx['site_id'] ?? ''),
+        'site_host'   => (string) ($siteCtx['site_host'] ?? ''),
+        'site_origin' => (string) ($siteCtx['site_origin'] ?? ''),
+        'extra'       => json_encode($innerMeta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
     ];
     $sellerTaxId = trim((string) (getenv('MASTERFY_SELLER_TAX_ID') ?: ''));
     $sellerEmail = trim((string) (getenv('MASTERFY_SELLER_EMAIL') ?: ''));

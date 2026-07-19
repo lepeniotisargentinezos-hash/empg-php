@@ -163,6 +163,9 @@ async function createPixPayment(opts) {
   const masterfyMetadata = {
     provider: 'CredPix',
     orderId: externalRef,
+    site_id: site.site_id || '',
+    site_host: site.site_host || '',
+    site_origin: site.site_origin || '',
     extra: JSON.stringify(innerMetadata),
   };
   if (sellerTaxId) masterfyMetadata.sellerTaxId = sellerTaxId;
