@@ -29,22 +29,25 @@ const PROXY_API = process.env.PROXY_API === '1';
 const REMOTE = 'https://veronx.site';
 
 function loadEnvFile() {
-  const envPath = path.join(ROOT, '.env');
-  if (!fs.existsSync(envPath)) return;
-  for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    const key = trimmed.slice(0, eq).trim();
-    let val = trimmed.slice(eq + 1).trim();
-    if (
-      (val.startsWith('"') && val.endsWith('"')) ||
-      (val.startsWith("'") && val.endsWith("'"))
-    ) {
-      val = val.slice(1, -1);
+  for (const envPath of [path.join(ROOT, '.env'), path.join(ROOT, '.env.local')]) {
+    if (!fs.existsSync(envPath)) continue;
+    for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eq = trimmed.indexOf('=');
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      let val = trimmed.slice(eq + 1).trim();
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
+        val = val.slice(1, -1);
+      }
+      if (key) {
+        process.env[key] = val;
+      }
     }
-    if (!process.env[key]) process.env[key] = val;
   }
 }
 
@@ -76,6 +79,9 @@ const SITE_CONFIG_GROUPS = [
     { key: 'AMUNG_FUNIL',    label: 'Funil ID',    type: 'text' },
     { key: 'AMUNG_CHECKOUT', label: 'Checkout ID', type: 'text' },
     { key: 'AMUNG_UPSELL',   label: 'Upsell ID',   type: 'text' },
+  ]},
+  { id: 'site', label: 'Site', icon: '🌐', vars: [
+    { key: 'ROOT_PAGE_HTML', label: 'Página inicial HTML', type: 'text' },
   ]},
 ];
 
@@ -1263,12 +1269,50 @@ function isBlockedPath(pathname) {
   return false;
 }
 
+function normalizeHtmlSelector(value) {
+  return String(value || '')
+    .trim()
+    .replace(/^\/+/, '')
+    .replace(/\\/g, '/')
+    .split('/')
+    .pop();
+}
+
+function normalizedHtmlLookupKey(value) {
+  return normalizeHtmlSelector(value).toLowerCase().replace(/\s+/g, '');
+}
+
+function resolveRootHtmlFile() {
+  const configured = normalizeHtmlSelector(process.env.ROOT_PAGE_HTML || '');
+  const requested = configured || 'index.html';
+  const candidates = [requested];
+  if (!/\.html?$/i.test(requested)) candidates.push(requested + '.html');
+  for (const name of candidates) {
+    const file = path.join(ROOT, name);
+    if (file.startsWith(ROOT) && fs.existsSync(file) && fs.statSync(file).isFile()) {
+      return file;
+    }
+  }
+  const wantedKey = normalizedHtmlLookupKey(requested);
+  if (wantedKey) {
+    for (const name of fs.readdirSync(ROOT)) {
+      if (!/\.html?$/i.test(name)) continue;
+      const key = normalizedHtmlLookupKey(name.replace(/\.html?$/i, ''));
+      const keyWithExt = normalizedHtmlLookupKey(name);
+      if (key === wantedKey || keyWithExt === wantedKey) {
+        return path.join(ROOT, name);
+      }
+    }
+  }
+  return path.join(ROOT, 'index.html');
+}
+
 function resolveFile(pathname) {
   if (isBlockedPath(pathname)) {
     return null;
   }
   if (pathname === '/' || pathname === '') {
-    return path.join(ROOT, 'index.html');
+    return resolveRootHtmlFile();
   }
   if (pathname.endsWith('/')) {
     const indexPath = path.join(ROOT, pathname.slice(1), 'index.html');

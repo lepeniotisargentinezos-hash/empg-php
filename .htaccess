@@ -9,6 +9,8 @@
 
 </IfModule>
 
+DirectoryIndex index.php index.html
+
 <FilesMatch "^\.env">
   <IfModule mod_authz_core.c>
     Require all denied

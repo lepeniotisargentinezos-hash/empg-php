@@ -67,6 +67,14 @@ $GROUPS = [
             ['key' => 'AMUNG_UPSELL',   'label' => 'Upsell ID',   'type' => 'text'],
         ],
     ],
+    [
+        'id'    => 'site',
+        'label' => 'Site',
+        'icon'  => '🌐',
+        'vars'  => [
+            ['key' => 'ROOT_PAGE_HTML', 'label' => 'Página inicial HTML', 'type' => 'text'],
+        ],
+    ],
 ];
 
 $ALL_ALLOWED = [];

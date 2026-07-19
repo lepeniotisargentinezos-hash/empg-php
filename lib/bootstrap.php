@@ -8,31 +8,32 @@ function credpix_root(): string
 
 function credpix_load_env(): void
 {
-    $path = credpix_root() . '/.env';
-    if (!is_file($path)) {
-        return;
-    }
-    foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
-        $line = trim($line);
-        if ($line === '' || $line[0] === '#') {
+    foreach ([credpix_root() . '/.env', credpix_root() . '/.env.local'] as $path) {
+        if (!is_file($path)) {
             continue;
         }
-        $eq = strpos($line, '=');
-        if ($eq === false) {
-            continue;
-        }
-        $key = trim(substr($line, 0, $eq));
-        $val = trim(substr($line, $eq + 1));
-        if (
-            (strlen($val) >= 2 && $val[0] === '"' && substr($val, -1) === '"') ||
-            (strlen($val) >= 2 && $val[0] === "'" && substr($val, -1) === "'")
-        ) {
-            $val = substr($val, 1, -1);
-        }
-        // .env do projeto tem prioridade (cPanel às vezes injeta vars antigas no PHP).
-        if ($key !== '') {
-            putenv("$key=$val");
-            $_ENV[$key] = $val;
+        foreach (file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') {
+                continue;
+            }
+            $eq = strpos($line, '=');
+            if ($eq === false) {
+                continue;
+            }
+            $key = trim(substr($line, 0, $eq));
+            $val = trim(substr($line, $eq + 1));
+            if (
+                (strlen($val) >= 2 && $val[0] === '"' && substr($val, -1) === '"') ||
+                (strlen($val) >= 2 && $val[0] === "'" && substr($val, -1) === "'")
+            ) {
+                $val = substr($val, 1, -1);
+            }
+            // Arquivos do projeto têm prioridade sobre env do servidor; .env.local sobrescreve .env.
+            if ($key !== '') {
+                putenv("$key=$val");
+                $_ENV[$key] = $val;
+            }
         }
     }
 }
