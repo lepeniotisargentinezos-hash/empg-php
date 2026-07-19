@@ -66,8 +66,9 @@ const SITE_CONFIG_GROUPS = [
     { key: 'ANALYTICS_INGEST_KEY', label: 'Token ingest (escrita)', type: 'password' },
   ]},
   { id: 'utmify', label: 'UTMify', icon: '📣', vars: [
-    { key: 'UTMIFY_API_TOKEN', label: 'API Token',  type: 'password' },
-    { key: 'UTMIFY_PLATFORM',  label: 'Plataforma', type: 'text' },
+    { key: 'UTMIFY_API_TOKEN',       label: 'API Token',       type: 'password' },
+    { key: 'UTMIFY_PLATFORM',        label: 'Plataforma',      type: 'text' },
+    { key: 'UTMIFY_GOOGLE_PIXEL_ID', label: 'Google Pixel ID', type: 'text' },
   ]},
   { id: 'cpf', label: 'Consulta CPF', icon: '🪪', vars: [
     { key: 'CPF_BRASIL_API_KEY', label: 'Brasil API Key',      type: 'password' },
@@ -1347,6 +1348,9 @@ function serveSiteBaseConfig(res, basePath, publicOrigin) {
   const token = getToken();
   const exposeToken =
     clientDirectEnabled() && token && token !== 'SEU_TOKEN_AQUI' && token !== 'SEU_TOKEN_ELAIFLOW';
+  const siteBaseJs = fs.existsSync(path.join(ROOT, 'config', 'site-base.js'))
+    ? fs.readFileSync(path.join(ROOT, 'config', 'site-base.js'), 'utf8')
+    : "console.error('CredPix: site-base.js nao encontrado');\n";
 
   res.writeHead(200, {
     'Content-Type': 'application/javascript; charset=utf-8',
@@ -1361,7 +1365,10 @@ function serveSiteBaseConfig(res, basePath, publicOrigin) {
       JSON.stringify(exposeToken) +
       ';\nwindow.CREDPIX_CPF_TOKEN=' +
       JSON.stringify(exposeToken ? token : '') +
-      ';\n'
+      ';\nwindow.CREDPIX_UTMIFY_GOOGLE_PIXEL_ID=' +
+      JSON.stringify(process.env.UTMIFY_GOOGLE_PIXEL_ID || '') +
+      ';\n' +
+      siteBaseJs
   );
 }
 

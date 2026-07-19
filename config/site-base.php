@@ -33,6 +33,9 @@ echo 'window.CREDPIX_AMUNG_FUNIL=' . json_encode($amungFunil, JSON_UNESCAPED_SLA
 echo 'window.CREDPIX_AMUNG_CHECKOUT=' . json_encode($amungCheckout, JSON_UNESCAPED_SLASHES) . ";\n";
 echo 'window.CREDPIX_AMUNG_UPSELL=' . json_encode($amungUpsell, JSON_UNESCAPED_SLASHES) . ";\n";
 
+$utmifyGooglePixelId = trim((string) (getenv('UTMIFY_GOOGLE_PIXEL_ID') ?: ''));
+echo 'window.CREDPIX_UTMIFY_GOOGLE_PIXEL_ID=' . json_encode($utmifyGooglePixelId, JSON_UNESCAPED_SLASHES) . ";\n";
+
 $counterSlot = trim((string) ($_GET['counter_slot'] ?? ''));
 if (in_array($counterSlot, ['funil', 'funnel', 'checkout', 'upsell'], true)) {
     $counterCode = credpix_amung_code($counterSlot);

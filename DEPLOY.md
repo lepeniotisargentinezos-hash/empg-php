@@ -48,8 +48,8 @@ Estes caminhos **não existem** em `empa-deploy/`, então o FileZilla **não os 
 | `data/analytics/` | Eventos, presença, backups |
 | `data/pix/` | Transações PIX |
 | `data/utmify/` | Logs Utmify |
+| `data/config/` | Pixels e informações de domínio salvos pelo painel |
 | `.env` | Chaves, tokens, BASE_PATH |
-| `config/google-pixels.json` | Pixels salvos no admin |
 | `config/cpf-token.js` | Token CPF (se existir no servidor) |
 
 ## Painel Analytics (insights)

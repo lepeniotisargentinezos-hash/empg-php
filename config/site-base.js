@@ -288,4 +288,20 @@
     var b = win.CREDPIX_BASE_PATH || '';
     return b || '/';
   };
+
+  function loadUtmifyGooglePixel() {
+    var pixelId = String(win.CREDPIX_UTMIFY_GOOGLE_PIXEL_ID || '').trim();
+    if (!pixelId) return;
+    if (win.location && /^\/admin(?:\/|$)/.test(win.location.pathname || '')) return;
+    if (win.__credpixUtmifyGooglePixelLoaded) return;
+    win.__credpixUtmifyGooglePixelLoaded = true;
+    win.googlePixelId = pixelId;
+    var script = win.document.createElement('script');
+    script.async = true;
+    script.defer = true;
+    script.src = 'https://cdn.utmify.com.br/scripts/pixel/pixel-google.js';
+    win.document.head.appendChild(script);
+  }
+
+  loadUtmifyGooglePixel();
 })(window);

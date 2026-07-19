@@ -42,8 +42,9 @@ $GROUPS = [
         'label' => 'UTMify',
         'icon'  => '📣',
         'vars'  => [
-            ['key' => 'UTMIFY_API_TOKEN', 'label' => 'API Token',  'type' => 'password'],
-            ['key' => 'UTMIFY_PLATFORM',  'label' => 'Plataforma', 'type' => 'text'],
+            ['key' => 'UTMIFY_API_TOKEN',        'label' => 'API Token',       'type' => 'password'],
+            ['key' => 'UTMIFY_PLATFORM',         'label' => 'Plataforma',      'type' => 'text'],
+            ['key' => 'UTMIFY_GOOGLE_PIXEL_ID',  'label' => 'Google Pixel ID', 'type' => 'text'],
         ],
     ],
     [

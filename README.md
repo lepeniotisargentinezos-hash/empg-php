@@ -53,6 +53,16 @@ Cada `upX` é uma oferta upsell independente. O redirecionamento para o próximo
 - Ingestão via `POST /api/analytics.php` (token: `ANALYTICS_INGEST_KEY`)
 - Presença ao vivo via `presence.json` (60s de janela)
 
+## UTMify Pixel Google
+
+Para carregar o script `https://cdn.utmify.com.br/scripts/pixel/pixel-google.js` pelo `.env`, defina:
+
+```env
+UTMIFY_GOOGLE_PIXEL_ID=6a5d01fff7246c8917517143
+```
+
+O script é carregado automaticamente nas páginas que incluem `config/site-base.php`/`config/site-base.js`, exceto no `/admin`.
+
 ## Hub Central
 
 Node.js standalone em `hub-server/`. Roda em porta 3001 por padrão, faz proxy autenticado para os `/api/*.php` dos sites cadastrados.
