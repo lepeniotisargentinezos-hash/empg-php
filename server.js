@@ -890,7 +890,7 @@ async function handleGooglePixelsApi(req, res) {
       return json(res, 200, {
         success: true,
         config: saved,
-        message: 'Salvo em config/google-pixels.json',
+        message: 'Salvo em data/config/google-pixels.json',
       });
     } catch (err) {
       return json(res, 500, { success: false, error: err.message || 'Erro ao salvar' });
@@ -1445,7 +1445,7 @@ const server = http.createServer(async (req, res) => {
     return handlePixApi(req, res, url);
   }
 
-  if (pathname === '/api/google-pixels.json') {
+  if (pathname === '/api/google-pixels.json' || pathname === '/api/google-pixels.php') {
     return handleGooglePixelsApi(req, res);
   }
 

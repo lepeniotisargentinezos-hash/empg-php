@@ -13,6 +13,7 @@ const ROUTE_MARKERS = [
   '/pay/checkout.php',
   '/config/site-base.js',
   '/config/google-pixels.json',
+  '/api/google-pixels.php',
   '/api/google-pixels.json',
   '/api/consultar-cpf.php',
   '/api/consultar-cpf',

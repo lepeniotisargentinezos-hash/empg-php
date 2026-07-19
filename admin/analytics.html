@@ -2451,7 +2451,7 @@
       var px = stats.google_pixels || {};
       var active = px.active || [];
       if (!active.length) {
-        el.innerHTML = '<span>Pixels Google: nenhum ativo em config/google-pixels.json</span>';
+        el.innerHTML = '<span>Pixels Google: nenhum ativo em data/config/google-pixels.json</span>';
         return;
       }
       el.innerHTML = '<span>Pixels ativos no checkout:</span>' + active.map(function (p) {

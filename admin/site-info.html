@@ -116,7 +116,7 @@
       <h1>Rodapé e multi-domínio</h1>
       <p class="intro">
         Vários domínios podem apontar para a <strong>mesma pasta</strong> no servidor (ex.: <code>/empl</code>).
-        Os pixels Google ficam centralizados em <code>config/google-pixels.json</code> e valem para todos.
+        Os pixels Google ficam centralizados em <code>data/config/google-pixels.json</code> e valem para todos.
         Aqui você define o rodapé da landing (<code>index.html</code>) por domínio: CNPJ, razão social, telefone e endereço.
       </p>
       <p class="host-badge" id="currentHost">Domínio atual: …</p>
@@ -339,7 +339,7 @@
         state.default = data.config.default;
         state.domains = data.config.domains;
         renderTabs();
-        setStatus('Salvo em config/domains.json. Vale para todos os domínios na mesma pasta.', true);
+        setStatus('Salvo em data/config/domains.json. Vale para todos os domínios na mesma pasta.', true);
       } catch (e) {
         setStatus(e.message || 'Erro ao salvar.', false);
       } finally {

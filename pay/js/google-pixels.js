@@ -159,7 +159,7 @@
 
   function configJsonUrl() {
 
-    var path = '/config/google-pixels.json';
+    var path = '/api/google-pixels.php';
 
     if (typeof global.credpixPath === 'function') return global.credpixPath(path);
 
@@ -380,5 +380,4 @@
   };
 
 })(window);
-
 

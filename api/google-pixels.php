@@ -44,7 +44,7 @@ if ($method === 'POST') {
         credpix_json(200, [
             'success' => true,
             'config' => $saved,
-            'message' => 'Salvo em config/google-pixels.json',
+            'message' => 'Salvo em data/config/google-pixels.json',
         ]);
     } catch (Throwable $e) {
         credpix_json(500, ['success' => false, 'error' => $e->getMessage() ?: 'Erro ao salvar']);

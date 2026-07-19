@@ -28,6 +28,11 @@ function credpix_site_info_defaults(): array
 
 function credpix_domains_config_path(): string
 {
+    return credpix_root() . '/data/config/domains.json';
+}
+
+function credpix_domains_legacy_config_path(): string
+{
     return credpix_root() . '/config/domains.json';
 }
 
@@ -58,6 +63,9 @@ function credpix_domains_read(): array
 {
     $defaults = credpix_site_info_defaults();
     $path = credpix_domains_config_path();
+    if (!is_file($path) && is_file(credpix_domains_legacy_config_path())) {
+        $path = credpix_domains_legacy_config_path();
+    }
 
     if (!is_file($path)) {
         return [
@@ -102,7 +110,7 @@ function credpix_domains_read(): array
 
 function credpix_domains_write(array $config): array
 {
-    $dir = credpix_root() . '/config';
+    $dir = dirname(credpix_domains_config_path());
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
     }

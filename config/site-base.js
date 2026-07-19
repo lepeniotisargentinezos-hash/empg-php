@@ -134,6 +134,8 @@
     '/config/site-base.php',
     '/config/cpf-token.js',
     '/config/google-pixels.json',
+    '/api/google-pixels.php',
+    '/api/google-pixels.json',
     '/js/credpix-boot.js',
     '/js/credpix-utm.js',
     '/js/credpix-view-counter.js',

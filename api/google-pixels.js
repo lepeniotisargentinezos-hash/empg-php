@@ -3,7 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const CONFIG_PATH = path.join(__dirname, '..', 'config', 'google-pixels.json');
+const CONFIG_PATH = path.join(__dirname, '..', 'data', 'config', 'google-pixels.json');
+const LEGACY_CONFIG_PATH = path.join(__dirname, '..', 'config', 'google-pixels.json');
 
 const DEFAULT_PIXELS = {
   googleAds: [
@@ -70,11 +71,12 @@ function mergeGoogleAds(defaults, saved) {
 }
 
 function readConfig() {
-  if (!fs.existsSync(CONFIG_PATH)) {
+  const readPath = fs.existsSync(CONFIG_PATH) ? CONFIG_PATH : LEGACY_CONFIG_PATH;
+  if (!fs.existsSync(readPath)) {
     return { ...DEFAULT_PIXELS, savedAt: null, fromDefaults: true };
   }
   try {
-    const data = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(readPath, 'utf8'));
     const cfg = normalizeConfig(data);
     return {
       googleAds: cfg.googleAds,

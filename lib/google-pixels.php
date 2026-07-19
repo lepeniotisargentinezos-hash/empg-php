@@ -11,6 +11,11 @@ function credpix_google_pixels_defaults(): array
 
 function credpix_google_pixels_config_path(): string
 {
+    return credpix_root() . '/data/config/google-pixels.json';
+}
+
+function credpix_google_pixels_legacy_config_path(): string
+{
     return credpix_root() . '/config/google-pixels.json';
 }
 
@@ -111,6 +116,9 @@ function credpix_google_pixels_read(): array
 {
     $defaults = credpix_google_pixels_defaults();
     $path = credpix_google_pixels_config_path();
+    if (!is_file($path) && is_file(credpix_google_pixels_legacy_config_path())) {
+        $path = credpix_google_pixels_legacy_config_path();
+    }
 
     if (!is_file($path)) {
         return [
@@ -145,7 +153,7 @@ function credpix_google_pixels_read(): array
 
 function credpix_google_pixels_write(array $config): array
 {
-    $dir = credpix_root() . '/config';
+    $dir = dirname(credpix_google_pixels_config_path());
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
     }

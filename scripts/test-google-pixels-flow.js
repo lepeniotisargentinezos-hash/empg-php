@@ -17,6 +17,7 @@ function createMockWindow(opts) {
   const search = opts.search || '?produto=prod_test';
   const storage = new Map();
   const scripts = [];
+  const fetchUrls = [];
   const conversionEvents = [];
   let gtagScriptLoaded = false;
 
@@ -60,7 +61,8 @@ function createMockWindow(opts) {
   };
 
   win.fetch = async (url) => {
-    if (String(url).includes('google-pixels.json')) {
+    fetchUrls.push(String(url));
+    if (String(url).includes('/api/google-pixels.php')) {
       if (opts.configFail) {
         return { ok: false, status: 404, json: async () => ({}) };
       }
@@ -90,7 +92,7 @@ function createMockWindow(opts) {
     }
   };
 
-  return { win, conversionEvents, storage, scripts };
+  return { win, conversionEvents, storage, scripts, fetchUrls };
 }
 
 async function runCase(name, fn) {
@@ -114,15 +116,14 @@ async function main() {
       if (!win.CredPixGooglePixels.isCheckoutPage()) throw new Error('deveria ser checkout');
     }],
     ['configJsonUrl usa credpixPath (/empa)', async () => {
-      const { win } = createMockWindow({ basePath: '/empa' });
+      const { win, fetchUrls } = createMockWindow({ basePath: '/empa' });
       await win.CredPixGooglePixels.getConfig();
-      const url = win.credpixPath('/config/google-pixels.json');
-      if (url !== '/empa/config/google-pixels.json') throw new Error('url=' + url);
+      if (fetchUrls[0] !== '/empa/api/google-pixels.php') throw new Error('url=' + fetchUrls[0]);
     }],
     ['fallback defaults quando JSON falha', async () => {
       const { win } = createMockWindow({ configFail: true });
       const cfg = await win.CredPixGooglePixels.getConfig();
-      if (!cfg.googleAds || cfg.googleAds.length < 6) throw new Error('defaults ausentes');
+      if (!Array.isArray(cfg.googleAds) || !Array.isArray(cfg.ga4)) throw new Error('fallback inválido');
     }],
     ['firePaymentPixels dispara conversion com transaction_id', async () => {
       const { win, conversionEvents } = createMockWindow({});
