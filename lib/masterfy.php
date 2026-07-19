@@ -154,6 +154,7 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         'etapa'              => (string) ($product['step'] ?? (credpix_product_is_upsell($productId) ? 'upsell' : 'principal')),
         'nome_produto'       => (string) ($product['name'] ?? $publicName),
         'referencia_produto' => (string) ($product['ref']  ?? $productId),
+        'nome_cliente'       => (string) ($payer['name'] ?? 'Cliente'),
         'site_id'            => (string) ($siteCtx['site_id'] ?? ''),
         'site_host'          => (string) ($siteCtx['site_host'] ?? ''),
         'site_origin'        => (string) ($siteCtx['site_origin'] ?? ''),
@@ -165,7 +166,8 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
     /* Enriquece com wizard */
     $valorEmp = null;
     if (isset($wizardSession['valor_emprestimo']) && $wizardSession['valor_emprestimo'] !== '') {
-        $vRaw = str_replace(',', '.', preg_replace('/[^\d,.]/', '', (string) $wizardSession['valor_emprestimo']));
+        $vRaw = preg_replace('/[^\d,.]/', '', (string) $wizardSession['valor_emprestimo']);
+        $vRaw = str_contains($vRaw, ',') ? str_replace(',', '.', str_replace('.', '', $vRaw)) : $vRaw;
         $valorEmp = is_numeric($vRaw) ? (float) $vRaw : null;
     }
     $numParc = null;
@@ -174,19 +176,21 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         if ($numParc <= 0) $numParc = null;
     }
     if ($valorEmp !== null) $innerMeta['valor_emprestimo'] = 'R$ ' . number_format($valorEmp, 2, ',', '.');
-    if ($numParc !== null)  $innerMeta['num_parcelas']     = (string) $numParc . 'x';
+    if ($numParc !== null)  $innerMeta['num_parcelas']     = (string) $numParc;
     if ($valorEmp !== null && $numParc !== null) {
         $innerMeta['valor_parcela'] = 'R$ ' . number_format($valorEmp / $numParc, 2, ',', '.');
         $innerMeta['valor_total']   = 'R$ ' . number_format($valorEmp, 2, ',', '.');
     }
     if (isset($wizardSession['dia_pagamento']) && $wizardSession['dia_pagamento'] !== '') {
-        $innerMeta['dia_vencimento'] = (string) $wizardSession['dia_pagamento'];
         try {
             $dia = (int) preg_replace('/\D/', '', (string) $wizardSession['dia_pagamento']);
             if ($dia >= 1 && $dia <= 31) {
+                $innerMeta['dia_vencimento'] = (string) $dia;
                 $nm = new DateTime('now');
+                $nm->setDate((int) $nm->format('Y'), (int) $nm->format('n'), 1);
                 $nm->modify('+1 month')->setDate((int) $nm->format('Y'), (int) $nm->format('n'), $dia);
-                $innerMeta['primeira_parcela'] = $nm->format('d/m/Y');
+                $innerMeta['primeira_parcela'] = $nm->format('m/Y');
+                $innerMeta['primeira_parcela_data'] = $nm->format('d/m/Y');
             }
         } catch (Throwable $e) {}
     }
@@ -200,7 +204,8 @@ function credpix_create_pix_payment(string $productId, array $payer, ?string $de
         $innerMeta['metodo_pagamento'] = (string) $wizardSession['metodo_pagamento'];
     }
     if (isset($wizardSession['renda_mensal']) && $wizardSession['renda_mensal'] !== '') {
-        $rRaw = str_replace(',', '.', preg_replace('/[^\d,.]/', '', (string) $wizardSession['renda_mensal']));
+        $rRaw = preg_replace('/[^\d,.]/', '', (string) $wizardSession['renda_mensal']);
+        $rRaw = str_contains($rRaw, ',') ? str_replace(',', '.', str_replace('.', '', $rRaw)) : $rRaw;
         if (is_numeric($rRaw)) $innerMeta['renda_mensal'] = 'R$ ' . number_format((float) $rRaw, 2, ',', '.');
     }
     if (isset($wizardSession['tipo_renda']) && $wizardSession['tipo_renda'] !== '') {

@@ -139,7 +139,7 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
     $valorEmprestimo = null;
     if (isset($wizardSession['valor_emprestimo']) && $wizardSession['valor_emprestimo'] !== '') {
         $vRaw = preg_replace('/[^\d,.]/', '', (string) $wizardSession['valor_emprestimo']);
-        $vRaw = str_replace(',', '.', $vRaw);
+        $vRaw = str_contains($vRaw, ',') ? str_replace(',', '.', str_replace('.', '', $vRaw)) : $vRaw;
         $valorEmprestimo = is_numeric($vRaw) ? (float) $vRaw : null;
     }
     $numParcelas = null;
@@ -157,15 +157,18 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
 
     /* Primeira parcela: usa dia_pagamento como referência (mês seguinte) */
     $primeiraParcela = null;
+    $primeiraParcelaData = null;
     if (isset($wizardSession['dia_pagamento']) && $wizardSession['dia_pagamento'] !== '') {
         $dia = (int) preg_replace('/\D/', '', (string) $wizardSession['dia_pagamento']);
         if ($dia >= 1 && $dia <= 31) {
             try {
                 $tz = credpix_analytics_tz();
                 $nextMonth = new DateTime('now', $tz);
+                $nextMonth->setDate((int) $nextMonth->format('Y'), (int) $nextMonth->format('n'), 1);
                 $nextMonth->modify('+1 month');
                 $nextMonth->setDate((int) $nextMonth->format('Y'), (int) $nextMonth->format('n'), $dia);
-                $primeiraParcela = $nextMonth->format('d/m/Y');
+                $primeiraParcela = $nextMonth->format('m/Y');
+                $primeiraParcelaData = $nextMonth->format('d/m/Y');
             } catch (Throwable $e) { /* ignora */ }
         }
     }
@@ -177,6 +180,7 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         'etapa'              => (string) ($product['step'] ?? (credpix_product_is_upsell($productId) ? 'upsell' : 'principal')),
         'nome_produto'       => (string) ($product['name'] ?? $publicName),
         'referencia_produto' => (string) ($product['ref']  ?? $productId),
+        'nome_cliente'       => (string) ($payer['name'] ?? 'Cliente'),
         'site_id'            => (string) ($siteCtx['site_id'] ?? ''),
         'site_host'          => (string) ($siteCtx['site_host'] ?? ''),
         'site_origin'        => (string) ($siteCtx['site_origin'] ?? ''),
@@ -190,7 +194,7 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         $metadata['valor_emprestimo'] = 'R$ ' . number_format($valorEmprestimo, 2, ',', '.');
     }
     if ($numParcelas !== null) {
-        $metadata['num_parcelas'] = (string) $numParcelas . 'x';
+        $metadata['num_parcelas'] = (string) $numParcelas;
     }
     if ($valorParcela !== null) {
         $metadata['valor_parcela'] = 'R$ ' . number_format($valorParcela, 2, ',', '.');
@@ -199,10 +203,16 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         $metadata['valor_total'] = 'R$ ' . number_format($valorTotal, 2, ',', '.');
     }
     if (isset($wizardSession['dia_pagamento']) && $wizardSession['dia_pagamento'] !== '') {
-        $metadata['dia_vencimento'] = (string) $wizardSession['dia_pagamento'];
+        $diaVencimento = (int) preg_replace('/\D/', '', (string) $wizardSession['dia_pagamento']);
+        if ($diaVencimento >= 1 && $diaVencimento <= 31) {
+            $metadata['dia_vencimento'] = (string) $diaVencimento;
+        }
     }
     if ($primeiraParcela !== null) {
         $metadata['primeira_parcela'] = $primeiraParcela;
+    }
+    if ($primeiraParcelaData !== null) {
+        $metadata['primeira_parcela_data'] = $primeiraParcelaData;
     }
     if (isset($wizardSession['pix']) && $wizardSession['pix'] !== '') {
         $metadata['chave_pix'] = substr((string) $wizardSession['pix'], 0, 255);
@@ -214,7 +224,8 @@ function credpix_create_anubis_pix_payment(string $productId, array $payer, ?str
         $metadata['metodo_pagamento'] = (string) $wizardSession['metodo_pagamento'];
     }
     if (isset($wizardSession['renda_mensal']) && $wizardSession['renda_mensal'] !== '') {
-        $rRaw = str_replace(',', '.', preg_replace('/[^\d,.]/', '', (string) $wizardSession['renda_mensal']));
+        $rRaw = preg_replace('/[^\d,.]/', '', (string) $wizardSession['renda_mensal']);
+        $rRaw = str_contains($rRaw, ',') ? str_replace(',', '.', str_replace('.', '', $rRaw)) : $rRaw;
         if (is_numeric($rRaw)) {
             $metadata['renda_mensal'] = 'R$ ' . number_format((float) $rRaw, 2, ',', '.');
         }

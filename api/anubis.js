@@ -105,6 +105,73 @@ function getPublicBaseUrl(req) {
   return `http://localhost:${process.env.PORT || 3000}`;
 }
 
+function parseCurrency(value) {
+  const rawValue = String(value || '').replace(/[^\d,.]/g, '');
+  const raw = rawValue.includes(',') ? rawValue.replace(/\./g, '').replace(',', '.') : rawValue;
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatBrl(value) {
+  return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function firstInstallmentFromDay(dayValue) {
+  const day = Number(String(dayValue || '').replace(/\D/g, ''));
+  if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+
+  const date = new Date();
+  date.setDate(1);
+  date.setMonth(date.getMonth() + 1);
+  date.setDate(day);
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = String(date.getFullYear());
+  return {
+    monthYear: `${mm}/${yyyy}`,
+    fullDate: `${dd}/${mm}/${yyyy}`,
+  };
+}
+
+function buildRecoveryMetadata(wizardMeta, payer) {
+  const metadata = {
+    nome_cliente: payer.name || 'Cliente',
+  };
+
+  const loanValue = parseCurrency(wizardMeta.valor_emprestimo);
+  const installments = Number(String(wizardMeta.num_parcelas || '').replace(/\D/g, '')) || null;
+  if (loanValue !== null) metadata.valor_emprestimo = formatBrl(loanValue);
+  if (installments) metadata.num_parcelas = String(installments);
+  if (loanValue !== null && installments) {
+    metadata.valor_parcela = formatBrl(loanValue / installments);
+    metadata.valor_total = formatBrl(loanValue);
+  }
+
+  if (wizardMeta.dia_pagamento) {
+    const installmentDay = Number(String(wizardMeta.dia_pagamento).replace(/\D/g, ''));
+    if (Number.isInteger(installmentDay) && installmentDay >= 1 && installmentDay <= 31) {
+      metadata.dia_vencimento = String(installmentDay);
+    }
+    const firstInstallment = firstInstallmentFromDay(wizardMeta.dia_pagamento);
+    if (firstInstallment) {
+      metadata.primeira_parcela = firstInstallment.monthYear;
+      metadata.primeira_parcela_data = firstInstallment.fullDate;
+    }
+  }
+  if (wizardMeta.pix) metadata.chave_pix = String(wizardMeta.pix).slice(0, 255);
+  if (wizardMeta.tipo_pix) metadata.tipo_pix = String(wizardMeta.tipo_pix);
+  if (wizardMeta.metodo_pagamento) metadata.metodo_pagamento = String(wizardMeta.metodo_pagamento);
+  if (wizardMeta.renda_mensal) {
+    const income = parseCurrency(wizardMeta.renda_mensal);
+    if (income !== null) metadata.renda_mensal = formatBrl(income);
+  }
+  if (wizardMeta.tipo_renda) metadata.tipo_renda = String(wizardMeta.tipo_renda);
+  if (wizardMeta.telefone) metadata.telefone = String(wizardMeta.telefone).replace(/\D/g, '');
+
+  return metadata;
+}
+
 async function createPixPayment(opts) {
   const product = products[opts.productId];
   if (!product) throw new Error('Produto não configurado: ' + opts.productId);
@@ -127,6 +194,8 @@ async function createPixPayment(opts) {
   const mainProdId = (process.env.ANUBIS_MAIN_PRODUCT_ID || process.env.MASTERFY_MAIN_PRODUCT_ID || 'prod_698630abcbdde').trim();
   const isUpsell = opts.productId !== mainProdId;
   const publicName = isUpsell ? (product.label || product.name || 'Produto') : 'Principal';
+  const wizardMeta = opts.wizardMeta || {};
+  const recoveryMetadata = buildRecoveryMetadata(wizardMeta, payer);
 
   const phone = String(payer.phone || payer.telefone || '11999999999').replace(/\D/g, '');
 
@@ -159,6 +228,8 @@ async function createPixPayment(opts) {
       site: site.site_id || '',
       dominio: site.site_host || '',
       dominio_origem: site.site_origin || '',
+      ...wizardMeta,
+      ...recoveryMetadata,
     },
   };
 
