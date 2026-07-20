@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d4f4b">
+  <meta name="description" content="Site institucional da Credipaiva, cooperativa de crédito voltada ao atendimento de seu quadro social.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <title>Credipaiva | Cooperativa de Crédito</title>
+  <style>
+    :root {
+      --ink: #123437;
+      --ink-soft: #4b6566;
+      --forest: #0d4f4b;
+      --forest-dark: #073b39;
+      --teal: #13766d;
+      --mint: #dceee8;
+      --cream: #f5f1e8;
+      --sand: #e8dfd0;
+      --white: #fff;
+      --line: #d8e1de;
+      --orange: #c76d3e;
+      --warning: #fff3dd;
+      --danger: #fff0eb;
+      --shadow: 0 22px 60px rgba(7, 59, 57, .12);
+      --radius: 20px;
+      --container: min(1160px, calc(100% - 40px));
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #fbfcfa;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      text-rendering: optimizeLegibility;
+    }
+    body.menu-open { overflow: hidden; }
+    a { color: inherit; text-underline-offset: 4px; }
+    button, input, select, textarea { color: inherit; font: inherit; }
+    button, summary, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid #f0a36e; outline-offset: 3px; }
+    ::selection { background: var(--mint); }
+    [hidden] { display: none !important; }
+    .container { margin-inline: auto; width: var(--container); }
+    .skip-link {
+      background: var(--white);
+      border-radius: 0 0 8px;
+      box-shadow: var(--shadow);
+      left: 0;
+      padding: 10px 16px;
+      position: fixed;
+      top: -70px;
+      z-index: 999;
+    }
+    .skip-link:focus { top: 0; }
+    h1, h2, h3 {
+      color: var(--forest-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 500;
+      letter-spacing: -.035em;
+      line-height: 1.12;
+      margin: 0;
+    }
+    h1 { font-size: clamp(2.65rem, 5vw, 4.65rem); }
+    h1 em { color: var(--teal); font-weight: inherit; }
+    h2 { font-size: clamp(2rem, 3.4vw, 3.1rem); }
+    h3 { font-size: 1.42rem; }
+    .eyebrow {
+      color: var(--teal);
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      margin-bottom: 17px;
+      text-transform: uppercase;
+    }
+    .topbar {
+      background: var(--forest-dark);
+      color: #e7f2ef;
+      font-size: .77rem;
+    }
+    .topbar-inner {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      min-height: 38px;
+    }
+    .topbar-links { align-items: center; display: flex; gap: 20px; }
+    .topbar a { text-decoration: none; }
+    .topbar a:hover { text-decoration: underline; }
+    .site-header {
+      backdrop-filter: blur(14px);
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid rgba(7,59,57,.1);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .header-inner {
+      align-items: center;
+      display: flex;
+      justify-content: space-between;
+      min-height: 80px;
+    }
+    .wordmark {
+      align-items: center;
+      display: inline-flex;
+      gap: 11px;
+      min-width: max-content;
+      text-decoration: none;
+    }
+    .brand-symbol {
+      align-items: center;
+      background: var(--teal);
+      border-radius: 50% 50% 50% 20%;
+      color: var(--white);
+      display: inline-flex;
+      font-size: 1.35rem;
+      font-weight: 850;
+      height: 42px;
+      justify-content: center;
+      transform: rotate(-7deg);
+      width: 42px;
+    }
+    .brand-symbol b { transform: rotate(7deg); }
+    .wordmark strong, .wordmark small { display: block; }
+    .wordmark strong {
+      color: var(--forest-dark);
+      font-size: 1.05rem;
+      letter-spacing: .055em;
+      line-height: 1.05;
+    }
+    .wordmark small {
+      color: var(--ink-soft);
+      font-size: .66rem;
+      letter-spacing: .09em;
+      margin-top: 5px;
+      text-transform: uppercase;
+    }
+    .desktop-nav {
+      align-items: center;
+      display: flex;
+      font-size: .79rem;
+      font-weight: 720;
+      gap: 17px;
+    }
+    .desktop-nav > a, .nav-group > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 28px 0;
+      text-decoration: none;
+    }
+    .nav-group { position: relative; }
+    .nav-group > summary::-webkit-details-marker { display: none; }
+    .nav-group > summary::after { content: "⌄"; margin-left: 5px; }
+    .nav-menu {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+      display: grid;
+      left: -17px;
+      min-width: 245px;
+      padding: 10px;
+      position: absolute;
+      top: 65px;
+    }
+    .nav-menu a {
+      border-radius: 8px;
+      padding: 8px 11px;
+      text-decoration: none;
+    }
+    .nav-menu a:hover { background: var(--cream); }
+    .nav-menu .overview {
+      border-bottom: 1px solid var(--line);
+      color: var(--teal);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .menu-button {
+      align-items: center;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      display: none;
+      font-weight: 750;
+      gap: 8px;
+      padding: 9px 14px;
+    }
+    .menu-button span {
+      background: currentColor;
+      box-shadow: 0 5px currentColor, 0 -5px currentColor;
+      display: block;
+      height: 1px;
+      width: 17px;
+    }
+    .mobile-panel {
+      background: var(--white);
+      border-top: 1px solid var(--line);
+      display: none;
+      height: calc(100vh - 72px);
+      inset: 72px 0 0;
+      overflow: auto;
+      padding: 20px;
+      position: fixed;
+      z-index: 49;
+    }
+    .mobile-panel.open { display: block; }
+    .mobile-panel a {
+      border-bottom: 1px solid var(--line);
+      display: block;
+      font-weight: 750;
+      padding: 13px 3px;
+      text-decoration: none;
+    }
+    .mobile-panel details { border-bottom: 1px solid var(--line); }
+    .mobile-panel summary {
+      cursor: pointer;
+      font-weight: 800;
+      list-style: none;
+      padding: 13px 3px;
+    }
+    .mobile-panel details a { border: 0; color: var(--ink-soft); padding: 9px 20px; }
+    .hero {
+      background:
+        radial-gradient(circle at 90% 4%, rgba(220,238,232,.95), transparent 29%),
+        linear-gradient(125deg, var(--cream), #fdfdfb 72%);
+      border-bottom: 1px solid var(--sand);
+      overflow: hidden;
+      padding: 78px 0 70px;
+    }
+    .hero-grid {
+      align-items: center;
+      display: grid;
+      gap: 68px;
+      grid-template-columns: minmax(0,1.2fr) minmax(330px,.8fr);
+    }
+    .lead {
+      color: var(--ink);
+      font-size: 1.16rem;
+      line-height: 1.72;
+      margin: 26px 0 12px;
+      max-width: 710px;
+    }
+    .hero-copy > p:not(.lead) { color: var(--ink-soft); max-width: 710px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 29px; }
+    .button {
+      align-items: center;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      font-size: .86rem;
+      font-weight: 780;
+      justify-content: center;
+      min-height: 48px;
+      padding: 11px 20px;
+      text-align: center;
+      text-decoration: none;
+      transition: .2s ease;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button-primary { background: var(--teal); color: var(--white); }
+    .button-primary:hover { background: var(--forest); }
+    .button-secondary { border-color: var(--teal); color: var(--teal); }
+    .button-secondary:hover { background: var(--mint); }
+    .identity-card {
+      background: var(--forest);
+      border-radius: 28px 28px 28px 8px;
+      box-shadow: var(--shadow);
+      color: #d4e7e3;
+      padding: 33px;
+    }
+    .identity-card .eyebrow { color: #a9d4ca; }
+    .identity-card h2 { color: var(--white); font-size: 2.05rem; margin-bottom: 22px; }
+    .identity-card dl { margin: 0; }
+    .identity-card dl div { border-top: 1px solid rgba(255,255,255,.16); padding: 11px 0; }
+    .identity-card dt { color: #a9d4ca; font-size: .68rem; letter-spacing: .09em; text-transform: uppercase; }
+    .identity-card dd { color: var(--white); font-size: .86rem; margin: 3px 0 0; }
+    .identity-card a { color: #e5f3ef; display: inline-block; font-weight: 760; margin-top: 15px; }
+    .trust-strip { background: var(--white); border-bottom: 1px solid var(--line); }
+    .trust-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+    .trust-grid > div { border-right: 1px solid var(--line); display: grid; gap: 2px; padding: 22px 25px; }
+    .trust-grid > div:first-child { border-left: 1px solid var(--line); }
+    .trust-grid strong { color: var(--forest-dark); font-size: .84rem; }
+    .trust-grid span { color: var(--ink-soft); font-size: .77rem; }
+    .section { padding: 88px 0; }
+    .section-tinted { background: var(--cream); border-block: 1px solid var(--sand); }
+    .section-dark { background: var(--forest); color: #d6e5e2; }
+    .section-dark h2, .section-dark .eyebrow { color: var(--white); }
+    .split { display: grid; gap: 90px; grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); }
+    .rich-copy { color: var(--ink-soft); font-size: 1.06rem; }
+    .rich-copy p:first-child { color: var(--ink); font-size: 1.22rem; margin-top: 0; }
+    .text-link { color: var(--teal); font-weight: 770; }
+    .section-heading { margin-bottom: 42px; max-width: 760px; }
+    .section-heading p { color: var(--ink-soft); font-size: 1.05rem; }
+    .section-heading.horizontal {
+      align-items: end;
+      display: grid;
+      gap: 60px;
+      grid-template-columns: 1fr .8fr;
+      max-width: none;
+    }
+    .steps {
+      display: grid;
+      gap: 1px;
+      grid-template-columns: repeat(5,1fr);
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .steps li { background: var(--white); min-height: 250px; padding: 25px 22px; }
+    .steps li:first-child { border-radius: 18px 0 0 18px; }
+    .steps li:last-child { border-radius: 0 18px 18px 0; }
+    .steps li > span { color: var(--teal); display: block; font-size: .73rem; font-weight: 850; letter-spacing: .12em; margin-bottom: 48px; }
+    .steps h3 { font-size: 1.22rem; }
+    .steps p { color: var(--ink-soft); font-size: .82rem; }
+    .notice {
+      border-left: 4px solid var(--teal);
+      border-radius: 9px;
+      margin: 26px 0;
+      padding: 16px 19px;
+    }
+    .notice p { margin: 5px 0 0; }
+    .notice-warning { background: var(--warning); border-color: #d68c43; }
+    .notice-review { background: #eef4f2; }
+    .notice-blocked { background: var(--danger); border-color: #bc594b; }
+    .notice-neutral { background: var(--cream); border-color: var(--sand); }
+    .product-grid { display: grid; gap: 18px; grid-template-columns: repeat(4,1fr); }
+    .product-card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+      padding: 25px;
+    }
+    .product-index { color: var(--teal); font-size: .72rem; font-weight: 850; letter-spacing: .12em; }
+    .product-card h3, .product-card h2 { font-size: 1.45rem; margin: 28px 0 10px; }
+    .product-card p { color: var(--ink-soft); font-size: .86rem; }
+    .product-card a { color: var(--teal); font-size: .83rem; font-weight: 780; margin-top: auto; }
+    .status-chip {
+      align-self: start;
+      background: var(--mint);
+      border-radius: 99px;
+      color: var(--forest);
+      font-size: .68rem;
+      font-weight: 800;
+      margin: 4px 0 18px;
+      padding: 5px 9px;
+      text-transform: uppercase;
+    }
+    .transparency-grid { display: grid; gap: 90px; grid-template-columns: 1fr 1fr; }
+    .transparency-grid p { color: #c8dcda; font-size: 1.04rem; }
+    .link-list { border-top: 1px solid rgba(255,255,255,.18); }
+    .link-list a {
+      border-bottom: 1px solid rgba(255,255,255,.18);
+      display: flex;
+      justify-content: space-between;
+      padding: 14px 0;
+      text-decoration: none;
+    }
+    .link-list a::after { content: "→"; }
+    .contact-band {
+      align-items: center;
+      background: var(--cream);
+      border: 1px solid var(--sand);
+      border-radius: 26px;
+      display: grid;
+      gap: 40px;
+      grid-template-columns: 1fr 1fr;
+      padding: 42px;
+    }
+    .contact-details { display: grid; }
+    .contact-details a { color: var(--teal); font-weight: 760; }
+    .contact-details span { color: var(--ink-soft); font-size: .86rem; margin-top: 8px; }
+    .page-hero {
+      background: linear-gradient(135deg,var(--cream),#fff 75%);
+      border-bottom: 1px solid var(--sand);
+      padding: 38px 0 58px;
+    }
+    .breadcrumbs { color: var(--ink-soft); display: flex; font-size: .78rem; gap: 8px; margin-bottom: 34px; }
+    .page-hero h1 { font-size: clamp(2.4rem,4.6vw,4rem); }
+    .page-hero > .container > p { color: var(--ink-soft); font-size: 1.08rem; margin: 17px 0 0; max-width: 760px; }
+    .page-body { padding: 55px 0 90px; }
+    .content-sections { border-top: 1px solid var(--line); }
+    .content-section {
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 18px 55px;
+      grid-template-columns: minmax(220px,.7fr) minmax(0,1.3fr);
+      padding: 40px 0;
+    }
+    .content-section h2 { font-size: 1.75rem; grid-row: 1 / span 12; }
+    .content-section p { color: var(--ink-soft); margin: 0; }
+    .content-section ul { margin: 0; }
+    .check-list { list-style: none; padding: 0; }
+    .check-list li { border-bottom: 1px solid var(--line); padding: 8px 0 8px 25px; position: relative; }
+    .check-list li::before { color: var(--teal); content: "✓"; font-weight: 900; left: 0; position: absolute; }
+    .content-links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+    .content-links a { color: var(--teal); font-weight: 760; }
+    .data-table { border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+    .data-table > div { border-bottom: 1px solid var(--line); display: grid; gap: 30px; grid-template-columns: .75fr 1.25fr; padding: 14px 18px; }
+    .data-table > div:last-child { border: 0; }
+    .data-table span { color: var(--ink-soft); font-size: .8rem; }
+    .data-table strong { overflow-wrap: anywhere; }
+    .conditions-grid { display: grid; gap: 1px; grid-template-columns: repeat(3,1fr); }
+    .conditions-grid > div { background: var(--cream); display: grid; min-height: 105px; padding: 15px; }
+    .conditions-grid span { color: var(--ink-soft); font-size: .75rem; }
+    .conditions-grid strong { align-self: end; font-size: .82rem; }
+    .comparison-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; min-width: 700px; width: 100%; }
+    caption { font-weight: 800; padding: 12px; text-align: left; }
+    th, td { border-bottom: 1px solid var(--line); padding: 13px; text-align: left; }
+    thead { background: var(--forest); color: var(--white); }
+    .form-layout { display: grid; gap: 50px; grid-template-columns: .7fr 1.3fr; }
+    .contact-sidebar { background: var(--forest); border-radius: 20px; color: #d7e9e5; display: flex; flex-direction: column; padding: 28px; }
+    .contact-sidebar h2 { color: var(--white); font-size: 1.7rem; margin-bottom: 18px; }
+    .contact-sidebar a { color: var(--white); font-weight: 730; }
+    .contact-sidebar p { color: #bcd5d1; font-size: .82rem; }
+    .form-card { background: var(--white); border: 1px solid var(--line); border-radius: 20px; padding: 28px; }
+    .form-grid { display: grid; gap: 17px; grid-template-columns: repeat(2,1fr); }
+    .field { display: grid; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: .78rem; font-weight: 780; }
+    .field input, .field select, .field textarea {
+      background: #fbfcfa;
+      border: 1px solid #bfcfcb;
+      border-radius: 9px;
+      min-height: 45px;
+      padding: 10px 12px;
+      width: 100%;
+    }
+    .field textarea { min-height: 125px; resize: vertical; }
+    .checkbox { align-items: start; display: flex; font-size: .78rem; gap: 8px; margin: 18px 0; }
+    .checkbox input { margin-top: 5px; }
+    .form-help, .form-result { color: var(--ink-soft); font-size: .78rem; }
+    .form-result { background: var(--mint); border-radius: 8px; margin-top: 14px; padding: 12px; }
+    .faq-list details { border-bottom: 1px solid var(--line); }
+    .faq-list summary { cursor: pointer; font-family: Georgia,serif; font-size: 1.25rem; font-weight: 650; list-style: none; padding: 20px 35px 20px 0; position: relative; }
+    .faq-list summary::after { content: "+"; position: absolute; right: 5px; }
+    .faq-list details[open] summary::after { content: "−"; }
+    .faq-list p { color: var(--ink-soft); margin: -4px 0 20px; max-width: 850px; }
+    .sitemap-grid { display: grid; gap: 32px; grid-template-columns: repeat(3,1fr); }
+    .sitemap-grid section { border-top: 1px solid var(--line); display: grid; padding-top: 15px; }
+    .sitemap-grid h2 { font-size: 1.35rem; margin-bottom: 10px; }
+    .sitemap-grid a { color: var(--ink-soft); padding: 3px 0; }
+    .site-footer { background: #062f2e; color: #bad0cc; padding: 62px 0 24px; }
+    .footer-grid { display: grid; gap: 42px; grid-template-columns: 1.3fr repeat(3,.7fr); }
+    .footer-brand .wordmark strong, .footer-brand .wordmark small { color: var(--white); }
+    .footer-brand p { font-size: .82rem; max-width: 390px; }
+    .footer-grid h2 { color: var(--white); font-family: inherit; font-size: .75rem; font-weight: 850; letter-spacing: .1em; margin-bottom: 15px; text-transform: uppercase; }
+    .footer-grid > div:not(.footer-brand) { display: flex; flex-direction: column; }
+    .footer-grid a { font-size: .81rem; padding: 3px 0; }
+    .legal-identity {
+      align-items: end;
+      border-top: 1px solid rgba(255,255,255,.13);
+      display: flex;
+      font-size: .72rem;
+      justify-content: space-between;
+      margin-top: 42px;
+      padding-top: 21px;
+    }
+    .legal-identity p { margin: 0; }
+    .cookie-panel {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      bottom: 15px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 12px;
+      left: 50%;
+      max-width: 720px;
+      padding: 18px;
+      position: fixed;
+      transform: translateX(-50%);
+      width: calc(100% - 30px);
+      z-index: 90;
+    }
+    .cookie-panel p { color: var(--ink-soft); font-size: .8rem; margin: 0; }
+    .cookie-actions { display: flex; gap: 10px; }
+    .cookie-actions .button { min-height: 40px; padding: 7px 15px; }
+    .not-found { min-height: 55vh; padding: 80px 0; text-align: center; }
+    .not-found p { color: var(--ink-soft); }
+
+    @media (max-width: 1060px) {
+      .desktop-nav { display: none; }
+      .menu-button { display: inline-flex; }
+      .product-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-grid { grid-template-columns: 1.2fr repeat(3,.8fr); }
+    }
+    @media (max-width: 780px) {
+      :root { --container: min(100% - 28px,720px); }
+      .topbar-inner > span, .topbar-links a:nth-child(2) { display: none; }
+      .topbar-inner { justify-content: center; }
+      .topbar-links { justify-content: space-between; width: 100%; }
+      .header-inner { min-height: 72px; }
+      .hero { padding: 55px 0; }
+      .hero-grid, .split, .transparency-grid, .form-layout { grid-template-columns: 1fr; }
+      .hero-grid { gap: 32px; }
+      .trust-grid { grid-template-columns: 1fr; }
+      .trust-grid > div, .trust-grid > div:first-child { border: 0; border-bottom: 1px solid var(--line); padding-inline: 0; }
+      .section { padding: 64px 0; }
+      .split { gap: 24px; }
+      .section-heading.horizontal { align-items: start; gap: 14px; grid-template-columns: 1fr; }
+      .steps { grid-template-columns: repeat(2,1fr); }
+      .steps li, .steps li:first-child, .steps li:last-child { border-radius: 0; min-height: 215px; }
+      .product-grid { grid-template-columns: 1fr; }
+      .contact-band { grid-template-columns: 1fr; padding: 28px; }
+      .page-hero { padding: 32px 0 48px; }
+      .page-body { padding: 45px 0 72px; }
+      .content-section { display: block; padding: 30px 0; }
+      .content-section h2 { margin-bottom: 17px; }
+      .content-section p + p { margin-top: 12px; }
+      .conditions-grid, .sitemap-grid { grid-template-columns: 1fr; }
+      .data-table > div { gap: 4px; grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .footer-grid { grid-template-columns: repeat(2,1fr); }
+      .footer-brand { grid-column: 1 / -1; }
+      .legal-identity { align-items: start; display: grid; gap: 16px; }
+    }
+    @media (max-width: 520px) {
+      .brand-symbol { height: 36px; width: 36px; }
+      .wordmark strong { font-size: .94rem; }
+      .wordmark small { font-size: .59rem; }
+      h1 { font-size: 2.5rem; }
+      h2 { font-size: 2rem; }
+      .actions, .actions .button { width: 100%; }
+      .steps { grid-template-columns: 1fr; }
+      .steps li { min-height: 0; }
+      .steps li > span { margin-bottom: 20px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-brand { grid-column: auto; }
+      .cookie-actions { display: grid; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+    @media print {
+      .topbar,.site-header,.cookie-panel,.site-footer { display: none; }
+      body { background: #fff; color: #000; }
+      .page-body { padding: 20px 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>Rua Catumbi, 166 — Caiçaras — Belo Horizonte/MG</span>
+      <div class="topbar-links">
+        <a href="tel:+553125143818">(31) 2514-3818</a>
+        <a href="mailto:contato@credipaiva.com.br">contato@credipaiva.com.br</a>
+        <a href="#/atendimento">Área do cooperado</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="wordmark" href="#/" aria-label="Credipaiva — página inicial">
+        <span class="brand-symbol" aria-hidden="true"><b>C</b></span>
+        <span><strong>CREDIPAIVA</strong><small>Cooperativa de crédito</small></span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Navegação principal">
+        <a href="#/">Início</a>
+        <details class="nav-group">
+          <summary>A Credipaiva</summary>
+          <div class="nav-menu">
+            <a class="overview" href="#/a-credipaiva">Visão geral</a>
+            <a href="#/quem-somos">Quem somos</a>
+            <a href="#/historia">História</a>
+            <a href="#/cooperativismo">Cooperativismo</a>
+            <a href="#/diretoria-conselhos">Diretoria e conselhos</a>
+            <a href="#/prestacao-contas">Prestação de contas</a>
+          </div>
+        </details>
+        <details class="nav-group">
+          <summary>Associação</summary>
+          <div class="nav-menu">
+            <a class="overview" href="#/quem-pode-se-associar">Quem pode se associar</a>
+            <a href="#/como-funciona">Como funciona</a>
+          </div>
+        </details>
+        <details class="nav-group">
+          <summary>Produtos e serviços</summary>
+          <div class="nav-menu">
+            <a class="overview" href="#/produtos-servicos">Visão geral</a>
+            <a href="#/produtos/cred-pessoal-paiva">Cred Pessoal Paiva</a>
+            <a href="#/produtos/cred-jet-paiva">Cred Jet Paiva</a>
+            <a href="#/produtos/cred-refin-paiva">Cred Refin Paiva</a>
+            <a href="#/produtos/cred-capital-paiva">Cred Capital Paiva</a>
+            <a href="#/beneficios-auxilios">Benefícios e auxílios</a>
+          </div>
+        </details>
+        <details class="nav-group">
+          <summary>Transparência</summary>
+          <div class="nav-menu">
+            <a class="overview" href="#/transparencia">Visão geral</a>
+            <a href="#/informacoes-regulatorias">Informações regulatórias</a>
+            <a href="#/tarifas-condicoes">Tarifas e condições</a>
+            <a href="#/documentos">Documentos institucionais</a>
+            <a href="#/politica-credito">Política de crédito</a>
+            <a href="#/relatorios-prestacao-contas">Relatórios</a>
+            <a href="#/governanca">Governança</a>
+          </div>
+        </details>
+        <details class="nav-group">
+          <summary>Atendimento</summary>
+          <div class="nav-menu">
+            <a class="overview" href="#/atendimento">Visão geral</a>
+            <a href="#/fale-conosco">Fale conosco</a>
+            <a href="#/perguntas-frequentes">Perguntas frequentes</a>
+            <a href="#/ouvidoria">Ouvidoria</a>
+            <a href="#/privacidade-lgpd">Privacidade e LGPD</a>
+          </div>
+        </details>
+        <a href="#/seguranca">Segurança</a>
+      </nav>
+
+      <button class="menu-button" id="menuButton" type="button" aria-expanded="false" aria-controls="mobilePanel">
+        <span aria-hidden="true"></span> Menu
+      </button>
+    </div>
+  </header>
+
+  <nav class="mobile-panel" id="mobilePanel" aria-label="Navegação móvel">
+    <a href="#/">Início</a>
+    <details>
+      <summary>A Credipaiva</summary>
+      <a href="#/a-credipaiva">Visão geral</a><a href="#/quem-somos">Quem somos</a>
+      <a href="#/historia">História</a><a href="#/cooperativismo">Cooperativismo</a>
+      <a href="#/diretoria-conselhos">Diretoria e conselhos</a><a href="#/prestacao-contas">Prestação de contas</a>
+    </details>
+    <details>
+      <summary>Associação</summary>
+      <a href="#/quem-pode-se-associar">Quem pode se associar</a><a href="#/como-funciona">Como funciona</a>
+    </details>
+    <details>
+      <summary>Produtos e serviços</summary>
+      <a href="#/produtos-servicos">Visão geral</a><a href="#/produtos/cred-pessoal-paiva">Cred Pessoal Paiva</a>
+      <a href="#/produtos/cred-jet-paiva">Cred Jet Paiva</a><a href="#/produtos/cred-refin-paiva">Cred Refin Paiva</a>
+      <a href="#/produtos/cred-capital-paiva">Cred Capital Paiva</a><a href="#/beneficios-auxilios">Benefícios e auxílios</a>
+    </details>
+    <details>
+      <summary>Transparência</summary>
+      <a href="#/transparencia">Visão geral</a><a href="#/informacoes-regulatorias">Informações regulatórias</a>
+      <a href="#/tarifas-condicoes">Tarifas e condições</a><a href="#/documentos">Documentos institucionais</a>
+      <a href="#/politica-credito">Política de crédito</a><a href="#/relatorios-prestacao-contas">Relatórios</a>
+      <a href="#/governanca">Governança</a>
+    </details>
+    <details>
+      <summary>Atendimento</summary>
+      <a href="#/atendimento">Visão geral</a><a href="#/fale-conosco">Fale conosco</a>
+      <a href="#/perguntas-frequentes">Perguntas frequentes</a><a href="#/ouvidoria">Ouvidoria</a>
+      <a href="#/privacidade-lgpd">Privacidade e LGPD</a>
+    </details>
+    <a href="#/seguranca">Segurança</a>
+  </nav>
+
+  <main id="conteudo" tabindex="-1">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Cooperativa de crédito desde 1985</span>
+          <h1>Cooperativismo de crédito com <em>transparência e responsabilidade</em></h1>
+          <p class="lead">A Credipaiva oferece produtos, serviços e atendimento financeiro às pessoas que atendem aos critérios de associação previstos em seu Estatuto Social.</p>
+          <p>As operações de crédito estão sujeitas à análise, às políticas internas, à capacidade de pagamento, à documentação necessária e às condições vigentes no momento da contratação.</p>
+          <div class="actions">
+            <a class="button button-primary" href="#/quem-somos">Conhecer a Credipaiva</a>
+            <a class="button button-secondary" href="#/quem-pode-se-associar">Consultar critérios de associação</a>
+          </div>
+        </div>
+        <aside class="identity-card" aria-label="Identificação institucional">
+          <span class="eyebrow">Identificação clara</span>
+          <h2>Uma instituição financeira cooperativa</h2>
+          <dl>
+            <div><dt>Nome comercial</dt><dd>Credipaiva</dd></div>
+            <div><dt>Razão social</dt><dd>Cooperativa de Crédito Mútuo dos Empregados do Centro Universitário Newton Paiva Ltda.</dd></div>
+            <div><dt>CNPJ</dt><dd>20.833.992/0001-45</dd></div>
+            <div><dt>Natureza</dt><dd>Cooperativa de crédito</dd></div>
+          </dl>
+          <a href="#/informacoes-regulatorias">Ver informações institucionais →</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="trust-strip">
+      <div class="container trust-grid">
+        <div><strong>Para cooperados elegíveis</strong><span>A associação não é aberta ao público em geral.</span></div>
+        <div><strong>Crédito sujeito à análise</strong><span>Solicitar não significa aprovação ou liberação.</span></div>
+        <div><strong>Decisão informada</strong><span>Condições e custo total devem ser lidos antes.</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container split">
+        <div><span class="eyebrow">Quem pode fazer parte</span><h2>Associação com critérios definidos</h2></div>
+        <div class="rich-copy">
+          <p>A associação à Credipaiva é destinada exclusivamente às pessoas que atendam aos critérios estabelecidos no Estatuto Social vigente.</p>
+          <p>O público exato, as regras para ex-empregados, aposentados, dependentes e prestadores de serviços permanecem em validação documental. Nenhuma categoria é presumida nesta versão.</p>
+          <a class="text-link" href="#/quem-pode-se-associar">Ver critérios de associação →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tinted">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">Como funciona</span><h2>Da elegibilidade à leitura do contrato</h2>
+          <p>Um processo responsável começa antes do formulário e termina somente depois da compreensão integral das condições.</p>
+        </div>
+        <ol class="steps">
+          <li><span>01</span><h3>Verifique sua elegibilidade</h3><p>Consulte os requisitos do Estatuto Social vigente.</p></li>
+          <li><span>02</span><h3>Conheça as condições</h3><p>Analise taxas, prazos, encargos, CET e documentos.</p></li>
+          <li><span>03</span><h3>Envie sua solicitação</h3><p>Use apenas um canal oficial e seguro.</p></li>
+          <li><span>04</span><h3>Aguarde a análise</h3><p>Cada solicitação segue políticas internas e regulamentação.</p></li>
+          <li><span>05</span><h3>Leia o contrato</h3><p>Confira parcelas, taxas, CET e o custo total.</p></li>
+        </ol>
+        <div class="notice notice-warning"><strong>Importante</strong><p>O envio de uma solicitação não representa aprovação, pré-aprovação ou garantia de liberação de crédito.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading horizontal">
+          <div><span class="eyebrow">Produtos e serviços</span><h2>Modalidades para cooperados elegíveis</h2></div>
+          <p>As páginas de crédito permanecem em revisão até a confirmação de taxas, prazos, CET, encargos e exemplo representativo.</p>
+        </div>
+        <div class="product-grid">
+          <article class="product-card"><span class="product-index">01</span><h3>Cred Pessoal Paiva</h3><p>Crédito pessoal para cooperados elegíveis, conforme a política interna.</p><span class="status-chip">Sujeito à análise</span><a href="#/produtos/cred-pessoal-paiva">Consultar status e condições →</a></article>
+          <article class="product-card"><span class="product-index">02</span><h3>Cred Jet Paiva</h3><p>Modalidade cujo prazo e enquadramento ainda dependem de validação formal.</p><span class="status-chip">Sujeito à análise</span><a href="#/produtos/cred-jet-paiva">Consultar status e condições →</a></article>
+          <article class="product-card"><span class="product-index">03</span><h3>Cred Refin Paiva</h3><p>Para cooperados com operação vigente que atendam aos critérios aplicáveis.</p><span class="status-chip">Sujeito à análise</span><a href="#/produtos/cred-refin-paiva">Consultar status e condições →</a></article>
+          <article class="product-card"><span class="product-index">04</span><h3>Cred Capital Paiva</h3><p>Modalidade vinculada às regras do capital social do cooperado.</p><span class="status-chip">Sujeito à análise</span><a href="#/produtos/cred-capital-paiva">Consultar status e condições →</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark">
+      <div class="container transparency-grid">
+        <div><span class="eyebrow">Transparência</span><h2>Informação antes da contratação</h2><p>Taxas, prazos, encargos, Custo Efetivo Total e custo representativo precisam estar disponíveis de forma clara para uma decisão consciente.</p></div>
+        <div class="link-list">
+          <a href="#/condicoes-credito">Condições de crédito</a><a href="#/informacoes-regulatorias">Informações regulatórias</a>
+          <a href="#/politica-credito">Política de crédito</a><a href="#/documentos">Documentos institucionais</a><a href="#/seguranca">Segurança e privacidade</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container contact-band">
+        <div><span class="eyebrow">Canais oficiais</span><h2>Fale com a Credipaiva</h2><p>Esclareça dúvidas sobre associação, produtos, documentos, contratos ou atendimento.</p></div>
+        <div class="contact-details">
+          <a href="tel:+553125143818">(31) 2514-3818</a><a href="tel:+553125310202">(31) 2531-0202</a>
+          <a href="mailto:contato@credipaiva.com.br">contato@credipaiva.com.br</a>
+          <span>Rua Catumbi, 166 — Caiçaras — Belo Horizonte/MG — CEP 31230-070</span>
+          <div class="actions"><a class="button button-primary" href="#/fale-conosco">Falar com o atendimento</a><a class="button button-secondary" href="#/ouvidoria">Conhecer a Ouvidoria</a></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="wordmark" href="#/"><span class="brand-symbol" aria-hidden="true"><b>C</b></span><span><strong>CREDIPAIVA</strong><small>Cooperativa de crédito</small></span></a>
+        <p>Cooperativa de crédito voltada ao atendimento de seu quadro social, conforme o Estatuto Social, as políticas internas e a regulamentação aplicável.</p>
+        <p>Supervisionada pelo Banco Central do Brasil. A supervisão não representa recomendação comercial nem garantia de concessão de crédito.</p>
+      </div>
+      <div><h2>Institucional</h2><a href="#/quem-somos">Quem somos</a><a href="#/informacoes-regulatorias">Informações regulatórias</a><a href="#/documentos">Documentos</a><a href="#/governanca">Governança</a><a href="#/mapa-site">Mapa do site</a></div>
+      <div><h2>Atendimento</h2><a href="tel:+553125143818">(31) 2514-3818</a><a href="tel:+553125310202">(31) 2531-0202</a><a href="mailto:contato@credipaiva.com.br">contato@credipaiva.com.br</a><a href="#/fale-conosco">Fale conosco</a><a href="#/ouvidoria">Ouvidoria</a></div>
+      <div><h2>Legal e segurança</h2><a href="#/privacidade-lgpd">Privacidade e LGPD</a><a href="#/politica-cookies">Política de Cookies</a><a href="#/termos-uso">Termos de Uso</a><a href="#/aviso-legal">Aviso Legal</a><a href="#/seguranca">Segurança</a><a href="#/acessibilidade">Acessibilidade</a></div>
+    </div>
+    <div class="container legal-identity">
+      <p><strong>Cooperativa de Crédito Mútuo dos Empregados do Centro Universitário Newton Paiva Ltda.</strong><br>Nome comercial: Credipaiva · CNPJ 20.833.992/0001-45<br>Rua Catumbi, 166 — Caiçaras — Belo Horizonte/MG — CEP 31230-070</p>
+      <p>© 2026 Credipaiva. Conteúdo institucional.</p>
+    </div>
+  </footer>
+
+  <aside class="cookie-panel" id="cookiePanel" aria-label="Preferências de privacidade" hidden>
+    <strong>Privacidade nesta versão</strong>
+    <p>O site não usa publicidade, rastreamento ou cookies não essenciais. O navegador guarda apenas sua escolha de ocultar este aviso.</p>
+    <div class="cookie-actions">
+      <button class="button button-primary" id="cookieAccept" type="button">Entendi</button>
+      <a class="button button-secondary" href="#/politica-cookies">Política de Cookies</a>
+    </div>
+  </aside>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const main = document.getElementById("conteudo");
+      const homeHTML = main.innerHTML;
+      const baseTitle = "Credipaiva | Cooperativa de Crédito";
+
+      const products = [
+        { slug: "cred-pessoal-paiva", name: "Cred Pessoal Paiva", description: "Modalidade de crédito pessoal destinada aos cooperados elegíveis, conforme as regras da Política de Crédito da Credipaiva.", purpose: "Crédito pessoal para finalidade informada pelo cooperado." },
+        { slug: "cred-jet-paiva", name: "Cred Jet Paiva", description: "Modalidade de crédito cujo prazo e enquadramento para divulgação ainda dependem de validação formal.", purpose: "Finalidade e condições aguardando confirmação institucional." },
+        { slug: "cred-refin-paiva", name: "Cred Refin Paiva", description: "Modalidade destinada a cooperados com operação vigente que atendam aos critérios de renovação ou refinanciamento.", purpose: "Reorganização de operação existente, quando elegível." },
+        { slug: "cred-capital-paiva", name: "Cred Capital Paiva", description: "Modalidade vinculada ao saldo de capital do cooperado, conforme regras institucionais e política aplicável.", purpose: "Crédito vinculado às regras do capital social do cooperado." }
+      ];
+
+      const pages = {
+        "a-credipaiva": ["Institucional", "A Credipaiva", "Conheça a identidade, a história, o modelo cooperativista e os compromissos de transparência da Credipaiva.", [
+          ["Uma instituição financeira cooperativa", ["A Credipaiva é o nome comercial da Cooperativa de Crédito Mútuo dos Empregados do Centro Universitário Newton Paiva Ltda., inscrita no CNPJ 20.833.992/0001-45.", "Sua atuação é voltada ao quadro social e segue o Estatuto Social, as políticas internas e a regulamentação aplicável."], null, [["Quem somos","quem-somos"],["História","historia"],["Cooperativismo","cooperativismo"]]],
+          ["Governança e prestação de contas", ["A administração e a fiscalização da cooperativa seguem sua estrutura estatutária. Nomes, cargos e mandatos somente serão exibidos após validação formal dos documentos vigentes."], null, [["Diretoria e conselhos","diretoria-conselhos"],["Prestação de contas","prestacao-contas"],["Governança","governanca"]]]
+        ]],
+        "quem-somos": ["Sobre nós", "Sobre a Credipaiva", "Uma cooperativa de crédito constituída para atender seu quadro social com administração responsável e informação clara.", [
+          ["Nossa atuação", ["Fundada em 25 de fevereiro de 1985, a Credipaiva é uma cooperativa de crédito voltada ao atendimento de seu quadro social.", "A instituição atua sem finalidade de lucro e é administrada conforme sua estrutura de governança, o Estatuto Social e a regulamentação aplicável.", "Sua atuação busca apoiar o planejamento financeiro dos cooperados com transparência, responsabilidade e atendimento próximo."]],
+          ["Propósito institucional", ["Disponibilizar atendimento, orientação e soluções financeiras compatíveis com a área de atuação e com as necessidades elegíveis do quadro social."]],
+          ["Valores", null, ["Cooperativismo","Transparência","Ética e honestidade","Integridade","Ajuda mútua e solidariedade","Responsabilidade"]],
+          ["Identidade verificável", ["A marca Credipaiva está vinculada à razão social completa e ao CNPJ apresentados neste site. Em sistemas do Banco Central, a instituição é identificada pelo nome abreviado CC MECUNP."], null, [["Ver informações regulatórias","informacoes-regulatorias"],["Consultar documentos","documentos"]]]
+        ]],
+        "historia": ["Trajetória", "Uma história iniciada em 1985", "A data de abertura da cooperativa é 25 de fevereiro de 1985. Os demais marcos históricos serão publicados somente após validação documental.", [
+          ["Origem", ["A Credipaiva foi constituída como cooperativa de crédito mútuo vinculada ao ambiente do Centro Universitário Newton Paiva.", "Sua história institucional deve ser contada a partir de atas, estatutos, registros e documentos aprovados — sem criar números, prêmios ou marcos não confirmados."]],
+          ["Próximos marcos documentais", null, ["Ata de constituição e primeira versão do Estatuto Social","Alterações de denominação e área de admissão","Mudanças relevantes de governança","Evolução dos canais e serviços oferecidos ao quadro social"]]
+        ]],
+        "cooperativismo": ["Modelo cooperativo", "Cooperativismo de crédito", "Em uma cooperativa de crédito, os associados são usuários e participam da vida institucional conforme o Estatuto Social.", [
+          ["O que diferencia uma cooperativa", ["A cooperativa de crédito presta serviços financeiros aos seus associados e organiza sua gestão conforme princípios cooperativistas e regras específicas do sistema financeiro.", "Direitos, deveres, participação em assembleias, formação do capital social e eventual destinação de sobras ou perdas devem ser compreendidos a partir do Estatuto e das decisões assembleares."]],
+          ["Participação responsável", null, ["Conhecer o Estatuto Social e os normativos internos","Manter os dados cadastrais atualizados","Participar das assembleias e decisões cabíveis","Avaliar produtos e contratos de forma consciente","Utilizar os canais oficiais para dúvidas e manifestações"]],
+          ["Supervisão", ["Cooperativas de crédito integram o Sistema Financeiro Nacional e são supervisionadas pelo Banco Central do Brasil. Essa supervisão não significa recomendação de produtos, aprovação de solicitações individuais ou garantia de crédito."]]
+        ]],
+        "diretoria-conselhos": ["Governança", "Diretoria e conselhos", "A composição vigente será publicada após conferência dos atos societários, mandatos e registros atualizados.", [
+          ["Informações exigidas para publicação", null, ["Nome completo aprovado para divulgação","Cargo e órgão de governança","Início e término do mandato, quando aplicável","Ato ou documento que comprova a composição","Data da última atualização"]],
+          ["Estrutura institucional", ["A estrutura detalhada deve refletir exatamente o Estatuto Social e os atos vigentes. Até essa conferência, esta página não atribui cargos nem poderes a nenhuma pessoa."], null, [["Governança","governanca"],["Prestação de contas","prestacao-contas"]]]
+        ], "Nomes encontrados em versões anteriores não foram reproduzidos porque sua vigência não está confirmada."],
+        "prestacao-contas": ["Transparência", "Prestação de contas", "Demonstrações, relatórios, atas e pareceres devem ser organizados por exercício e publicados em versões aprovadas e legíveis.", [
+          ["Biblioteca por exercício", null, ["2026 — aguardando documentos aprovados","2025 — aguardando documentos aprovados","2024 — aguardando documentos aprovados","Exercícios anteriores — inventário e validação necessários"]],
+          ["Critérios de publicação", null, ["Título descritivo, ano e versão","Arquivo legível e sem conteúdo sigiloso","Aprovação institucional para divulgação","Hospedagem no domínio oficial","Revisão periódica de links e arquivos"]]
+        ], "Os arquivos disponíveis no site anterior não foram migrados automaticamente; cada documento precisa de validação de versão, integridade e autorização para publicação."],
+        "beneficios-auxilios": ["Quadro social", "Benefícios e auxílios", "A relação vigente será publicada somente após confirmação das regras, do público elegível e dos responsáveis por cada oferta.", [
+          ["Antes de divulgar", null, ["Nome e descrição do benefício","Público elegível","Regras, limitações e validade","Responsável pela prestação","Tratamento de dados, quando houver","Canal para dúvidas"]]
+        ], "Nenhum parceiro, desconto, auxílio ou benefício anterior foi presumido como vigente."],
+        "condicoes-credito": ["Decisão consciente", "Condições de crédito", "As condições completas de cada modalidade devem estar disponíveis antes de qualquer formulário de proposta.", [
+          ["Informações obrigatórias", null, ["Valor mínimo e máximo","Prazo mínimo e máximo para quitação","Taxa nominal mínima e máxima ao mês","Taxa anual máxima ou equivalente","CET mínimo e máximo, quando aplicável","IOF, tarifas, seguros e demais custos","Forma de pagamento e critérios de análise","Exemplo representativo matematicamente validado","Data de vigência e atualização"]],
+          ["Análise e contratação", ["A existência e o valor de eventual limite dependem da análise, das regras internas e das condições aplicáveis ao cooperado.", "O preenchimento de um formulário não representa aprovação, pré-aprovação, reserva de limite ou garantia de liberação."]]
+        ], "As modalidades permanecem fora de divulgação e de campanhas enquanto faltarem condições financeiras validadas."],
+        "como-funciona": ["Jornada do cooperado", "Como funciona uma solicitação", "Cada etapa deve ser compreendida antes do envio de dados ou da assinatura de um contrato.", [
+          ["1. Elegibilidade e cadastro", ["Primeiro, confirme se você atende aos critérios do Estatuto Social. Depois, apresente apenas os dados e documentos necessários ao cadastro."]],
+          ["2. Documentação e análise", ["A cooperativa avalia documentação, capacidade de pagamento, margem disponível, critérios da modalidade e políticas internas. O protocolo não implica aprovação."]],
+          ["3. Apresentação das condições", ["Antes de contratar, devem ser informados taxa, prazo, parcelas, IOF, tarifas, CET, custo total e demais condições aplicáveis."]],
+          ["4. Contrato e liberação", ["A contratação só ocorre após a ciência das condições e a formalização do contrato. A liberação acontece quando a operação é aprovada e formalizada."]],
+          ["5. Pagamento e atendimento", ["Mantenha os canais de contato atualizados, acompanhe os vencimentos e procure o atendimento oficial em caso de dúvidas durante o contrato."]],
+          ["Alerta contra fraude", ["Não compartilhe senhas ou códigos de autenticação. Desconfie de mensagens com contas de terceiros, links não verificados ou promessas de aprovação."], null, [["Consultar orientações de segurança","seguranca"]]]
+        ]],
+        "transparencia": ["Informação pública", "Transparência", "Identidade, condições, documentos e canais de atendimento organizados para consulta clara.", [
+          ["Identidade e supervisão", null, null, [["Informações regulatórias","informacoes-regulatorias"],["Quem somos","quem-somos"],["Governança","governanca"]]],
+          ["Condições e políticas", null, null, [["Tarifas e condições","tarifas-condicoes"],["Condições de crédito","condicoes-credito"],["Política de crédito","politica-credito"]]],
+          ["Documentos e contas", null, null, [["Documentos institucionais","documentos"],["Relatórios e prestação de contas","relatorios-prestacao-contas"],["Prestação de contas","prestacao-contas"]]]
+        ]],
+        "documentos": ["Biblioteca institucional", "Documentos", "A biblioteca está estruturada para receber somente documentos vigentes, aprovados, legíveis e hospedados no domínio oficial.", [
+          ["Institucionais", null, ["Estatuto Social","Regimento Interno","Política de Crédito","Governança, diretoria e conselhos","Formulários oficiais"]],
+          ["Legal, privacidade e segurança", null, null, [["Política de Privacidade","privacidade-lgpd"],["Política de Cookies","politica-cookies"],["Termos de Uso","termos-uso"],["Aviso Legal","aviso-legal"],["Segurança","seguranca"]]],
+          ["Relatórios e contas", null, null, [["Relatórios e prestação de contas","relatorios-prestacao-contas"],["Prestação de contas","prestacao-contas"]]]
+        ], "Nenhum arquivo foi disponibilizado nesta versão porque as versões vigentes ainda não foram confirmadas."],
+        "politica-credito": ["Normativos internos", "Política de crédito", "A versão pública deverá explicar critérios gerais sem revelar controles internos, dados pessoais ou informações sigilosas.", [
+          ["Conteúdo esperado", null, ["Público elegível e modalidades","Critérios gerais de análise","Capacidade de pagamento e margem","Documentação necessária","Definição e atualização de taxas","Garantias, quando aplicáveis","Renovação e refinanciamento","Tratamento de atrasos e renegociação","Governança e alçadas de decisão"]]
+        ], "A Política de Crédito vigente ainda precisa ser fornecida e aprovada para publicação."],
+        "relatorios-prestacao-contas": ["Documentos financeiros", "Relatórios e prestação de contas", "Publicação organizada por ano, com identificação de versão e aprovação.", [
+          ["Categorias", null, ["Demonstrações financeiras","Relatórios institucionais","Atas divulgáveis","Pareceres","Documentos relevantes para o quadro social"]],
+          ["Proteção de informação", ["Documentos internos, dados pessoais, informações protegidas por sigilo e materiais sem autorização não devem integrar a biblioteca pública."]]
+        ], "A página está preparada, mas não exibe arquivos antigos sem validação de integridade, vigência e autorização."],
+        "governanca": ["Estrutura de decisão", "Governança", "A governança organiza decisão, fiscalização, controles e prestação de contas conforme o Estatuto Social e a regulamentação aplicável.", [
+          ["Instâncias", ["A descrição de assembleia, conselhos e diretoria será ajustada à redação exata do Estatuto Social vigente."], ["Assembleia Geral","Conselho de Administração ou órgão equivalente","Conselho Fiscal","Diretoria Executiva ou órgão equivalente","Controles, auditoria e funções exigidas"]],
+          ["Compromissos", null, ["Decisões documentadas","Responsabilidades claramente atribuídas","Gestão de conflitos de interesse","Controles proporcionais aos riscos","Prestação de contas ao quadro social"]]
+        ]],
+        "seguranca": ["Proteção e prevenção", "Segurança", "Orientações para reconhecer os canais oficiais e reduzir o risco de golpes e uso indevido de dados.", [
+          ["Canais e mensagens", null, ["Confirme telefone, e-mail e domínio neste site antes de responder","Desconfie de links encurtados ou domínios diferentes","Não compartilhe senhas ou códigos de autenticação","Não envie documentos para contatos não verificados","Não aceite promessas de aprovação ou liberação garantida"]],
+          ["Boletos e contas de destino", ["Confira beneficiário, CNPJ, valor e origem antes de pagar. Em caso de divergência, não conclua a operação e procure o atendimento oficial."]],
+          ["Suspeita de fraude", ["Interrompa o contato, preserve mensagens e comprovantes e fale com a Credipaiva pelos canais publicados neste site. Quando cabível, comunique também sua instituição financeira e as autoridades competentes."], null, [["Falar com o atendimento","fale-conosco"]]],
+          ["Proteção de dados", ["A Credipaiva declara adotar medidas técnicas e organizacionais compatíveis com os dados tratados e com os riscos envolvidos. A descrição detalhada dos controles depende de validação institucional."]]
+        ]],
+        "atendimento": ["Canais oficiais", "Atendimento", "Escolha o canal adequado para dúvidas, documentos, contratos, manifestações ou exercício de direitos.", [
+          ["Atendimento inicial", ["Use o Fale Conosco para dúvidas sobre associação, produtos, documentos, contratos e informações institucionais."], null, [["Fale conosco","fale-conosco"]]],
+          ["Perguntas frequentes", ["Consulte respostas objetivas sobre a Credipaiva, análise de crédito, CET, custos, privacidade e segurança."], null, [["Ver perguntas frequentes","perguntas-frequentes"]]],
+          ["Ouvidoria", ["A Ouvidoria recebe manifestações que não foram solucionadas adequadamente pelos canais iniciais. Não é um canal para pedir crédito."], null, [["Conhecer a Ouvidoria","ouvidoria"]]],
+          ["Área do cooperado", ["O endereço do sistema oficial precisa ser confirmado antes que um link de acesso seja publicado. Este site não cria nem simula um login."]]
+        ]],
+        "ouvidoria": ["Canal de segunda instância", "Ouvidoria", "Canal para manifestações que não foram solucionadas adequadamente no atendimento inicial.", [
+          ["Quando procurar", ["Antes de recorrer à Ouvidoria, utilize o canal inicial e guarde o protocolo, quando fornecido. A Ouvidoria não analisa nem aprova solicitações de crédito."]],
+          ["Canais informados", ["Telefone: 0800 3123 007", "E-mail: ouvidoria@credipaiva.com.br", "Prazo de resposta e horário de atendimento ainda dependem de confirmação institucional."]],
+          ["Outros canais", ["Consumidor.gov.br e canais regulatórios devem ser apresentados apenas após validação da adesão, do fluxo aplicável e das instruções vigentes."]]
+        ]],
+        "privacidade-lgpd": ["Proteção de dados", "Privacidade e LGPD", "Informações sobre o tratamento de dados pessoais nos canais e atividades da Credipaiva.", [
+          ["Finalidades", ["Dados pessoais podem ser tratados para atendimento, vínculo cooperativo, execução de contratos, análise e proteção de crédito, prevenção a fraudes e cumprimento de obrigações legais e regulatórias."]],
+          ["Direitos do titular", null, ["Confirmação e acesso","Correção de dados","Informação sobre compartilhamento","Revisão de decisões automatizadas, quando aplicável","Eliminação ou oposição, nos limites legais"]],
+          ["Canal de privacidade", ["Solicitações podem ser iniciadas pelo e-mail contato@credipaiva.com.br. A identidade do encarregado, o canal definitivo e os prazos internos ainda precisam de validação."]],
+          ["Compartilhamento e retenção", ["Categorias de terceiros, bases legais, prazos e critérios de retenção serão detalhados na política aprovada, sem divulgar controles que comprometam a segurança."]]
+        ], "Esta versão é informativa e precisa ser revisada pelo responsável por privacidade antes da publicação definitiva."],
+        "politica-cookies": ["Preferências", "Política de Cookies", "Explicação objetiva sobre as tecnologias usadas neste site.", [
+          ["Versão atual", ["Esta versão leve não usa publicidade, ferramentas de rastreamento ou cookies não essenciais. O navegador guarda localmente apenas a escolha de ocultar o aviso de privacidade."]],
+          ["Mudanças futuras", ["Qualquer ferramenta de medição ou publicidade deverá ser documentada, classificada e, quando necessário, depender de consentimento prévio."]]
+        ]],
+        "termos-uso": ["Uso responsável", "Termos de Uso", "Regras gerais para consulta e uso do site institucional.", [
+          ["Natureza do conteúdo", ["As informações deste site são institucionais e não constituem aprovação, pré-aprovação, proposta vinculante ou garantia de crédito."]],
+          ["Atualização", ["A Credipaiva busca manter o conteúdo correto, mas condições de produtos e documentos devem ser confirmadas nos canais oficiais e no instrumento contratual."]],
+          ["Uso adequado", ["Não é permitido tentar comprometer a segurança, coletar dados sem autorização, inserir código malicioso ou usar a identidade da cooperativa de forma enganosa."]]
+        ]],
+        "aviso-legal": ["Informações importantes", "Aviso Legal", "Limites e responsabilidades relacionados ao conteúdo institucional e financeiro.", [
+          ["Crédito e elegibilidade", ["Associação e produtos dependem dos critérios aplicáveis. Toda operação está sujeita a análise, capacidade de pagamento, documentação, condições vigentes e formalização contratual."]],
+          ["Banco Central do Brasil", ["A supervisão do Banco Central não representa recomendação comercial, aprovação individual ou garantia das operações."]],
+          ["Links externos", ["Links para órgãos públicos ou serviços externos são apresentados para consulta. A Credipaiva não controla o conteúdo de terceiros."]]
+        ]],
+        "acessibilidade": ["Acesso para todos", "Acessibilidade", "Compromissos e recursos desta versão do site para uma navegação mais inclusiva.", [
+          ["Recursos implementados", null, ["Estrutura semântica e link para pular ao conteúdo","Navegação por teclado e foco visível","Contraste de cores e textos redimensionáveis","Layout responsivo","Respeito à preferência de movimento reduzido","Conteúdo compreensível sem imagens"]],
+          ["Ajuda e melhoria", ["Se encontrar uma barreira de acesso, descreva a página, o dispositivo e a dificuldade pelo canal de atendimento."]]
+        ]]
+      };
+
+      const faqs = [
+        ["O que é a Credipaiva?", "Credipaiva é o nome comercial da Cooperativa de Crédito Mútuo dos Empregados do Centro Universitário Newton Paiva Ltda., inscrita no CNPJ 20.833.992/0001-45."],
+        ["A Credipaiva é uma instituição financeira?", "Sim. É uma cooperativa de crédito voltada ao atendimento de seu quadro social e supervisionada pelo Banco Central do Brasil."],
+        ["Quem pode se associar?", "Somente pessoas que atendam aos critérios do Estatuto Social vigente. A lista exata de categorias ainda precisa de validação documental."],
+        ["Qualquer pessoa pode solicitar crédito?", "Não. Os produtos são destinados a cooperados elegíveis e dependem dos critérios da modalidade e da análise aplicável."],
+        ["O envio do formulário garante aprovação?", "Não. O preenchimento de formulário ou o envio de documentos não representa aprovação, pré-aprovação ou garantia de liberação."],
+        ["Como são definidas as taxas?", "As taxas devem seguir as condições vigentes, a modalidade, a política interna e os critérios aplicáveis. As faixas atuais ainda precisam ser validadas antes da publicação."],
+        ["O que é CET?", "CET é o Custo Efetivo Total da operação. Ele reúne juros, tarifas, tributos, seguros e outros custos aplicáveis."],
+        ["Quais custos podem existir?", "Podem existir juros, IOF, tarifas, seguros e outros encargos, conforme a modalidade. Todos os custos devem ser informados antes da contratação."],
+        ["Qual é o prazo mínimo e máximo?", "Os prazos dependem da modalidade e permanecem em validação. Nenhuma modalidade deve ser anunciada sem prazo e custo completos."],
+        ["Como meus dados são utilizados?", "Os dados podem ser tratados para atendimento, vínculo cooperativo, contratos, análise e proteção de crédito, prevenção a fraudes e cumprimento de obrigações."],
+        ["Como confirmar a instituição no Banco Central?", "Use a consulta oficial do Banco Central e pesquise pelo nome abreviado CC MECUNP ou pelo CNPJ informado neste site."],
+        ["O Banco Central garante as operações?", "Não. A supervisão não significa recomendação, aprovação de solicitações individuais ou garantia de operações."],
+        ["O que fazer em caso de suspeita de fraude?", "Interrompa o contato, não envie dados nem faça pagamentos e confirme a mensagem pelos telefones e e-mails publicados neste site."]
+      ];
+
+      const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" })[char]);
+      const link = (label, route) => `<a href="#/${escapeHTML(route)}">${escapeHTML(label)} →</a>`;
+      const hero = (eyebrow, title, intro) => `<header class="page-hero"><div class="container"><nav class="breadcrumbs" aria-label="Caminho da página"><a href="#/">Início</a><span aria-hidden="true">/</span><span aria-current="page">${escapeHTML(title)}</span></nav><span class="eyebrow">${escapeHTML(eyebrow)}</span><h1>${escapeHTML(title)}</h1><p>${escapeHTML(intro)}</p></div></header>`;
+
+      function genericPage(page) {
+        const [eyebrow, title, intro, sections, notice] = page;
+        const noticeHTML = notice ? `<div class="notice notice-review"><strong>Conteúdo em validação</strong><p>${escapeHTML(notice)}</p></div>` : "";
+        const sectionsHTML = sections.map(([heading, paragraphs, bullets, links]) => `
+          <section class="content-section">
+            <h2>${escapeHTML(heading)}</h2>
+            ${(paragraphs || []).map(text => `<p>${escapeHTML(text)}</p>`).join("")}
+            ${bullets ? `<ul class="check-list">${bullets.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
+            ${links ? `<div class="content-links">${links.map(([label,route]) => link(label,route)).join("")}</div>` : ""}
+          </section>`).join("");
+        return `${hero(eyebrow,title,intro)}<div class="container page-body">${noticeHTML}<div class="content-sections">${sectionsHTML}</div></div>`;
+      }
+
+      function associationPage() {
+        return `${hero("Quadro social","Critérios de associação","A associação não está disponível ao público em geral e depende do atendimento aos critérios institucionais aplicáveis.")}
+        <div class="container page-body">
+          <div class="notice notice-review"><strong>Validação necessária</strong><p>O Estatuto Social vigente ainda precisa confirmar o público exato, inclusive regras para empregados, ex-empregados, aposentados, dependentes e prestadores de serviços.</p></div>
+          <div class="content-sections">
+            <section class="content-section"><h2>Quem pode solicitar associação</h2><p>Somente pessoas incluídas nos critérios de admissão do Estatuto Social vigente. Nenhuma categoria anterior é considerada válida sem conferência documental.</p></section>
+            <section class="content-section"><h2>Documentos e análise cadastral</h2><p>A relação de documentos, as verificações cadastrais e as etapas de análise serão publicadas após validação.</p></section>
+            <section class="content-section"><h2>Capital, direitos e deveres</h2><p>Integralização de capital, participação, atualização cadastral, desligamento, direitos e deveres devem reproduzir o Estatuto e os normativos aprovados.</p></section>
+            <section class="content-section"><h2>Consulta inicial</h2><p>Use o canal de atendimento para descrever seu vínculo. Essa consulta não solicita associação e não garante admissão.</p><div class="content-links">${link("Verificar minha elegibilidade","fale-conosco")}</div></section>
+          </div>
+        </div>`;
+      }
+
+      function productsPage() {
+        return `${hero("Para cooperados elegíveis","Produtos e serviços","Os produtos e serviços dependem das condições vigentes, das políticas internas e da análise aplicável.")}
+        <div class="container page-body">
+          <div class="notice notice-warning"><strong>Modalidades fora de campanha</strong><p>As páginas individuais permanecem em revisão até a publicação de todas as condições obrigatórias.</p></div>
+          <div class="product-grid">${products.map((p,i) => `<article class="product-card"><span class="product-index">0${i+1}</span><h2>${escapeHTML(p.name)}</h2><p>${escapeHTML(p.description)}</p><p><strong>Finalidade:</strong> ${escapeHTML(p.purpose)}</p><span class="status-chip">Sujeito à análise</span><a href="#/produtos/${escapeHTML(p.slug)}">Consultar status da modalidade →</a></article>`).join("")}</div>
+        </div>`;
+      }
+
+      function productPage(product) {
+        const labels = ["Público elegível","Valor mínimo","Valor máximo","Prazo mínimo","Prazo máximo","Taxa nominal mínima ao mês","Taxa nominal máxima ao mês","Taxa anual máxima ou equivalente","CET mínimo e máximo","IOF","Tarifas e outros custos","Forma de pagamento","Documentos necessários","Exemplo representativo","Data de atualização"];
+        const jetWarning = product.slug === "cred-jet-paiva" ? `<div class="notice notice-warning"><strong>Atenção ao prazo mínimo de 61 dias</strong><p>A modalidade não pode integrar campanhas de empréstimo pessoal enquanto não for confirmado que o prazo mínimo para quitação integral é de 61 dias ou mais.</p></div>` : "";
+        return `${hero("Modalidade em revisão",product.name,product.description)}
+        <div class="container page-body">
+          <div class="notice notice-blocked"><strong>Não liberada para publicação ou anúncios</strong><p>As condições financeiras completas ainda não foram validadas. Por isso não há formulário de proposta.</p></div>${jetWarning}
+          <section class="content-section"><h2>Finalidade</h2><p>${escapeHTML(product.purpose)}</p></section>
+          <section class="content-section"><h2>Condições da modalidade</h2><div class="conditions-grid">${labels.map(label => `<div><span>${escapeHTML(label)}</span><strong>Aguardando validação institucional</strong></div>`).join("")}</div></section>
+          <section class="content-section"><h2>Avisos importantes</h2><p>A contratação está sujeita à análise de crédito, capacidade de pagamento, margem disponível, documentação, critérios de elegibilidade e políticas internas.</p><p>O preenchimento de qualquer formulário futuro não representará aprovação, pré-aprovação, reserva de limite ou garantia de liberação.</p></section>
+          <div class="actions"><a class="button button-secondary" href="#/condicoes-credito">Ver requisitos para publicação</a></div>
+        </div>`;
+      }
+
+      function regulatoryPage() {
+        const rows = [
+          ["Nome comercial","Credipaiva"],["Razão social","Cooperativa de Crédito Mútuo dos Empregados do Centro Universitário Newton Paiva Ltda."],["CNPJ","20.833.992/0001-45"],
+          ["Nome abreviado no Banco Central","CC MECUNP"],["Natureza jurídica","Cooperativa"],["Atividade principal","Cooperativas de crédito mútuo"],
+          ["Endereço","Rua Catumbi, 166 — Caiçaras — Belo Horizonte/MG — CEP 31230-070"],["Domínio oficial","credipaiva.com.br"],
+          ["Telefone","(31) 2514-3818 / (31) 2531-0202"],["E-mail","contato@credipaiva.com.br"],["Órgão supervisor","Banco Central do Brasil"]
+        ];
+        return `${hero("Identidade verificável","Informações institucionais e regulatórias","Dados institucionais organizados para cooperados, visitantes e processos de verificação.")}
+        <div class="container page-body">
+          <div class="data-table" role="table" aria-label="Dados institucionais">${rows.map(([a,b]) => `<div role="row"><span role="rowheader">${escapeHTML(a)}</span><strong role="cell">${escapeHTML(b)}</strong></div>`).join("")}</div>
+          <section class="content-section"><h2>Relação entre Credipaiva e CC MECUNP</h2><p>Credipaiva é o nome comercial informado para a razão social exibida nesta página. Em consultas atuais do Banco Central, o nome abreviado localizado para a instituição é CC MECUNP.</p><p>Antes de enviar uma verificação G2 ou alterar o nome do anunciante no Google Ads, a cooperativa deve garantir correspondência exata com o registro vigente.</p></section>
+          <div class="notice notice-neutral"><strong>Sobre a supervisão</strong><p>A supervisão do Banco Central do Brasil não significa recomendação comercial, aprovação individual de produtos ou garantia de concessão de crédito.</p></div>
+          <a class="button button-primary" href="https://www.bcb.gov.br/estabilidadefinanceira/encontreinstituicao" target="_blank" rel="noreferrer">Consultar instituição no Banco Central ↗</a>
+        </div>`;
+      }
+
+      function conditionsPage() {
+        return `${hero("Transparência financeira","Tarifas e condições","Taxas isoladas não são suficientes. Cada modalidade precisa apresentar prazo, CET, encargos e custo representativo.")}
+        <div class="container page-body">
+          <div class="notice notice-blocked"><strong>Tabela ainda não publicável</strong><p>Valores anteriores não foram reproduzidos porque faltam taxa máxima, CET, prazo completo, custos, vigência e validação contábil.</p></div>
+          <div class="comparison-wrap"><table><caption>Estado de validação por modalidade</caption><thead><tr><th>Modalidade</th><th>Taxas</th><th>CET</th><th>Prazos</th><th>Encargos</th><th>Exemplo</th></tr></thead><tbody>${products.map(p => `<tr><th>${escapeHTML(p.name)}</th><td>Validar</td><td>Validar</td><td>Validar</td><td>Validar</td><td>Validar</td></tr>`).join("")}</tbody></table></div>
+          <section class="content-section"><h2>Regra de publicação</h2><p>A tabela final deverá apresentar taxa mínima e máxima, condições para a menor taxa, CET, prazo mínimo e máximo, tarifas, IOF, vigência e documento relacionado. Nenhuma célula obrigatória poderá ficar vazia.</p></section>
+        </div>`;
+      }
+
+      function contactPage() {
+        return `${hero("Canal inicial","Fale conosco","Envie uma dúvida sobre associação, documentos, contratos, privacidade ou atendimento.")}
+        <div class="container page-body form-layout">
+          <aside class="contact-sidebar"><h2>Canais oficiais</h2><a href="tel:+553125143818">(31) 2514-3818</a><a href="tel:+553125310202">(31) 2531-0202</a><a href="mailto:contato@credipaiva.com.br">contato@credipaiva.com.br</a><p>Rua Catumbi, 166 — Caiçaras — Belo Horizonte/MG — CEP 31230-070</p><p>O horário de atendimento precisa ser confirmado.</p><a href="#/ouvidoria">Acessar a Ouvidoria →</a></aside>
+          <form class="form-card" id="contactForm">
+            <div class="form-grid">
+              <div class="field"><label for="nome">Nome</label><input id="nome" name="nome" autocomplete="name" required maxlength="100"></div>
+              <div class="field"><label for="retorno">E-mail ou telefone</label><input id="retorno" name="retorno" required maxlength="120"></div>
+              <div class="field full"><label for="assunto">Assunto</label><select id="assunto" name="assunto" required><option value="">Selecione</option><option>Associação</option><option>Produtos e condições</option><option>Documentos e contratos</option><option>Privacidade</option><option>Outro assunto</option></select></div>
+              <div class="field full"><label for="mensagem">Mensagem</label><textarea id="mensagem" name="mensagem" required maxlength="1500"></textarea></div>
+            </div>
+            <label class="checkbox"><input type="checkbox" required> <span>Autorizo o uso desses dados para retorno sobre esta solicitação. Não enviarei senhas, códigos, documentos ou dados financeiros.</span></label>
+            <button class="button button-primary" type="submit">Preparar e-mail</button>
+            <p class="form-help">Ao continuar, seu aplicativo de e-mail será aberto. Nenhum dado é armazenado por este arquivo.</p>
+            <p class="form-result" id="formResult" role="status" hidden></p>
+          </form>
+        </div>`;
+      }
+
+      function faqPage() {
+        return `${hero("Informação objetiva","Perguntas frequentes","Respostas claras sobre a cooperativa, elegibilidade, crédito, custos, privacidade e segurança.")}
+        <div class="container page-body faq-list">${faqs.map(([q,a]) => `<details><summary>${escapeHTML(q)}</summary><p>${escapeHTML(a)}</p></details>`).join("")}</div>`;
+      }
+
+      function creditReviewPage() {
+        return `${hero("Página de destino em revisão","Crédito para cooperados Credipaiva","Estado de validação das modalidades, dos critérios de elegibilidade e das condições aplicáveis.")}
+        <div class="container page-body">
+          <div class="notice notice-blocked"><strong>Não utilizar em campanhas</strong><p>Não há formulário porque prazos, taxa anual, CET, encargos e exemplo representativo ainda não foram validados.</p></div>
+          <section class="content-section"><h2>Requisitos antes da liberação</h2><ul class="check-list"><li>Confirmar o público elegível pelo Estatuto Social vigente</li><li>Publicar somente modalidades efetivamente anunciadas</li><li>Exibir prazos mínimo e máximo antes do formulário</li><li>Exibir taxa anual máxima ou equivalente e CET</li><li>Detalhar IOF, tarifas, seguros e demais encargos</li><li>Validar exemplo representativo e custo total</li><li>Confirmar prazo mínimo de quitação de 61 dias ou mais</li><li>Revisar privacidade e segurança da coleta de dados</li></ul></section>
+        </div>`;
+      }
+
+      function siteMapPage() {
+        const groups = [
+          ["A Credipaiva",[["Visão geral","a-credipaiva"],["Quem somos","quem-somos"],["História","historia"],["Cooperativismo","cooperativismo"],["Diretoria e conselhos","diretoria-conselhos"],["Prestação de contas","prestacao-contas"]]],
+          ["Associação",[["Quem pode se associar","quem-pode-se-associar"],["Como funciona","como-funciona"]]],
+          ["Produtos e serviços",[["Visão geral","produtos-servicos"],["Cred Pessoal Paiva","produtos/cred-pessoal-paiva"],["Cred Jet Paiva","produtos/cred-jet-paiva"],["Cred Refin Paiva","produtos/cred-refin-paiva"],["Cred Capital Paiva","produtos/cred-capital-paiva"],["Benefícios e auxílios","beneficios-auxilios"]]],
+          ["Transparência",[["Visão geral","transparencia"],["Informações regulatórias","informacoes-regulatorias"],["Tarifas e condições","tarifas-condicoes"],["Documentos","documentos"],["Política de crédito","politica-credito"],["Relatórios","relatorios-prestacao-contas"],["Governança","governanca"]]],
+          ["Atendimento",[["Visão geral","atendimento"],["Fale conosco","fale-conosco"],["Perguntas frequentes","perguntas-frequentes"],["Ouvidoria","ouvidoria"]]],
+          ["Legal e segurança",[["Segurança","seguranca"],["Privacidade e LGPD","privacidade-lgpd"],["Política de Cookies","politica-cookies"],["Termos de Uso","termos-uso"],["Aviso Legal","aviso-legal"],["Acessibilidade","acessibilidade"]]]
+        ];
+        return `${hero("Navegação","Mapa do site","Todas as áreas institucionais organizadas em um só lugar.")}<div class="container page-body sitemap-grid">${groups.map(([title,items]) => `<section><h2>${escapeHTML(title)}</h2>${items.map(([label,route]) => `<a href="#/${escapeHTML(route)}">${escapeHTML(label)}</a>`).join("")}</section>`).join("")}</div>`;
+      }
+
+      function notFoundPage() {
+        return `<section class="not-found container"><span class="eyebrow">Página não encontrada</span><h1>Este endereço não existe</h1><p>Use o menu ou volte para a página inicial.</p><div class="actions" style="justify-content:center"><a class="button button-primary" href="#/">Voltar ao início</a></div></section>`;
+      }
+
+      function currentRoute() {
+        return location.hash.replace(/^#\/?/, "").replace(/\/+$/, "");
+      }
+
+      function render() {
+        const route = currentRoute();
+        let html;
+        let title;
+        if (!route) {
+          html = homeHTML;
+          title = baseTitle;
+        } else if (pages[route]) {
+          html = genericPage(pages[route]);
+          title = `${pages[route][1]} | Credipaiva`;
+        } else if (route === "quem-pode-se-associar") {
+          html = associationPage(); title = "Critérios de Associação | Credipaiva";
+        } else if (route === "produtos-servicos") {
+          html = productsPage(); title = "Produtos e Serviços | Credipaiva";
+        } else if (route.startsWith("produtos/")) {
+          const product = products.find(item => `produtos/${item.slug}` === route);
+          html = product ? productPage(product) : notFoundPage();
+          title = product ? `${product.name} | Credipaiva` : "Página não encontrada | Credipaiva";
+        } else if (route === "informacoes-regulatorias") {
+          html = regulatoryPage(); title = "Informações Regulatórias | Credipaiva";
+        } else if (route === "tarifas-condicoes") {
+          html = conditionsPage(); title = "Tarifas e Condições | Credipaiva";
+        } else if (route === "fale-conosco") {
+          html = contactPage(); title = "Fale Conosco | Credipaiva";
+        } else if (route === "perguntas-frequentes") {
+          html = faqPage(); title = "Perguntas Frequentes | Credipaiva";
+        } else if (route === "credito-para-cooperados") {
+          html = creditReviewPage(); title = "Crédito para Cooperados | Credipaiva";
+        } else if (route === "mapa-site") {
+          html = siteMapPage(); title = "Mapa do Site | Credipaiva";
+        } else {
+          html = notFoundPage(); title = "Página não encontrada | Credipaiva";
+        }
+        main.innerHTML = html;
+        document.title = title;
+        closeMenu();
+        document.querySelectorAll(".nav-group[open]").forEach(item => item.removeAttribute("open"));
+        scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        setTimeout(() => {
+          const heading = main.querySelector("h1");
+          if (heading) { heading.setAttribute("tabindex","-1"); heading.focus({ preventScroll:true }); }
+        }, 80);
+      }
+
+      const menuButton = document.getElementById("menuButton");
+      const mobilePanel = document.getElementById("mobilePanel");
+      function closeMenu() {
+        mobilePanel.classList.remove("open");
+        menuButton.setAttribute("aria-expanded","false");
+        document.body.classList.remove("menu-open");
+      }
+      menuButton.addEventListener("click", () => {
+        const open = !mobilePanel.classList.contains("open");
+        mobilePanel.classList.toggle("open", open);
+        menuButton.setAttribute("aria-expanded", String(open));
+        document.body.classList.toggle("menu-open", open);
+      });
+      addEventListener("hashchange", render);
+      addEventListener("keydown", event => { if (event.key === "Escape") closeMenu(); });
+      document.addEventListener("click", event => {
+        const target = event.target.closest("a");
+        if (target && target.getAttribute("href")?.startsWith("#/")) closeMenu();
+      });
+      document.addEventListener("submit", event => {
+        if (event.target.id !== "contactForm") return;
+        event.preventDefault();
+        const data = new FormData(event.target);
+        const subject = `Contato pelo site — ${data.get("assunto")}`;
+        const body = `Nome: ${data.get("nome")}\nRetorno: ${data.get("retorno")}\n\nMensagem:\n${data.get("mensagem")}`;
+        const result = document.getElementById("formResult");
+        result.hidden = false;
+        result.textContent = "Seu aplicativo de e-mail será aberto para você revisar e enviar a mensagem.";
+        location.href = `mailto:contato@credipaiva.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      });
+
+      const cookiePanel = document.getElementById("cookiePanel");
+      try { cookiePanel.hidden = localStorage.getItem("credipaiva-privacy-notice") === "ok"; } catch { cookiePanel.hidden = false; }
+      document.getElementById("cookieAccept").addEventListener("click", () => {
+        try { localStorage.setItem("credipaiva-privacy-notice","ok"); } catch {}
+        cookiePanel.hidden = true;
+      });
+
+      if (location.hash) render();
+    })();
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": ["Organization", "FinancialService"],
+    "name": "Credipaiva",
+    "legalName": "Cooperativa de Crédito Mútuo dos Empregados do Centro Universitário Newton Paiva Ltda.",
+    "taxID": "20.833.992/0001-45",
+    "url": "https://credipaiva.com.br",
+    "email": "contato@credipaiva.com.br",
+    "telephone": "+55 31 2514-3818",
+    "foundingDate": "1985-02-25",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Rua Catumbi, 166",
+      "addressLocality": "Belo Horizonte",
+      "addressRegion": "MG",
+      "postalCode": "31230-070",
+      "addressCountry": "BR"
+    }
+  }
+  </script>
+</body>
+</html>
