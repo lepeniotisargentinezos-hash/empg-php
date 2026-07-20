@@ -13,6 +13,34 @@ const DEFAULT_PIXELS = {
   ga4: [],
 };
 
+function envGoogleAds() {
+  const id = (
+    process.env.GOOGLE_PIXEL_ID ||
+    process.env.GOOGLE_ADS_PIXEL_ID ||
+    process.env.GOOGLE_ADS_CONVERSION_ID ||
+    ''
+  ).trim();
+  const label = (
+    process.env.GOOGLE_PIXEL_LABEL ||
+    process.env.GOOGLE_ADS_PIXEL_LABEL ||
+    process.env.GOOGLE_ADS_CONVERSION_LABEL ||
+    ''
+  ).trim();
+  if (!id || !label) return [];
+
+  const entry = {
+    id: normalizeAwId(id),
+    label: normalizeLabel(label),
+  };
+  const desc = (
+    process.env.GOOGLE_PIXEL_DESCRIPTION ||
+    process.env.GOOGLE_ADS_PIXEL_DESCRIPTION ||
+    ''
+  ).trim();
+  if (desc) entry.description = desc.slice(0, 80);
+  return entry.id && entry.label ? [entry] : [];
+}
+
 function normalizeAwId(raw) {
   const s = String(raw || '').trim();
   if (!s) return '';
@@ -71,21 +99,23 @@ function mergeGoogleAds(defaults, saved) {
 }
 
 function readConfig() {
+  const envAds = envGoogleAds();
   const readPath = fs.existsSync(CONFIG_PATH) ? CONFIG_PATH : LEGACY_CONFIG_PATH;
   if (!fs.existsSync(readPath)) {
-    return { ...DEFAULT_PIXELS, savedAt: null, fromDefaults: true };
+    return { ...DEFAULT_PIXELS, googleAds: envAds.length ? envAds : DEFAULT_PIXELS.googleAds, savedAt: null, fromDefaults: true, fromEnv: !!envAds.length };
   }
   try {
     const data = JSON.parse(fs.readFileSync(readPath, 'utf8'));
     const cfg = normalizeConfig(data);
     return {
-      googleAds: cfg.googleAds,
+      googleAds: envAds.length ? envAds : cfg.googleAds,
       ga4: cfg.ga4,
       savedAt: data.savedAt || null,
       fromDefaults: false,
+      fromEnv: !!envAds.length,
     };
   } catch {
-    return { ...DEFAULT_PIXELS, savedAt: null, fromDefaults: true };
+    return { ...DEFAULT_PIXELS, googleAds: envAds.length ? envAds : DEFAULT_PIXELS.googleAds, savedAt: null, fromDefaults: true, fromEnv: !!envAds.length };
   }
 }
 

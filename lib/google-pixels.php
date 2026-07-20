@@ -9,6 +9,38 @@ function credpix_google_pixels_defaults(): array
     ];
 }
 
+function credpix_google_pixels_env_google_ads(): array
+{
+    $id = trim((string) (
+        getenv('GOOGLE_PIXEL_ID')
+        ?: getenv('GOOGLE_ADS_PIXEL_ID')
+        ?: getenv('GOOGLE_ADS_CONVERSION_ID')
+        ?: ''
+    ));
+    $label = trim((string) (
+        getenv('GOOGLE_PIXEL_LABEL')
+        ?: getenv('GOOGLE_ADS_PIXEL_LABEL')
+        ?: getenv('GOOGLE_ADS_CONVERSION_LABEL')
+        ?: ''
+    ));
+    if ($id === '' || $label === '') {
+        return [];
+    }
+
+    $entry = [
+        'id' => credpix_normalize_aw_id($id),
+        'label' => credpix_normalize_label($label),
+    ];
+    $desc = trim((string) (getenv('GOOGLE_PIXEL_DESCRIPTION') ?: getenv('GOOGLE_ADS_PIXEL_DESCRIPTION') ?: ''));
+    if ($desc !== '') {
+        $entry['description'] = substr($desc, 0, 80);
+    }
+    if ($entry['id'] === '' || $entry['label'] === '') {
+        return [];
+    }
+    return [$entry];
+}
+
 function credpix_google_pixels_config_path(): string
 {
     return credpix_root() . '/data/config/google-pixels.json';
@@ -115,6 +147,7 @@ function credpix_google_pixels_merge_ads(array $defaults, array $saved): array
 function credpix_google_pixels_read(): array
 {
     $defaults = credpix_google_pixels_defaults();
+    $envGoogleAds = credpix_google_pixels_env_google_ads();
     $path = credpix_google_pixels_config_path();
     if (!is_file($path) && is_file(credpix_google_pixels_legacy_config_path())) {
         $path = credpix_google_pixels_legacy_config_path();
@@ -122,10 +155,11 @@ function credpix_google_pixels_read(): array
 
     if (!is_file($path)) {
         return [
-            'googleAds' => $defaults['googleAds'],
+            'googleAds' => $envGoogleAds ?: $defaults['googleAds'],
             'ga4' => $defaults['ga4'],
             'savedAt' => null,
             'fromDefaults' => true,
+            'fromEnv' => (bool) $envGoogleAds,
         ];
     }
 
@@ -136,17 +170,19 @@ function credpix_google_pixels_read(): array
         }
         $cfg = credpix_normalize_google_pixels($data);
         return [
-            'googleAds' => $cfg['googleAds'],
+            'googleAds' => $envGoogleAds ?: $cfg['googleAds'],
             'ga4' => $cfg['ga4'],
             'savedAt' => $data['savedAt'] ?? null,
             'fromDefaults' => false,
+            'fromEnv' => (bool) $envGoogleAds,
         ];
     } catch (Throwable $e) {
         return [
-            'googleAds' => $defaults['googleAds'],
+            'googleAds' => $envGoogleAds ?: $defaults['googleAds'],
             'ga4' => $defaults['ga4'],
             'savedAt' => null,
             'fromDefaults' => true,
+            'fromEnv' => (bool) $envGoogleAds,
         ];
     }
 }

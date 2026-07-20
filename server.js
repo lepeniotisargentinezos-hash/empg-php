@@ -70,6 +70,11 @@ const SITE_CONFIG_GROUPS = [
     { key: 'UTMIFY_PLATFORM',        label: 'Plataforma',      type: 'text' },
     { key: 'UTMIFY_GOOGLE_PIXEL_ID', label: 'Google Pixel ID', type: 'text' },
   ]},
+  { id: 'google', label: 'Google Ads', icon: '🎯', vars: [
+    { key: 'GOOGLE_PIXEL_ID',          label: 'Pixel ID',   type: 'text' },
+    { key: 'GOOGLE_PIXEL_LABEL',       label: 'Rótulo',     type: 'text' },
+    { key: 'GOOGLE_PIXEL_DESCRIPTION', label: 'Descrição',  type: 'text' },
+  ]},
   { id: 'cpf', label: 'Consulta CPF', icon: '🪪', vars: [
     { key: 'CPF_BRASIL_API_KEY', label: 'Brasil API Key',      type: 'password' },
     { key: 'CPF_API_TOKEN',      label: 'Elaiflow Token',      type: 'password' },
@@ -876,6 +881,7 @@ async function handleGooglePixelsApi(req, res) {
       googleAds: config.googleAds,
       ga4: config.ga4,
       savedAt: config.savedAt,
+      fromEnv: config.fromEnv || false,
       sendTo: googlePixels.sendToList(config),
     });
   }

@@ -22,6 +22,7 @@ if ($method === 'GET') {
         'ga4' => $config['ga4'],
         'savedAt' => $config['savedAt'],
         'fromDefaults' => $config['fromDefaults'],
+        'fromEnv' => $config['fromEnv'] ?? false,
         'sendTo' => credpix_google_pixels_send_to_list($config),
     ]);
 }

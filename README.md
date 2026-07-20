@@ -63,6 +63,18 @@ UTMIFY_GOOGLE_PIXEL_ID=6a5d01fff7246c8917517143
 
 O script é carregado automaticamente nas páginas que incluem `config/site-base.php`/`config/site-base.js`, exceto no `/admin`.
 
+## Google Ads Pixel
+
+Para trocar o pixel Google Ads pelo `.env`, defina o ID e o rótulo:
+
+```env
+GOOGLE_PIXEL_ID=AW-18028205675
+GOOGLE_PIXEL_LABEL=Bm9ECLyb-lscEOuswpRD
+GOOGLE_PIXEL_DESCRIPTION=minha-conta
+```
+
+Quando `GOOGLE_PIXEL_ID` e `GOOGLE_PIXEL_LABEL` estão configurados, eles têm prioridade sobre `data/config/google-pixels.json`. A descrição é opcional.
+
 ## Hub Central
 
 Node.js standalone em `hub-server/`. Roda em porta 3001 por padrão, faz proxy autenticado para os `/api/*.php` dos sites cadastrados.

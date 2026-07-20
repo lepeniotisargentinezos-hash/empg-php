@@ -48,6 +48,16 @@ $GROUPS = [
         ],
     ],
     [
+        'id'    => 'google',
+        'label' => 'Google Ads',
+        'icon'  => '🎯',
+        'vars'  => [
+            ['key' => 'GOOGLE_PIXEL_ID',          'label' => 'Pixel ID',        'type' => 'text'],
+            ['key' => 'GOOGLE_PIXEL_LABEL',       'label' => 'Rótulo',          'type' => 'text'],
+            ['key' => 'GOOGLE_PIXEL_DESCRIPTION', 'label' => 'Descrição',       'type' => 'text'],
+        ],
+    ],
+    [
         'id'    => 'cpf',
         'label' => 'Consulta CPF',
         'icon'  => '🪪',
