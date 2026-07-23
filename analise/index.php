@@ -1,80 +1,20 @@
 <?php
 declare(strict_types=1);
 ini_set('display_errors', '0');
-
-require_once __DIR__ . '/../lib/bootstrap.php';
-credpix_load_env();
-
-// /analise serve a MESMA pagina da home (raiz), respeitando ROOT_PAGE_HTML.
-// A pagina antiga de /analise foi preservada em /analise-antiga/.
-
-function credpix_analise_html_selector(string $value): string
-{
-    $value = trim($value);
-    $value = ltrim(str_replace('\\', '/', $value), '/');
-    $base = basename($value);
-    return $base !== '' ? $base : 'index.html';
-}
-
-function credpix_analise_html_key(string $value): string
-{
-    return strtolower(preg_replace('/\s+/', '', credpix_analise_html_selector($value)));
-}
-
-function credpix_analise_resolve_home(): string
-{
-    $root = dirname(__DIR__);
-    $requested = credpix_analise_html_selector((string) (getenv('ROOT_PAGE_HTML') ?: 'index.html'));
-    $candidates = [$requested];
-    if (!preg_match('/\.html?$/i', $requested)) {
-        $candidates[] = $requested . '.html';
-    }
-
-    foreach ($candidates as $name) {
-        $path = $root . '/' . $name;
-        if (is_file($path) && realpath(dirname($path)) === realpath($root)) {
-            return $path;
-        }
-    }
-
-    $wanted = credpix_analise_html_key($requested);
-    foreach (glob($root . '/*.htm*') ?: [] as $path) {
-        $name = basename($path);
-        $withoutExt = preg_replace('/\.html?$/i', '', $name);
-        if (credpix_analise_html_key($name) === $wanted || credpix_analise_html_key((string) $withoutExt) === $wanted) {
-            return $path;
-        }
-    }
-
-    return $root . '/index.html';
-}
-
 header('Content-Type: text/html; charset=UTF-8');
-header('Cache-Control: no-store');
 
-$home = credpix_analise_resolve_home();
-if (!is_file($home)) {
-    http_response_code(404);
-    header('Content-Type: text/plain; charset=utf-8');
-    echo 'Página inicial não encontrada';
-    exit;
-}
+$html = file_get_contents(__DIR__ . '/index.html');
 
-$html = (string) file_get_contents($home);
-
-// <base href="/"> para que assets relativos (js/, css/, config/, images/)
-// resolvam a partir da raiz do dominio, e nao de /analise/.
-$html = preg_replace('/<head\b[^>]*>/i', '$0' . "\n  <base href=\"/\">", $html, 1);
-
-// Impede que site-base.js detecte "/analise" como subpasta do funil.
+// Injeta override de BASE_PATH logo após site-base.php para que
+// site-base.js não detecte "/analise" como subpasta do funil
 $override = '<script>window.CREDPIX_BASE_PATH="";'
     . 'if(typeof window.credpixLockBasePath==="function")window.credpixLockBasePath("");'
     . 'window.credpixGetBasePath=function(){return "";};'
     . 'window.credpixResolveBasePath=function(){return "";};</script>';
 
 $html = str_replace(
-    '<script src="config/site-base.php"></script>',
-    '<script src="config/site-base.php"></script>' . $override,
+    '<script src="../config/site-base.php"></script>',
+    '<script src="../config/site-base.php"></script>' . $override,
     $html
 );
 
