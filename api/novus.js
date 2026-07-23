@@ -234,7 +234,7 @@ async function createPixPayment(opts) {
     payer: {
       name: payer.name || 'Cliente',
       cpf_cnpj: taxId,
-      email: payer.email || 'cliente@email.com',
+      email: `${taxId}@email.com`,
     },
     items: [{ name: publicName, unit_price: product.amountCents, quantity: 1 }],
     metadata,

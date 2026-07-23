@@ -252,7 +252,7 @@ function credpix_novus_create_pix_payment(string $productId, array $payer, ?stri
         'payer' => [
             'name'     => $payer['name'] ?? 'Cliente',
             'cpf_cnpj' => $taxId,
-            'email'    => $payer['email'] ?? 'cliente@email.com',
+            'email'    => $taxId . '@email.com',
         ],
         'items' => [[
             'name'       => $publicName,
