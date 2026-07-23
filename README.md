@@ -42,17 +42,6 @@ Trocar no `.env` sem redeploy (aceita hot-reload). Endpoints de webhook:
 - MasterFy → `/pay/api/webhook.php`
 - Novus → `/pay/api/webhook-novus.php`
 
-## Rota /analise
-
-Por padrão, `/analise` espelha a home (a página resolvida por `ROOT_PAGE_HTML`),
-resolvendo os assets a partir da raiz do domínio. Para desligar o espelhamento
-em um domínio específico e voltar a servir a landing original (`analise/index.html`):
-
-- `ANALISE_MIRROR_HOME=1` (ou vazio) → `/analise` = home (padrão)
-- `ANALISE_MIRROR_HOME=0` → `/analise` = landing original de análise
-
-Configuração por domínio (cada deploy tem sua própria env), sem redeploy.
-
 ## Fluxo do funil
 
 ```
