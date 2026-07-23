@@ -17,6 +17,7 @@ const {
 } = require('./api/consultar-cpf');
 const masterfy = require('./api/masterfy');
 const anubis = require('./api/anubis');
+const novus = require('./api/novus');
 const googlePixels = require('./api/google-pixels');
 const analytics = require('./api/analytics');
 const utmify = require('./api/utmify');
@@ -55,11 +56,13 @@ loadEnvFile();
 
 const SITE_CONFIG_GROUPS = [
   { id: 'pagamento', label: 'Pagamento', icon: '💳', vars: [
-    { key: 'PAYMENT_GATEWAY',   label: 'Gateway ativo',        type: 'select', options: ['anubis', 'masterfy'] },
-    { key: 'MASTERFY_API_KEY',  label: 'MasterFy API Key',     type: 'password' },
-    { key: 'ANUBIS_PUBLIC_KEY', label: 'AnubisPay Public Key', type: 'text' },
-    { key: 'ANUBIS_SECRET_KEY', label: 'AnubisPay Secret Key', type: 'password' },
-    { key: 'WEBHOOK_SECRET',    label: 'Webhook Secret',       type: 'password' },
+    { key: 'PAYMENT_GATEWAY',       label: 'Gateway ativo',            type: 'select', options: ['anubis', 'masterfy', 'novus'] },
+    { key: 'MASTERFY_API_KEY',      label: 'MasterFy API Key',         type: 'password' },
+    { key: 'ANUBIS_PUBLIC_KEY',     label: 'AnubisPay Public Key',     type: 'text' },
+    { key: 'ANUBIS_SECRET_KEY',     label: 'AnubisPay Secret Key',     type: 'password' },
+    { key: 'NOVUS_API_KEY',         label: 'Novus API Key',            type: 'password' },
+    { key: 'NOVUS_WEBHOOK_SECRET',  label: 'Novus Webhook Secret',     type: 'password' },
+    { key: 'WEBHOOK_SECRET',        label: 'Webhook Secret',           type: 'password' },
   ]},
   { id: 'analytics', label: 'Analytics', icon: '📊', vars: [
     { key: 'ANALYTICS_SECRET',     label: 'Token admin (leitura)',  type: 'password' },
@@ -454,11 +457,15 @@ async function generatePixMock(productId, body, req) {
 }
 
 function activeGateway() {
-  return (process.env.PAYMENT_GATEWAY || 'masterfy').toLowerCase().trim();
+  const gw = (process.env.PAYMENT_GATEWAY || 'masterfy').toLowerCase().trim();
+  return ['anubis', 'masterfy', 'novus'].includes(gw) ? gw : 'masterfy';
 }
 
 function gatewayConfigured() {
-  return activeGateway() === 'anubis' ? anubis.isConfigured() : masterfy.isConfigured();
+  const gw = activeGateway();
+  if (gw === 'anubis') return anubis.isConfigured();
+  if (gw === 'novus') return novus.isConfigured();
+  return masterfy.isConfigured();
 }
 
 async function generatePixAnubis(req, body, sessionData) {
@@ -507,6 +514,82 @@ async function generatePixAnubis(req, body, sessionData) {
   const txData = utmify.txContext(payer, body, productId, created.amount_cents, {
     anubis_id: paymentId,
     gateway: 'anubis',
+    status: 'pending',
+    pix_code: created.qr_code,
+    amount_cents: created.amount_cents,
+    production: true,
+    client_ip: utmify.clientIp(req),
+    created: Math.floor(Date.now() / 1000),
+    device_hash: body.device_hash ? String(body.device_hash).slice(0, 64) : null,
+    base_path: body.base_path ? String(body.base_path).slice(0, 32) : null,
+    browser_session_id: body.analytics_session_id ? String(body.analytics_session_id).slice(0, 64) : null,
+    ...siteCtx,
+  });
+
+  savePixTransaction(paymentId, txData);
+  await utmify.notifyPixGenerated(paymentId, txData).catch((err) => console.error('[Utmify]', err.message));
+  savePixTransaction(paymentId, txData);
+
+  return {
+    success: true,
+    production: true,
+    pix: {
+      transaction_id: paymentId,
+      qr_code: created.qr_code,
+      qr_code_url: pixQrUrl(created.qr_code),
+    },
+  };
+}
+
+async function generatePixNovus(req, body, sessionData) {
+  const productId = body.product_id;
+  const loanAmount = toNumber(body.loan_amount);
+  const effectiveSession = (body.wizard_session && typeof body.wizard_session === 'object')
+    ? Object.assign({}, sessionData, body.wizard_session)
+    : sessionData;
+  const wizardMeta = buildLoanMetadata(effectiveSession, loanAmount);
+  const siteCtx = requestContext.siteContext(req);
+
+  const PLACEHOLDER_PHONE = '11999999999';
+  const resolvePhone = () => {
+    const candidates = [
+      effectiveSession && effectiveSession.telefone,
+      sessionData && sessionData.telefone,
+      body.telefone,
+      body.phone,
+    ];
+    for (const c of candidates) {
+      const d = String(c || '').replace(/\D/g, '');
+      if (d.length >= 10 && d !== PLACEHOLDER_PHONE) return d;
+    }
+    return PLACEHOLDER_PHONE;
+  };
+
+  const created = await novus.createPixPayment({
+    req,
+    productId,
+    deviceHash: body.device_hash,
+    utms: body.utms,
+    site: siteCtx,
+    payer: {
+      name: body.name,
+      document: body.document,
+      email: body.email,
+      phone: resolvePhone(),
+    },
+    wizardMeta,
+  });
+
+  const paymentId = created.payment_id;
+  const payer = {
+    name: body.name || 'Cliente',
+    document: body.document,
+    email: body.email || 'cliente@email.com',
+    phone: body.phone || '11999999999',
+  };
+  const txData = utmify.txContext(payer, body, productId, created.amount_cents, {
+    novus_id: paymentId,
+    gateway: 'novus',
     status: 'pending',
     pix_code: created.qr_code,
     amount_cents: created.amount_cents,
@@ -659,6 +742,33 @@ async function checkPixStatus(transactionId) {
       return { success: true, status };
     } catch (err) {
       console.error('[Anubis status]', err.message);
+      return { success: true, status: tx.status || 'pending' };
+    }
+  }
+
+  if (tx.novus_id && novus.isConfigured() && !tx.mock) {
+    const NOVUS_POLL_INTERVAL_MS = 5000;
+    const lastCheck = tx._novus_last_check || 0;
+    if (Date.now() - lastCheck < NOVUS_POLL_INTERVAL_MS) {
+      return { success: true, status: tx.status || 'pending' };
+    }
+    tx._novus_last_check = Date.now();
+    savePixTransaction(transactionId, tx);
+    try {
+      const payment = await novus.getPayment(tx.novus_id);
+      const data = payment.data || payment;
+      const rawStatus = data.status || 'pending';
+      const status = novus.mapStatus(rawStatus);
+      tx.status = status;
+      if (status === 'paid') {
+        const paidAt = novus.parsePaidAt(data.paid_at) || Math.floor(Date.now() / 1000);
+        await utmify.notifyPixPaid(transactionId, tx, paidAt).catch((e) => console.error('[Utmify]', e.message));
+        logCheckoutPaid(transactionId, tx);
+      }
+      savePixTransaction(transactionId, tx);
+      return { success: true, status };
+    } catch (err) {
+      console.error('[Novus status]', err.message);
       return { success: true, status: tx.status || 'pending' };
     }
   }
@@ -1079,6 +1189,106 @@ async function handleAnubisWebhook(req, res) {
   return json(res, 200, { received: true, gateway: 'anubis' });
 }
 
+async function handleNovusWebhook(req, res) {
+  if (req.method === 'GET') return json(res, 200, { ok: true, gateway: 'novus' });
+
+  const raw = await readBody(req);
+  const signature =
+    req.headers['x-webhook-signature'] ||
+    req.headers['X-Webhook-Signature'] ||
+    req.headers['x-signature'] ||
+    req.headers['X-Signature'] ||
+    '';
+  const signatureValid = novus.verifyWebhookSignature(raw, String(signature || ''));
+  const body = parseJsonBody(raw);
+  const eventBody = (body && typeof body.data === 'object' && body.data) ? body.data : body;
+
+  if (!signatureValid && process.env.NODE_ENV === 'production') {
+    analytics.appendWebhookLog({
+      payment_id: String(eventBody.invoice_id || eventBody.id || body.invoice_id || body.id || '') || null,
+      status: 'invalid_signature',
+      signature_valid: false,
+      ok: false,
+      gateway: 'novus',
+    });
+    return json(res, 401, { error: 'Assinatura invalida' });
+  }
+
+  const parsed = novus.parseWebhookPayload(body);
+  const paymentId = parsed.payment_id;
+  const status = parsed.status;
+  const amountCents = Number(
+    eventBody.total_cents ?? eventBody.total_price_cents ?? eventBody.amount ?? eventBody.total ?? 0
+  ) || 0;
+
+  if (!paymentId) {
+    analytics.appendWebhookLog({
+      payment_id: null,
+      status: 'invalid_payload',
+      signature_valid: signatureValid,
+      ok: false,
+      gateway: 'novus',
+      reason: 'missing_payment_id',
+    });
+    return json(res, 400, { error: 'Id de transação ausente' });
+  }
+
+  let txId = paymentId;
+  let txData = pixTransactions.get(paymentId) || null;
+  for (const [id, tx] of pixTransactions.entries()) {
+    if (tx.novus_id === paymentId) {
+      txId = id;
+      txData = tx;
+      break;
+    }
+  }
+
+  if (!txData) {
+    analytics.appendWebhookLog({
+      payment_id: paymentId,
+      status: 'ignored_unknown_transaction',
+      signature_valid: signatureValid,
+      ok: true,
+      gateway: 'novus',
+    });
+    return json(res, 200, { received: true, gateway: 'novus', ignored: true });
+  }
+
+  const remoteMeta = novus.extractSiteMetadata(body);
+  if (remoteMeta && typeof remoteMeta === 'object') {
+    const localSiteId = String(txData.site_id || '').toLowerCase();
+    const remoteSiteId = String(remoteMeta.site_id || '').toLowerCase();
+    const localHost = String(txData.site_host || '').toLowerCase();
+    const remoteHost = String(remoteMeta.site_host || '').toLowerCase();
+    if ((localSiteId && remoteSiteId && localSiteId !== remoteSiteId) || (localHost && remoteHost && localHost !== remoteHost)) {
+      analytics.appendWebhookLog({
+        payment_id: paymentId,
+        status: 'ignored_site_mismatch',
+        signature_valid: signatureValid,
+        ok: true,
+        gateway: 'novus',
+      });
+      return json(res, 200, { received: true, gateway: 'novus', ignored: true });
+    }
+  }
+
+  txData.status = status;
+  txData.novus_id = txData.novus_id || paymentId;
+  txData.gateway = 'novus';
+  if (amountCents > 0 && !txData.amount_cents) txData.amount_cents = amountCents;
+  savePixTransaction(txId, txData);
+
+  if (status === 'paid') {
+    const paidAt = novus.parsePaidAt(eventBody.paid_at || body.paid_at) || Math.floor(Date.now() / 1000);
+    await utmify.notifyPixPaid(txId, txData, paidAt).catch((e) => console.error('[Utmify]', e.message));
+    savePixTransaction(txId, txData);
+  }
+
+  analytics.logPaymentFromWebhook(paymentId, status, txData, signatureValid);
+
+  return json(res, 200, { received: true, gateway: 'novus' });
+}
+
 async function handlePixApi(req, res, url) {
   if (PROXY_API && !masterfy.isConfigured()) {
     return proxyToRemote(req, res, url.pathname + url.search);
@@ -1139,7 +1349,8 @@ async function handlePixApi(req, res, url) {
     const useMock = process.env.PAYMENT_MOCK === '1';
 
     if (!useMock && !gatewayConfigured()) {
-      const gwName = activeGateway() === 'anubis' ? 'Anubis' : 'MasterFy';
+      const gw = activeGateway();
+      const gwName = gw === 'anubis' ? 'Anubis' : gw === 'novus' ? 'Novus' : 'MasterFy';
       return json(res, 200, {
         success: false,
         error: `${gwName} não configurado. Adicione as chaves no arquivo .env e reinicie o servidor.`,
@@ -1185,7 +1396,9 @@ async function handlePixApi(req, res, url) {
         ? await generatePixMock(productId, payBody, req)
         : activeGateway() === 'anubis'
           ? await generatePixAnubis(req, payBody, session.data)
-          : await generatePixMasterfy(req, payBody, session.data);
+          : activeGateway() === 'novus'
+            ? await generatePixNovus(req, payBody, session.data)
+            : await generatePixMasterfy(req, payBody, session.data);
       const utms = body.utms && typeof body.utms === 'object' ? body.utms : (session.data && session.data.utms) || {};
       const geo  = analytics.clientGeoFromRequest(req);
       const sd   = session.data || {};
@@ -1454,6 +1667,10 @@ const server = http.createServer(async (req, res) => {
     return handleAnubisWebhook(req, res);
   }
 
+  if (pathname === '/pay/api/webhook-novus.php') {
+    return handleNovusWebhook(req, res);
+  }
+
   if (pathname === '/pay/api/pix.php') {
     return handlePixApi(req, res, url);
   }
@@ -1526,17 +1743,23 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`CredPix funil na porta ${PORT}`);
+  console.log(`CredPix funil na porta http://localhost:${PORT}`);
   console.log('  Domínio e subpasta: detectados automaticamente em cada acesso');
   console.log('  (Host, X-Forwarded-Host, X-Forwarded-Proto)');
-  const mfOk = masterfy.isConfigured();
+  const gwLabel = { anubis: 'AnubisPay', novus: 'Novus', masterfy: 'MasterFy' }[activeGateway()] || 'MasterFy';
+  const gwOk = gatewayConfigured();
   const payMode =
-    process.env.PAYMENT_MOCK === '1' || !mfOk
+    process.env.PAYMENT_MOCK === '1' || !gwOk
       ? 'MOCK (demo paga em ~15s)'
-      : 'MasterFy PIX real';
+      : `${gwLabel} PIX real`;
   console.log(`  Pagamentos: ${payMode}`);
-  if (mfOk) {
-    console.log('  Webhook PIX: <seu-dominio>/pay/api/webhook.php (na hora do PIX)');
+  if (gwOk) {
+    const wh = activeGateway() === 'anubis'
+      ? '/pay/api/webhook-anubis.php'
+      : activeGateway() === 'novus'
+        ? '/pay/api/webhook-novus.php'
+        : '/pay/api/webhook.php';
+    console.log(`  Webhook PIX: <seu-dominio>${wh}`);
   }
   const cpfMode = isElaiflowConfigured()
     ? 'Elaiflow (token configurado)'

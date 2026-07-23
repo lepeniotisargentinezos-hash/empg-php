@@ -4,6 +4,7 @@ declare(strict_types=1);
 try {
     require_once dirname(__DIR__, 2) . '/lib/masterfy.php';
     require_once dirname(__DIR__, 2) . '/lib/anubis.php';
+    require_once dirname(__DIR__, 2) . '/lib/novus.php';
     require_once dirname(__DIR__, 2) . '/lib/gateway.php';
     require_once dirname(__DIR__, 2) . '/lib/lead-profile.php';
     require_once dirname(__DIR__, 2) . '/lib/wizard-api.php';
@@ -266,6 +267,7 @@ if ($action === 'generate') {
             'gateway'     => $activeGateway,
             'masterfy_id' => $activeGateway === 'masterfy' ? $paymentId : null,
             'anubis_id'   => $activeGateway === 'anubis'   ? $paymentId : null,
+            'novus_id'    => $activeGateway === 'novus'    ? $paymentId : null,
             'status' => 'pending',
             'pix_code' => $created['qr_code'],
             'production' => true,
@@ -361,7 +363,7 @@ if ($action === 'status') {
             $tx['status'] = $status;
             if ($status === 'paid') {
                 $paidAt = credpix_utmify_parse_paid_at(
-                    $payment['paidAt'] ?? $payment['PaidAt'] ?? $payment['data']['paidAt'] ?? null
+                    $payment['paidAt'] ?? $payment['PaidAt'] ?? $payment['paid_at'] ?? $payment['data']['paidAt'] ?? $payment['data']['paid_at'] ?? null
                 );
                 credpix_utmify_on_status_paid($txId, $tx, $paidAt);
                 credpix_analytics_log_checkout_paid($txId, $tx);

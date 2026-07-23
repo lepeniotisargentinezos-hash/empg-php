@@ -33,9 +33,14 @@ empg/
 ## Gateway de pagamento
 
 - **AnubisPay** (padrão) — via `PAYMENT_GATEWAY=anubis`
-- **MasterFy** — fallback via `PAYMENT_GATEWAY=masterfy`
+- **MasterFy** — via `PAYMENT_GATEWAY=masterfy`
+- **Novus Pagamentos** — via `PAYMENT_GATEWAY=novus`
 
-Trocar no `.env` sem redeploy (aceita hot-reload).
+Trocar no `.env` sem redeploy (aceita hot-reload). Endpoints de webhook:
+
+- Anubis → `/pay/api/webhook-anubis.php`
+- MasterFy → `/pay/api/webhook.php`
+- Novus → `/pay/api/webhook-novus.php`
 
 ## Fluxo do funil
 
@@ -114,10 +119,12 @@ Sem volume, dados de runtime (transações, analytics, presence) são perdidos a
 
 ```
 # Pagamento
-PAYMENT_GATEWAY=anubis
+PAYMENT_GATEWAY=anubis          # anubis | masterfy | novus
 ANUBIS_PUBLIC_KEY=<...>
 ANUBIS_SECRET_KEY=<...>
-MASTERFY_API_KEY=<...>          # opcional (fallback)
+MASTERFY_API_KEY=<...>          # opcional
+NOVUS_API_KEY=<...>             # opcional — chave privada do painel Novus
+NOVUS_WEBHOOK_SECRET=<...>      # opcional — whsec_... para webhook global (se não usar, valida com NOVUS_API_KEY)
 WEBHOOK_SECRET=<...>
 
 # Analytics
@@ -175,6 +182,12 @@ curl -X POST "https://SITE/pay/api/webhook-anubis.php" \
   -H "Content-Type: application/json" \
   -d '{"Id":"<txid>","Status":"PAID","Amount":39.86,"PaidAt":"2026-07-14T12:00:00Z"}'
 
+# Simular webhook Novus (assinatura HMAC-SHA256 do body com NOVUS_API_KEY ou NOVUS_WEBHOOK_SECRET)
+curl -X POST "https://SITE/pay/api/webhook-novus.php" \
+  -H "Content-Type: application/json" \
+  -H "X-Webhook-Signature: <hmac-sha256-hex>" \
+  -d '{"invoice_id":"<invoice_id>","status":"paid","total_cents":3986,"event":"invoice.paid","paid_at":"2026-07-14T12:00:00Z"}'
+
 # Health check completo
 curl "https://SITE/api/health.php"
 curl -H "X-Analytics-Token: <token>" "https://SITE/api/anubis-health.php"
@@ -184,5 +197,5 @@ curl -H "X-Analytics-Token: <token>" "https://SITE/api/anubis-health.php"
 
 - **PHP 8.2** + Apache (mod_rewrite, mod_headers, mod_setenvif)
 - **Node.js 18+** (hub-server)
-- **AnubisPay API v1** / **MasterFy API v1**
+- **AnubisPay API v1** / **MasterFy API v1** / **Novus Pagamentos API v2**
 - Docker (image `php:8.2-apache`)

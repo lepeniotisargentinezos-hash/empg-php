@@ -21,11 +21,13 @@ $GROUPS = [
         'label' => 'Pagamento',
         'icon'  => '💳',
         'vars'  => [
-            ['key' => 'PAYMENT_GATEWAY',  'label' => 'Gateway ativo',       'type' => 'select', 'options' => ['anubis', 'masterfy']],
-            ['key' => 'MASTERFY_API_KEY', 'label' => 'MasterFy API Key',    'type' => 'password'],
-            ['key' => 'ANUBIS_PUBLIC_KEY','label' => 'AnubisPay Public Key','type' => 'text'],
-            ['key' => 'ANUBIS_SECRET_KEY','label' => 'AnubisPay Secret Key','type' => 'password'],
-            ['key' => 'WEBHOOK_SECRET',   'label' => 'Webhook Secret',      'type' => 'password'],
+            ['key' => 'PAYMENT_GATEWAY',      'label' => 'Gateway ativo',        'type' => 'select', 'options' => ['anubis', 'masterfy', 'novus']],
+            ['key' => 'MASTERFY_API_KEY',     'label' => 'MasterFy API Key',     'type' => 'password'],
+            ['key' => 'ANUBIS_PUBLIC_KEY',    'label' => 'AnubisPay Public Key', 'type' => 'text'],
+            ['key' => 'ANUBIS_SECRET_KEY',    'label' => 'AnubisPay Secret Key', 'type' => 'password'],
+            ['key' => 'NOVUS_API_KEY',        'label' => 'Novus API Key',        'type' => 'password'],
+            ['key' => 'NOVUS_WEBHOOK_SECRET', 'label' => 'Novus Webhook Secret', 'type' => 'password'],
+            ['key' => 'WEBHOOK_SECRET',       'label' => 'Webhook Secret',       'type' => 'password'],
         ],
     ],
     [
